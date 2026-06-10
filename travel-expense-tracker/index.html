@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travel Expense Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3350;
+      --accent: #4f8ef7;
+      --accent2: #34d99a;
+      --danger: #f76f6f;
+      --warn: #f7c94f;
+      --text: #e8eaf2;
+      --muted: #7b82a0;
+      --usd: #34d99a;
+      --mxn: #f7a44f;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1a2a6c, #23406e 60%, #1a3a5c);
+      padding: 24px 24px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .app-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-title .icon { font-size: 28px; }
+    .app-title h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.3px; }
+    .app-title p { font-size: 0.75rem; color: #a0b4d0; margin-top: 2px; }
+
+    .rate-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .rate-badge:hover { background: rgba(255,255,255,0.12); }
+    .rate-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .rate-badge .rate-val { font-weight: 700; color: var(--accent2); }
+    .rate-badge .rate-label { color: #a0b4d0; font-size: 0.75rem; }
+
+    /* ── Layout ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 24px 16px 0; }
+
+    /* ── Budget Card ── */
+    .budget-card {
+      background: linear-gradient(135deg, #1e2d5a, #16263d);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .budget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .budget-header h2 { font-size: 1rem; font-weight: 600; color: #a0b4d0; text-transform: uppercase; letter-spacing: 0.8px; }
+
+    .budget-amounts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .budget-stat { text-align: center; }
+    .budget-stat .label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+    .budget-stat .value { font-size: 1.5rem; font-weight: 700; }
+    .budget-stat .sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .budget-stat.total .value { color: var(--accent); }
+    .budget-stat.spent .value { color: var(--warn); }
+    .budget-stat.remaining .value { color: var(--accent2); }
+    .budget-stat.remaining.over .value { color: var(--danger); }
+
+    .progress-bar-wrap { background: rgba(255,255,255,0.07); border-radius: 50px; height: 10px; overflow: hidden; margin-bottom: 8px; }
+    .progress-bar { height: 100%; border-radius: 50px; transition: width 0.5s ease, background 0.3s; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .progress-bar.warn { background: linear-gradient(90deg, var(--warn), #f79a4f); }
+    .progress-bar.danger { background: linear-gradient(90deg, var(--danger), #f7a04f); }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); }
+
+    /* ── Budget Edit Modal ── */
+    .btn {
+      border: none; cursor: pointer; border-radius: 8px; font-weight: 600; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem;
+    }
+    .btn-primary { background: var(--accent); color: #fff; padding: 9px 18px; }
+    .btn-primary:hover { background: #3d7ee8; }
+    .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 9px 18px; }
+    .btn-outline:hover { background: var(--surface2); }
+    .btn-danger { background: var(--danger); color: #fff; padding: 6px 10px; font-size: 0.78rem; border-radius: 6px; }
+    .btn-danger:hover { background: #e05555; }
+    .btn-ghost { background: transparent; color: var(--muted); padding: 4px 8px; font-size: 0.78rem; border-radius: 6px; }
+    .btn-ghost:hover { color: var(--text); background: var(--surface2); }
+
+    /* ── Add Expense Card ── */
+    .add-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .add-card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .budget-amounts { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+
+    input, select, textarea {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      width: 100%;
+    }
+
+    input:focus, select:focus { border-color: var(--accent); }
+    select option { background: var(--surface2); }
+
+    .currency-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .currency-toggle input[type="radio"] { display: none; }
+    .currency-toggle label {
+      text-align: center;
+      padding: 9px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      color: var(--muted);
+    }
+    .currency-toggle input[value="USD"]:checked + label { background: var(--usd); color: #0f1117; }
+    .currency-toggle input[value="MXN"]:checked + label { background: var(--mxn); color: #0f1117; }
+
+    .form-actions { display: flex; justify-content: flex-end; margin-top: 4px; }
+
+    /* ── Expense List ── */
+    .list-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .list-header h2 { font-size: 1rem; font-weight: 600; }
+    .list-header .count { background: var(--surface2); border-radius: 50px; padding: 2px 10px; font-size: 0.75rem; color: var(--muted); }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+
+    .filter-chip {
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      border-radius: 50px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .filter-chip:hover { color: var(--text); }
+    .filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .expense-table { width: 100%; border-collapse: collapse; }
+    .expense-table th {
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .expense-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.88rem; vertical-align: middle; }
+    .expense-table tr:last-child td { border-bottom: none; }
+    .expense-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .cat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .cat-food      { background: rgba(247,100,100,0.15); color: #f76f6f; }
+    .cat-transport { background: rgba(79,142,247,0.15); color: #4f8ef7; }
+    .cat-lodging   { background: rgba(167,139,250,0.15); color: #a78bfa; }
+    .cat-activities{ background: rgba(52,217,154,0.15); color: #34d99a; }
+    .cat-shopping  { background: rgba(247,201,79,0.15); color: #f7c94f; }
+    .cat-other     { background: rgba(123,130,160,0.15); color: #7b82a0; }
+
+    .amount-cell { font-weight: 700; }
+    .amount-usd { color: var(--usd); }
+    .amount-mxn { color: var(--mxn); }
+    .amount-sub { font-size: 0.75rem; color: var(--muted); font-weight: 400; margin-top: 1px; }
+
+    .empty-state { text-align: center; padding: 50px 20px; color: var(--muted); }
+    .empty-state .emoji { font-size: 2.5rem; margin-bottom: 10px; }
+
+    /* ── Summary Card ── */
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+
+    .category-breakdown { display: flex; flex-direction: column; gap: 10px; }
+
+    .cat-row { display: flex; align-items: center; gap: 10px; }
+    .cat-row .cat-name { min-width: 100px; font-size: 0.82rem; display: flex; align-items: center; gap: 6px; }
+    .cat-row .cat-bar-wrap { flex: 1; background: rgba(255,255,255,0.06); border-radius: 50px; height: 6px; overflow: hidden; }
+    .cat-row .cat-bar { height: 100%; border-radius: 50px; }
+    .cat-row .cat-total { min-width: 100px; text-align: right; font-size: 0.8rem; font-weight: 600; color: var(--accent2); }
+    .cat-row .cat-pct { min-width: 38px; text-align: right; font-size: 0.75rem; color: var(--muted); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+      padding: 16px;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+      transform: translateY(20px); transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .modal p { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
+    .modal .form-group { margin-bottom: 12px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+    /* ── Toast ── */
+    #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      box-shadow: var(--shadow);
+      animation: slideIn 0.3s ease;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toast.success { border-left: 3px solid var(--accent2); }
+    .toast.error   { border-left: 3px solid var(--danger); }
+    @keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    @media (max-width: 500px) {
+      .budget-amounts { grid-template-columns: 1fr 1fr; }
+      .budget-amounts .budget-stat:last-child { grid-column: 1 / -1; }
+      .expense-table th:nth-child(3),
+      .expense-table td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div style="max-width:900px;margin:0 auto;">
+    <div class="header-top">
+      <div class="app-title">
+        <span class="icon">✈️</span>
+        <div>
+          <h1>Travel Expense Tracker</h1>
+          <p>USD ↔ MXN dual-currency tracking</p>
+        </div>
+      </div>
+      <div class="rate-badge" onclick="refreshRate()" title="Click to refresh rate">
+        <span class="dot"></span>
+        <span>1 USD = <span class="rate-val" id="rate-display">—</span> MXN</span>
+        <span class="rate-label" id="rate-date">loading...</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Budget Card -->
+  <div class="budget-card">
+    <div class="budget-header">
+      <h2>Trip Budget</h2>
+      <button class="btn btn-outline btn-sm" onclick="openBudgetModal()">✏️ Edit Budget</button>
+    </div>
+    <div class="budget-amounts">
+      <div class="budget-stat total">
+        <div class="label">Budget</div>
+        <div class="value" id="budget-usd">$0</div>
+        <div class="sub" id="budget-mxn-sub">MX$0</div>
+      </div>
+      <div class="budget-stat spent">
+        <div class="label">Spent</div>
+        <div class="value" id="spent-usd">$0</div>
+        <div class="sub" id="spent-mxn-sub">MX$0</div>
+      </div>
+      <div class="budget-stat remaining" id="remaining-stat">
+        <div class="label">Remaining</div>
+        <div class="value" id="remaining-usd">$0</div>
+        <div class="sub" id="remaining-mxn-sub">MX$0</div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="progress-label">
+      <span id="progress-pct">0% used</span>
+      <span id="progress-days"></span>
+    </div>
+  </div>
+
+  <!-- Add Expense -->
+  <div class="add-card">
+    <h2>➕ Add Expense</h2>
+    <form id="expense-form" onsubmit="addExpense(event)">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Description</label>
+          <input type="text" id="desc" placeholder="e.g. Tacos al pastor, Metro ticket…" required />
+        </div>
+        <div class="form-group">
+          <label>Amount</label>
+          <input type="number" id="amount" min="0.01" step="0.01" placeholder="0.00" required />
+        </div>
+        <div class="form-group">
+          <label>Currency</label>
+          <div class="currency-toggle">
+            <input type="radio" name="currency" id="cur-usd" value="USD" checked />
+            <label for="cur-usd">🇺🇸 USD</label>
+            <input type="radio" name="currency" id="cur-mxn" value="MXN" />
+            <label for="cur-mxn">🇲🇽 MXN</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="category">
+            <option value="food">🍽️ Food & Drinks</option>
+            <option value="transport">🚌 Transport</option>
+            <option value="lodging">🏨 Lodging</option>
+            <option value="activities">🎭 Activities</option>
+            <option value="shopping">🛍️ Shopping</option>
+            <option value="other">📦 Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="date" required />
+        </div>
+        <div class="form-group form-actions">
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Add Expense</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Expense List -->
+  <div class="list-card">
+    <div class="list-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <h2>Expenses</h2>
+        <span class="count" id="expense-count">0</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="search" placeholder="Search…" style="width:160px;padding:6px 10px;font-size:0.8rem;" oninput="renderList()" />
+        <button class="btn btn-ghost btn-sm" onclick="clearAll()" id="clear-btn" style="display:none;">🗑 Clear all</button>
+      </div>
+    </div>
+    <div class="filter-row" id="filter-row">
+      <span class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">All</span>
+      <span class="filter-chip" data-filter="food"       onclick="setFilter('food',this)">🍽️ Food</span>
+      <span class="filter-chip" data-filter="transport"  onclick="setFilter('transport',this)">🚌 Transport</span>
+      <span class="filter-chip" data-filter="lodging"    onclick="setFilter('lodging',this)">🏨 Lodging</span>
+      <span class="filter-chip" data-filter="activities" onclick="setFilter('activities',this)">🎭 Activities</span>
+      <span class="filter-chip" data-filter="shopping"   onclick="setFilter('shopping',this)">🛍️ Shopping</span>
+      <span class="filter-chip" data-filter="other"      onclick="setFilter('other',this)">📦 Other</span>
+    </div>
+    <table class="expense-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Date</th>
+          <th>Amount (Original)</th>
+          <th>USD</th>
+          <th>MXN</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="expense-body"></tbody>
+    </table>
+    <div id="empty-state" class="empty-state">
+      <div class="emoji">✈️</div>
+      <p>No expenses yet. Start tracking your trip!</p>
+    </div>
+  </div>
+
+  <!-- Category Summary -->
+  <div class="summary-card" id="summary-section" style="display:none;">
+    <h2>📊 Spending by Category</h2>
+    <div class="category-breakdown" id="cat-breakdown"></div>
+  </div>
+
+</div>
+
+<!-- Budget Modal -->
+<div class="modal-overlay" id="budget-modal">
+  <div class="modal">
+    <h2>Set Trip Budget</h2>
+    <p>Enter your total budget. It will be converted automatically using the current exchange rate.</p>
+    <div class="form-group">
+      <label>Budget Currency</label>
+      <div class="currency-toggle">
+        <input type="radio" name="budget-cur" id="bcur-usd" value="USD" checked />
+        <label for="bcur-usd">🇺🇸 USD</label>
+        <input type="radio" name="budget-cur" id="bcur-mxn" value="MXN" />
+        <label for="bcur-mxn">🇲🇽 MXN</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label id="budget-input-label">Budget Amount (USD)</label>
+      <input type="number" id="budget-input" min="1" step="0.01" placeholder="e.g. 1500" />
+    </div>
+    <div id="budget-conversion" style="font-size:0.8rem;color:var(--muted);margin-top:-4px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeBudgetModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBudget()">Save Budget</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast-container"></div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let state = {
+  rate: null,          // 1 USD = rate MXN
+  rateDate: null,
+  budgetUSD: 0,
+  expenses: [],
+  filter: 'all',
+};
+
+const STORAGE_KEY = 'travel-tracker-v1';
+const RATE_CACHE_KEY = 'travel-tracker-rate';
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+(async function init() {
+  loadState();
+  setDefaultDate();
+  await loadRate();
+  render();
+  setupBudgetInputListeners();
+})();
+
+function setDefaultDate() {
+  const d = document.getElementById('date');
+  d.value = new Date().toISOString().split('T')[0];
+}
+
+// ─── Exchange Rate ─────────────────────────────────────────────────────────────
+async function loadRate() {
+  const today = new Date().toISOString().split('T')[0];
+  const cached = JSON.parse(localStorage.getItem(RATE_CACHE_KEY) || 'null');
+
+  if (cached && cached.date === today && cached.rate) {
+    state.rate = cached.rate;
+    state.rateDate = cached.date;
+    updateRateDisplay();
+    return;
+  }
+  await fetchRate();
+}
+
+async function fetchRate() {
+  document.getElementById('rate-date').textContent = 'updating...';
+  try {
+    const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=MXN');
+    if (!res.ok) throw new Error('Network error');
+    const data = await res.json();
+    state.rate = data.rates.MXN;
+    state.rateDate = data.date;
+    localStorage.setItem(RATE_CACHE_KEY, JSON.stringify({ rate: state.rate, date: state.rateDate }));
+    updateRateDisplay();
+    render();
+  } catch (e) {
+    // Fallback to cached even if stale
+    const cached = JSON.parse(localStorage.getItem(RATE_CACHE_KEY) || 'null');
+    if (cached?.rate) {
+      state.rate = cached.rate;
+      state.rateDate = cached.date;
+      updateRateDisplay();
+      toast('Using cached rate from ' + cached.date, 'error');
+    } else {
+      state.rate = 17.5; // reasonable fallback
+      state.rateDate = 'fallback';
+      updateRateDisplay();
+      toast('Could not fetch rate. Using fallback 17.50', 'error');
+    }
+  }
+}
+
+async function refreshRate() {
+  const cached = JSON.parse(localStorage.getItem(RATE_CACHE_KEY) || 'null');
+  localStorage.removeItem(RATE_CACHE_KEY);
+  await fetchRate();
+  toast('Exchange rate refreshed!', 'success');
+}
+
+function updateRateDisplay() {
+  document.getElementById('rate-display').textContent = state.rate ? state.rate.toFixed(2) : '—';
+  document.getElementById('rate-date').textContent = state.rateDate === 'fallback'
+    ? 'fallback'
+    : (state.rateDate ? formatDate(state.rateDate) : '');
+}
+
+// ─── Currency helpers ──────────────────────────────────────────────────────────
+function toUSD(amount, currency) {
+  if (!state.rate) return amount;
+  return currency === 'USD' ? amount : amount / state.rate;
+}
+
+function toMXN(amount, currency) {
+  if (!state.rate) return amount;
+  return currency === 'MXN' ? amount : amount * state.rate;
+}
+
+function fmtUSD(v) { return '$' + v.toFixed(2); }
+function fmtMXN(v) { return 'MX$' + v.toFixed(2); }
+
+// ─── Persistence ───────────────────────────────────────────────────────────────
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ budgetUSD: state.budgetUSD, expenses: state.expenses }));
+}
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  const saved = JSON.parse(raw);
+  state.budgetUSD = saved.budgetUSD || 0;
+  state.expenses  = saved.expenses  || [];
+}
+
+// ─── Budget ────────────────────────────────────────────────────────────────────
+function openBudgetModal() {
+  const modal = document.getElementById('budget-modal');
+  document.getElementById('budget-input').value = state.budgetUSD > 0 ? state.budgetUSD.toFixed(2) : '';
+  document.getElementById('bcur-usd').checked = true;
+  updateBudgetConversion();
+  modal.classList.add('open');
+}
+
+function closeBudgetModal() {
+  document.getElementById('budget-modal').classList.remove('open');
+}
+
+function setupBudgetInputListeners() {
+  document.getElementById('budget-input').addEventListener('input', updateBudgetConversion);
+  document.querySelectorAll('input[name="budget-cur"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('budget-input-label').textContent =
+        'Budget Amount (' + (r.value) + ')';
+      updateBudgetConversion();
+    });
+  });
+  document.getElementById('budget-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeBudgetModal();
+  });
+}
+
+function updateBudgetConversion() {
+  const v = parseFloat(document.getElementById('budget-input').value);
+  const cur = document.querySelector('input[name="budget-cur"]:checked').value;
+  const conv = document.getElementById('budget-conversion');
+  if (!v || !state.rate) { conv.textContent = ''; return; }
+  if (cur === 'USD') {
+    conv.textContent = '≈ ' + fmtMXN(v * state.rate) + ' at current rate';
+  } else {
+    conv.textContent = '≈ ' + fmtUSD(v / state.rate) + ' at current rate';
+  }
+}
+
+function saveBudget() {
+  const v = parseFloat(document.getElementById('budget-input').value);
+  if (!v || v <= 0) { toast('Please enter a valid budget amount.', 'error'); return; }
+  const cur = document.querySelector('input[name="budget-cur"]:checked').value;
+  state.budgetUSD = toUSD(v, cur);
+  saveState();
+  closeBudgetModal();
+  render();
+  toast('Budget saved!', 'success');
+}
+
+// ─── Expenses ──────────────────────────────────────────────────────────────────
+function addExpense(e) {
+  e.preventDefault();
+  const desc     = document.getElementById('desc').value.trim();
+  const amount   = parseFloat(document.getElementById('amount').value);
+  const currency = document.querySelector('input[name="currency"]:checked').value;
+  const category = document.getElementById('category').value;
+  const date     = document.getElementById('date').value;
+
+  if (!desc || !amount || !date) return;
+
+  const expense = {
+    id: Date.now(),
+    desc, amount, currency, category, date,
+    rateAtEntry: state.rate,
+    usd: toUSD(amount, currency),
+    mxn: toMXN(amount, currency),
+  };
+
+  state.expenses.unshift(expense);
+  saveState();
+  render();
+
+  document.getElementById('desc').value = '';
+  document.getElementById('amount').value = '';
+  document.getElementById('date').value = new Date().toISOString().split('T')[0];
+  toast('Expense added!', 'success');
+}
+
+function deleteExpense(id) {
+  state.expenses = state.expenses.filter(e => e.id !== id);
+  saveState();
+  render();
+  toast('Expense removed.', 'success');
+}
+
+function clearAll() {
+  if (!confirm('Delete all expenses? This cannot be undone.')) return;
+  state.expenses = [];
+  saveState();
+  render();
+  toast('All expenses cleared.', 'success');
+}
+
+// ─── Filter ───────────────────────────────────────────────────────────────────
+function setFilter(f, el) {
+  state.filter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+// ─── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  renderBudget();
+  renderList();
+  renderSummary();
+}
+
+function renderBudget() {
+  const totalSpentUSD = state.expenses.reduce((s, e) => s + e.usd, 0);
+  const budgetUSD     = state.budgetUSD;
+  const remainingUSD  = budgetUSD - totalSpentUSD;
+  const pct           = budgetUSD > 0 ? Math.min((totalSpentUSD / budgetUSD) * 100, 100) : 0;
+  const r             = state.rate || 17.5;
+
+  document.getElementById('budget-usd').textContent    = fmtUSD(budgetUSD);
+  document.getElementById('budget-mxn-sub').textContent = fmtMXN(budgetUSD * r);
+  document.getElementById('spent-usd').textContent     = fmtUSD(totalSpentUSD);
+  document.getElementById('spent-mxn-sub').textContent  = fmtMXN(totalSpentUSD * r);
+  document.getElementById('remaining-usd').textContent = remainingUSD >= 0 ? fmtUSD(remainingUSD) : '-' + fmtUSD(Math.abs(remainingUSD));
+  document.getElementById('remaining-mxn-sub').textContent = remainingUSD >= 0
+    ? fmtMXN(remainingUSD * r)
+    : '-' + fmtMXN(Math.abs(remainingUSD) * r);
+
+  const remStat = document.getElementById('remaining-stat');
+  remStat.classList.toggle('over', remainingUSD < 0);
+
+  const bar = document.getElementById('progress-bar');
+  bar.style.width = pct + '%';
+  bar.classList.remove('warn', 'danger');
+  if (pct >= 90) bar.classList.add('danger');
+  else if (pct >= 70) bar.classList.add('warn');
+
+  document.getElementById('progress-pct').textContent = pct.toFixed(0) + '% used';
+  document.getElementById('clear-btn').style.display = state.expenses.length > 0 ? '' : 'none';
+}
+
+function getFilteredExpenses() {
+  const q = document.getElementById('search').value.toLowerCase();
+  return state.expenses.filter(e => {
+    const matchFilter = state.filter === 'all' || e.category === state.filter;
+    const matchSearch = !q || e.desc.toLowerCase().includes(q) || e.category.includes(q);
+    return matchFilter && matchSearch;
+  });
+}
+
+const CAT_LABELS = {
+  food: '🍽️ Food', transport: '🚌 Transport', lodging: '🏨 Lodging',
+  activities: '🎭 Activities', shopping: '🛍️ Shopping', other: '📦 Other',
+};
+
+const CAT_COLORS = {
+  food: '#f76f6f', transport: '#4f8ef7', lodging: '#a78bfa',
+  activities: '#34d99a', shopping: '#f7c94f', other: '#7b82a0',
+};
+
+function renderList() {
+  const expenses = getFilteredExpenses();
+  const tbody = document.getElementById('expense-body');
+  const empty = document.getElementById('empty-state');
+  document.getElementById('expense-count').textContent = state.expenses.length;
+
+  if (expenses.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    empty.querySelector('p').textContent = state.expenses.length === 0
+      ? 'No expenses yet. Start tracking your trip!'
+      : 'No expenses match the current filter.';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = expenses.map(e => {
+    const origFmt = e.currency === 'USD'
+      ? `<span class="amount-usd">${fmtUSD(e.amount)}</span>`
+      : `<span class="amount-mxn">${fmtMXN(e.amount)}</span>`;
+    return `
+    <tr>
+      <td><span style="font-weight:600;">${escHtml(e.desc)}</span></td>
+      <td><span class="cat-badge cat-${e.category}">${CAT_LABELS[e.category]}</span></td>
+      <td style="color:var(--muted);font-size:0.8rem;">${formatDate(e.date)}</td>
+      <td class="amount-cell">${origFmt}</td>
+      <td class="amount-cell"><span class="amount-usd">${fmtUSD(e.usd)}</span></td>
+      <td class="amount-cell"><span class="amount-mxn">${fmtMXN(e.mxn)}</span></td>
+      <td><button class="btn btn-danger" onclick="deleteExpense(${e.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSummary() {
+  const section = document.getElementById('summary-section');
+  if (state.expenses.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = '';
+
+  const totals = {};
+  let grandTotal = 0;
+  state.expenses.forEach(e => {
+    totals[e.category] = (totals[e.category] || 0) + e.usd;
+    grandTotal += e.usd;
+  });
+
+  const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+  const r = state.rate || 17.5;
+
+  document.getElementById('cat-breakdown').innerHTML = sorted.map(([cat, usd]) => {
+    const pct = grandTotal > 0 ? (usd / grandTotal * 100).toFixed(0) : 0;
+    const color = CAT_COLORS[cat] || '#7b82a0';
+    return `
+    <div class="cat-row">
+      <div class="cat-name" style="color:${color};">${CAT_LABELS[cat]}</div>
+      <div class="cat-bar-wrap">
+        <div class="cat-bar" style="width:${pct}%;background:${color};"></div>
+      </div>
+      <div class="cat-total">${fmtUSD(usd)}</div>
+      <div class="cat-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Utils ─────────────────────────────────────────────────────────────────────
+function formatDate(str) {
+  const [y, m, d] = str.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[+m-1]} ${+d}, ${y}`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toast(msg, type = 'success') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = (type === 'success' ? '✓ ' : '⚠ ') + msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+</script>
+</body>
+</html>
