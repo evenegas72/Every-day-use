@@ -285,6 +285,7 @@
     .cat-lodging   { background: rgba(167,139,250,0.15); color: #a78bfa; }
     .cat-activities{ background: rgba(52,217,154,0.15); color: #34d99a; }
     .cat-shopping  { background: rgba(247,201,79,0.15); color: #f7c94f; }
+    .cat-casetas   { background: rgba(251,146,60,0.15);  color: #fb923c; }
     .cat-other     { background: rgba(123,130,160,0.15); color: #7b82a0; }
 
     .amount-cell { font-weight: 700; }
@@ -452,6 +453,7 @@
             <option value="lodging">🏨 Lodging</option>
             <option value="activities">🎭 Activities</option>
             <option value="shopping">🛍️ Shopping</option>
+            <option value="casetas">🛣️ Casetas (Toll)</option>
             <option value="other">📦 Other</option>
           </select>
         </div>
@@ -485,6 +487,7 @@
       <span class="filter-chip" data-filter="lodging"    onclick="setFilter('lodging',this)">🏨 Lodging</span>
       <span class="filter-chip" data-filter="activities" onclick="setFilter('activities',this)">🎭 Activities</span>
       <span class="filter-chip" data-filter="shopping"   onclick="setFilter('shopping',this)">🛍️ Shopping</span>
+      <span class="filter-chip" data-filter="casetas"    onclick="setFilter('casetas',this)">🛣️ Casetas</span>
       <span class="filter-chip" data-filter="other"      onclick="setFilter('other',this)">📦 Other</span>
     </div>
     <table class="expense-table">
@@ -803,12 +806,12 @@ function getFilteredExpenses() {
 
 const CAT_LABELS = {
   food: '🍽️ Food', transport: '🚌 Transport', lodging: '🏨 Lodging',
-  activities: '🎭 Activities', shopping: '🛍️ Shopping', other: '📦 Other',
+  activities: '🎭 Activities', shopping: '🛍️ Shopping', casetas: '🛣️ Casetas', other: '📦 Other',
 };
 
 const CAT_COLORS = {
   food: '#f76f6f', transport: '#4f8ef7', lodging: '#a78bfa',
-  activities: '#34d99a', shopping: '#f7c94f', other: '#7b82a0',
+  activities: '#34d99a', shopping: '#f7c94f', casetas: '#fb923c', other: '#7b82a0',
 };
 
 function renderList() {
