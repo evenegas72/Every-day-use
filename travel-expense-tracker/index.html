@@ -590,37 +590,54 @@ async function loadRate() {
 
 async function fetchRate() {
   document.getElementById('rate-date').textContent = 'updating...';
-  try {
-    const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=MXN');
-    if (!res.ok) throw new Error('Network error');
-    const data = await res.json();
-    state.rate = data.rates.MXN;
-    state.rateDate = data.date;
-    localStorage.setItem(RATE_CACHE_KEY, JSON.stringify({ rate: state.rate, date: state.rateDate }));
-    updateRateDisplay();
-    render();
-  } catch (e) {
-    // Fallback to cached even if stale
-    const cached = JSON.parse(localStorage.getItem(RATE_CACHE_KEY) || 'null');
-    if (cached?.rate) {
-      state.rate = cached.rate;
-      state.rateDate = cached.date;
+
+  const apis = [
+    async () => {
+      const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=MXN');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      return { rate: data.rates.MXN, date: data.date };
+    },
+    async () => {
+      const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      return { rate: data.usd.mxn, date: data.date };
+    },
+  ];
+
+  for (const api of apis) {
+    try {
+      const { rate, date } = await api();
+      state.rate = rate;
+      state.rateDate = date;
+      localStorage.setItem(RATE_CACHE_KEY, JSON.stringify({ rate: state.rate, date: state.rateDate }));
       updateRateDisplay();
-      toast('Using cached rate from ' + cached.date, 'error');
-    } else {
-      state.rate = 17.5; // reasonable fallback
-      state.rateDate = 'fallback';
-      updateRateDisplay();
-      toast('Could not fetch rate. Using fallback 17.50', 'error');
-    }
+      render();
+      return true;
+    } catch (e) { /* try next */ }
   }
+
+  // All sources failed — use stale cache or hard fallback
+  const cached = JSON.parse(localStorage.getItem(RATE_CACHE_KEY) || 'null');
+  if (cached?.rate) {
+    state.rate = cached.rate;
+    state.rateDate = cached.date;
+    updateRateDisplay();
+    toast('Network unavailable. Using cached rate from ' + cached.date, 'error');
+  } else {
+    state.rate = 17.5;
+    state.rateDate = 'fallback';
+    updateRateDisplay();
+    toast('Could not fetch rate. Using fallback 17.50', 'error');
+  }
+  return false;
 }
 
 async function refreshRate() {
-  const cached = JSON.parse(localStorage.getItem(RATE_CACHE_KEY) || 'null');
   localStorage.removeItem(RATE_CACHE_KEY);
-  await fetchRate();
-  toast('Exchange rate refreshed!', 'success');
+  const ok = await fetchRate();
+  if (ok) toast('Exchange rate refreshed!', 'success');
 }
 
 function updateRateDisplay() {
