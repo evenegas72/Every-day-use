@@ -182,6 +182,21 @@
   }
   .tag.amber{background:var(--amber-light); color:var(--amber);}
 
+  /* Callout boxes (tips / warnings, mirrors source doc's highlight boxes) */
+  .callout{
+    border:1px solid var(--line);
+    border-left:4px solid var(--teal);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:13px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    margin:14px 0;
+    background:var(--paper-2);
+  }
+  .callout.warn{border-left-color:var(--amber);}
+  .callout strong{color:var(--ink);}
+
   /* Today panel specifics */
   .today-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;}
   @media (max-width:600px){.today-grid{grid-template-columns:1fr;}}
@@ -233,7 +248,7 @@
     font-size:12px; color:var(--ink-soft); margin-top:10px; font-style:italic;
   }
 
-  /* Calendar */
+  /* Calendar / reference tables */
   .week-header{
     display:flex; justify-content:space-between; align-items:baseline;
     margin-top:26px; margin-bottom:8px; flex-wrap:wrap; gap:6px;
@@ -260,10 +275,23 @@
   .recipe-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
   @media (max-width:600px){.recipe-grid{grid-template-columns:1fr;}}
   ul.recipe-list{list-style:none; margin:0; padding:0;}
-  ul.recipe-list li{
-    padding:8px 0; border-bottom:1px dashed var(--line); font-size:13.5px; line-height:1.5;
-  }
+  ul.recipe-list li{border-bottom:1px dashed var(--line);}
   ul.recipe-list li:last-child{border-bottom:none;}
+  ul.recipe-list details{padding:8px 0;}
+  ul.recipe-list summary{
+    cursor:pointer; font-size:13.5px; font-weight:600; color:var(--ink);
+    line-height:1.5;
+  }
+  ul.recipe-list summary:hover{color:var(--teal);}
+  .recipe-detail{margin-top:10px; padding-left:2px;}
+  .detail-label{
+    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--ink-soft); margin:10px 0 4px;
+  }
+  .detail-label:first-child{margin-top:0;}
+  ul.ingredient-list, ol.step-list{
+    margin:0 0 0 18px; padding:0; font-size:12.5px; color:var(--ink-soft); line-height:1.6;
+  }
 
   /* Milestones */
   .milestone{
@@ -318,6 +346,7 @@
   <button data-tab="today" class="active">Today</button>
   <button data-tab="calendar">Full Calendar</button>
   <button data-tab="recipes">Recipes</button>
+  <button data-tab="supplements">Supplements</button>
   <button data-tab="milestones">Milestones</button>
   <button data-tab="about">About</button>
 </nav>
@@ -388,7 +417,7 @@
   <div class="panel" id="panel-recipes">
     <section class="card">
       <h2>Recipe Rotation</h2>
-      <p class="muted">These pools rotate through the 90-day calendar so meals don't repeat too often. Swap freely within a category as long as you stay within the Plate Method proportions (½ non-starchy veg, ¼ lean protein, ¼ fiber-rich carb, healthy fat).</p>
+      <p class="muted">These pools rotate through the 90-day calendar so meals don't repeat too often. Swap freely within a category as long as you stay within the Plate Method proportions (½ non-starchy veg, ¼ lean protein, ¼ fiber-rich carb, healthy fat). Tap any recipe to expand ingredients and steps.</p>
       <div class="recipe-grid">
         <div>
           <h3>Breakfasts</h3>
@@ -408,6 +437,39 @@
         </div>
       </div>
     </section>
+
+    <section class="card">
+      <h2>🍜 Soup Rotation — Reference</h2>
+      <p class="muted">Soups are one of the best blood-sugar management tools available: high volume, high protein, high fiber, and easy to batch-cook. Batch-cook 2 soups on Sunday — they refrigerate 4–5 days and form the backbone of the week's lunches and dinners.</p>
+      <h3>Top-rated for A1C impact</h3>
+      <div class="wrap">
+      <table class="cal">
+        <thead><tr><th>Soup</th><th>Key Ingredients</th><th>A1C Benefit</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Lentil &amp; Turmeric Soup</td><td>Green/red lentils, turmeric, cumin, ginger, garlic, spinach, tomatoes</td><td>★★★★★ — GI ~32; 8g fiber/serving; turmeric supports insulin sensitivity</td></tr>
+          <tr><td style="font-weight:600">White Bean &amp; Chicken Soup</td><td>Cannellini beans, chicken breast, garlic, rosemary, kale, lemon zest</td><td>★★★★☆ — 22g protein + 7g fiber per serving</td></tr>
+          <tr><td style="font-weight:600">Bone Broth Egg Drop Soup</td><td>Low-sodium bone broth, whisked eggs, ginger, garlic, green onion</td><td>★★★★☆ — near-zero carbs; 15-min prep</td></tr>
+          <tr><td style="font-weight:600">Chicken Vegetable Minestrone (Modified)</td><td>Zucchini, tomatoes, celery, white beans, chicken, chickpea pasta (½ cup max)</td><td>★★★★☆ — chickpea pasta doubles fiber/protein vs. regular pasta</td></tr>
+          <tr><td style="font-weight:600">Thai Coconut Chicken Soup (Tom Kha)</td><td>Light coconut milk, chicken breast, mushrooms, galangal, lemongrass, lime, fish sauce</td><td>★★★☆☆ — healthy fats slow absorption; use light coconut milk only</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="callout"><strong>📦 Soup prep strategy:</strong> Keep frozen bone broth cubes on hand for 15-minute emergency meals. Buy a rotisserie chicken weekly — it's your universal protein base for Sopa de Lima, Caldo de Pollo, Ramen, and Minestrone.</div>
+    </section>
+  </div>
+
+  <!-- SUPPLEMENTS -->
+  <div class="panel" id="panel-supplements">
+    <section class="card">
+      <h2>💊 Nutrient Support Strategy</h2>
+      <div class="callout warn"><strong>⚠️ Important before starting supplements:</strong> These are adjuncts to lifestyle change — not replacements. Discuss all supplements with your doctor before starting, especially if you are on any medications. Berberine in particular can interact with certain drugs. Bring this table to your appointment.</div>
+      <div class="wrap">
+      <table class="cal">
+        <thead><tr><th>Supplement</th><th>Evidence Level</th><th>Dose</th><th>Timing</th><th>Key Notes</th></tr></thead>
+        <tbody id="supplementRows"></tbody>
+      </table>
+      </div>
+    </section>
   </div>
 
   <!-- MILESTONES -->
@@ -417,6 +479,17 @@
       <p class="muted">Target dates for the alcohol step-down and workout goals, plus the lab-draw date to bring to your doctor.</p>
       <div id="milestoneList"></div>
     </section>
+
+    <section class="card">
+      <h2>What to Tell Your Doctor</h2>
+      <p class="muted">Bring data to the appointment — not just a summary. Screenshots from the Tonal app (workout history, weight progression) and Wahoo app (ride duration, heart rate zones) are legitimate clinical data.</p>
+      <ul class="ingredient-list" style="margin-left:20px; font-size:13.5px; color:var(--ink);">
+        <li>"I completed approximately 225–250 minutes of combined aerobic and resistance exercise per week for 12 weeks — both aerobic cycling and machine-based resistance training."</li>
+        <li>"I reduced my nightly alcohol intake from 4–5 beers to [X] per night by week 12."</li>
+        <li>"I followed a low-glycemic meal pattern emphasizing protein, fiber, and vegetable-based soups."</li>
+        <li>"I added berberine (500 mg 3×/day), magnesium glycinate (400 mg), and psyllium husk fiber (5–10g before meals) — here are the exact products and doses."</li>
+      </ul>
+    </section>
   </div>
 
   <!-- ABOUT -->
@@ -424,11 +497,68 @@
     <section class="card">
       <h2>About This Plan</h2>
       <p class="muted">
-        Three 30-day phases (Aug 24–Sep 22, Sep 23–Oct 22, Oct 23–Nov 21, 2026) combining Tonal strength training (Mon/Wed/Fri), a Wahoo incline treadmill walk (Tue), and Kickr Bike cardio (Thu/Sat/Sun), alongside a 12-week alcohol step-down, a soup-forward low-glycemic nutrition framework, and an optional supplement stack. Full exercise and supplement detail lives in the companion Word document — this app is the day-to-day calendar and tracker.
+        Three 30-day phases (Aug 24–Sep 22, Sep 23–Oct 22, Oct 23–Nov 21, 2026) combining Tonal strength training (Mon/Wed/Fri), a Wahoo incline treadmill walk (Tue), and Kickr Bike cardio (Thu/Sat/Sun), alongside a 12-week alcohol step-down, a soup-forward low-glycemic nutrition framework, and an optional supplement stack. Your A1C reflects average blood glucose over the past 2–3 months, so this 90-day window maps to one complete A1C measurement cycle — Day 1 is Monday, August 24, 2026, and Day 90 lands on Saturday, November 21, 2026, right before your lab draw and doctor visit.
       </p>
       <p class="muted">
         <strong>Medical notice:</strong> this is a personal goal-setting and accountability tool, not medical advice. Work with your doctor before starting or changing exercise, nutrition, or supplement routines.
       </p>
+    </section>
+
+    <section class="card">
+      <h2>The Science Behind This Plan</h2>
+      <div class="wrap">
+      <table class="cal">
+        <thead><tr><th>Intervention</th><th>Evidence-Based A1C Reduction</th><th>Timeframe</th></tr></thead>
+        <tbody id="scienceRows"></tbody>
+      </table>
+      </div>
+      <div class="callout"><strong>💡 Your personal advantage:</strong> Tonal handles your strength training, the Kickr Bike handles your cardio — together they're a medical-grade intervention. Research consistently shows that combined aerobic and resistance training outperforms either modality alone for A1C reduction. You're not starting from zero — you're starting with the right equipment and a concrete plan.</div>
+    </section>
+
+    <section class="card">
+      <h2>🥗 The Plate Method (Every Meal)</h2>
+      <div class="wrap">
+      <table class="cal">
+        <thead><tr><th>Plate Section</th><th>Proportion</th><th>What to Put There</th><th>Why It Works</th></tr></thead>
+        <tbody id="plateRows"></tbody>
+      </table>
+      </div>
+      <h3>Meal Timing Strategies</h3>
+      <ul class="ingredient-list" style="margin-left:20px; font-size:13.5px; color:var(--ink-soft);">
+        <li>Eat within 1–2 hours of waking — breakfast stabilizes morning cortisol-driven glucose elevation</li>
+        <li>No eating within 2 hours of bedtime — nighttime glucose is least efficiently managed</li>
+        <li>Try to ride the Kickr after dinner when scheduling allows — direct glucose utilization</li>
+        <li>Never skip a meal entirely — replace with a protein-rich snack if needed to avoid rebound hunger</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>😴 Sleep &amp; Stress — The Hidden A1C Drivers</h2>
+      <p class="muted">Sleep and stress are two of the most underestimated contributors to elevated A1C, and they're particularly relevant given alcohol's effect on sleep architecture.</p>
+      <div class="wrap">
+      <table class="cal">
+        <thead><tr><th>Factor</th><th>How It Raises A1C</th><th>Target</th><th>Action</th></tr></thead>
+        <tbody id="sleepRows"></tbody>
+      </table>
+      </div>
+      <div class="callout"><strong>🌲 Grants Pass nature advantage:</strong> The Illinois River corridor and Rogue River trails offer low-barrier, cortisol-reducing movement that complements your structured training. A 20-minute riverside walk after dinner is a legitimate glucose management tool.</div>
+    </section>
+
+    <section class="card">
+      <h2>🎯 Your 90-Day Edge</h2>
+      <div class="wrap">
+      <table class="cal">
+        <thead><tr><th>Your Advantage</th><th>Why It Matters</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Tonal Smart Gym</td><td>AI-adjusted resistance training = progressive overload without guesswork. Resistance training is the most consistently underutilized A1C intervention — you have the best tool for it.</td></tr>
+          <tr><td style="font-weight:600">Wahoo Kickr Bike</td><td>Structured aerobic sessions with heart rate data and ERG mode = clinical-grade cardio without leaving the house. Zone 2 and HIIT intervals are the two most evidence-backed aerobic protocols for A1C.</td></tr>
+          <tr><td style="font-weight:600">Alcohol Reduction</td><td>Going from 4–5 beers nightly to 1 or fewer is arguably the single fastest-acting change in this plan — fasting glucose can improve within 2–3 weeks of significant reduction.</td></tr>
+          <tr><td style="font-weight:600">Soup-Forward Nutrition</td><td>Sustainable, satisfying, culturally rich, and evidence-backed. High protein + high fiber + high volume = natural glucose control.</td></tr>
+          <tr><td style="font-weight:600">90-Day Timing</td><td>A1C measures the last 2–3 months of glucose — meaning this plan maps exactly to one complete A1C measurement cycle.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="callout"><strong>💬 The bottom line:</strong> Show up to your appointment with data — not just hope. The Tonal app, the Wahoo app, and a simple drink tracker are your evidence. You've already made the decision to act — now the plan does the rest.</div>
     </section>
   </div>
 
@@ -510,6 +640,113 @@ const LUNCHES=['Leftover lentil & turmeric soup + side salad','Black bean soup +
 const DINNERS=['Grilled chicken + roasted vegetables + ½ cup brown rice','Caldo de Pollo + 1–2 corn tortillas','Sopa de Lima (Yucatán lime chicken soup)','Bone broth egg drop soup + hard-boiled eggs','Chicken shoyu ramen bowl','Pozole rojo (modified — chicken, ½ cup hominy)','Miso vegetable ramen (noodle-light, extra veggies)','Baked salmon + asparagus + quinoa','Turkey meatballs + zucchini noodles + marinara','Sheet-pan shrimp fajitas (peppers, onion, lime, corn tortillas)','Stuffed bell peppers (ground turkey, cauliflower rice)','Grilled tilapia + black bean & corn salsa + side salad','Lentil & turmeric soup + side salad','White bean & chicken soup + roasted broccoli'];
 const SNACKS=['String cheese + almonds','Apple + almond butter','Celery + hummus','Walnuts + 1 square dark chocolate (85%+)','Edamame','Mixed nuts (unsalted)','Berries + cottage cheese','Hard-boiled egg + cucumber slices','Roasted chickpeas','Greek yogurt + cinnamon'];
 
+/* Ingredients + steps, index-matched to BREAKFASTS / LUNCHES / DINNERS / SNACKS above */
+const RECIPE_DETAILS = {
+  breakfast: [
+    {ingredients:['2 cups plain Greek yogurt','1 cup mixed berries (fresh or frozen)','2 tbsp chia seeds','splash of vanilla extract','drizzle of honey (optional, small amount)'],
+     steps:['Spoon yogurt into two bowls.','Top each with berries and a sprinkle of chia seeds.','Add a splash of vanilla; let sit 5 minutes if using frozen berries so they thaw slightly.','Serve as-is, or with a light drizzle of honey.']},
+    {ingredients:['4 large eggs','1/2 cup diced bell pepper','1/4 cup diced onion','1 cup fresh spinach','1 tsp olive oil','salt and pepper','2 slices whole grain bread'],
+     steps:['Heat olive oil in a skillet over medium heat.','Sauté onion and bell pepper 3–4 minutes until softened.','Add spinach and cook 1 minute until wilted.','Whisk eggs with salt and pepper, pour into the pan, and scramble until just set.','Toast the bread and serve alongside.']},
+    {ingredients:['1 cup unsweetened almond milk','1 scoop protein powder (vanilla or unflavored)','1 cup fresh spinach','3/4 cup frozen mixed berries','1 tbsp ground flaxseed','ice as needed'],
+     steps:['Add all ingredients to a blender.','Blend until smooth, adding water or ice to reach your preferred thickness.','Pour and drink right away for best texture.']},
+    {ingredients:['1 cup rolled oats','1 1/2 cups almond milk','2 tbsp chia seeds','1 tsp cinnamon','1 cup berries (for topping)'],
+     steps:['Combine oats, almond milk, chia seeds, and cinnamon in two jars or containers.','Stir well, cover, and refrigerate overnight (at least 4 hours).','In the morning, top with fresh berries before eating.','Tip: prep both jars the night before for both of you.']},
+    {ingredients:['6 large eggs','1/2 cup diced peppers','1/4 cup diced onion','1 cup fresh spinach','1 tsp olive oil','salt and pepper','optional: 1/4 cup shredded cheese'],
+     steps:['Sauté onion and pepper in olive oil for 3 minutes, then add spinach until just wilted; remove from pan.','Whisk eggs with salt and pepper. Pour into the same pan over medium-low heat.','Once eggs are mostly set, add the vegetables (and cheese, if using) to one half.','Fold the omelette over, cook 1 more minute, and serve.']},
+    {ingredients:['1 1/2 cups cottage cheese','1 fresh peach, sliced (or 1 cup canned peaches in juice, drained)','1/4 cup chopped walnuts','cinnamon to taste'],
+     steps:['Divide cottage cheese between two bowls.','Top with sliced peaches and chopped walnuts.','Finish with a light dusting of cinnamon.']},
+    {ingredients:['1/3 cup chia seeds','1 1/2 cups almond milk','1 tsp vanilla extract','1 cup mixed berries'],
+     steps:['Whisk chia seeds, almond milk, and vanilla together in a container.','Refrigerate at least 4 hours or overnight, stirring once after 30 minutes to prevent clumping.','Top with mixed berries just before serving.']},
+    {ingredients:['4 slices whole grain bread','4 oz smoked salmon','1 ripe avocado','squeeze of lemon juice','capers (optional)','black pepper'],
+     steps:['Toast the bread.','Mash the avocado with a squeeze of lemon juice; spread onto the toast.','Top with smoked salmon, capers if using, and a crack of black pepper.']},
+    {ingredients:['8 large eggs','1 cup chopped spinach','1/2 cup crumbled feta','salt and pepper','cooking spray','fruit of choice, for serving'],
+     steps:['Preheat oven to 350°F and lightly grease a muffin tin.','Whisk eggs with salt and pepper.','Divide spinach and feta among the muffin cups, then pour egg mixture over each.','Bake 18–20 minutes until set. Makes about 12 muffins — refrigerate leftovers up to 4 days.','Serve 2–3 muffins per person with a piece of fruit.']},
+    {ingredients:['2 cups plain Greek yogurt','1/2 cup low-sugar granola','1/4 cup pumpkin seeds','1/2 cup berries'],
+     steps:['Layer yogurt, berries, and granola in glasses or bowls.','Top with pumpkin seeds and serve.']},
+    {ingredients:['1 cup oat flour','4 egg whites','1 ripe banana, mashed','1/2 tsp baking powder','splash of almond milk if batter is thick','2 tbsp almond butter, for topping'],
+     steps:['Mix oat flour, egg whites, mashed banana, and baking powder into a smooth batter, thinning with almond milk if needed.','Cook pancakes on a lightly greased nonstick skillet, 2–3 minutes per side until golden.','Top with almond butter to serve.']},
+    {ingredients:['4–6 turkey breakfast sausage links','2 cups fresh spinach','1 tsp olive oil','1 avocado','salt and pepper'],
+     steps:['Cook sausage links according to package directions.','Sauté spinach in olive oil for 2 minutes until wilted; season.','Serve sausage and spinach with half an avocado per plate.']},
+    {ingredients:['1 1/2 cups cottage cheese','1/4 cup walnuts','cinnamon to taste','1 cup berries'],
+     steps:['Divide cottage cheese between two bowls.','Top with walnuts and berries.','Finish with a dusting of cinnamon.']},
+    {ingredients:['4 corn tortillas','4 large eggs','1/2 cup black beans, rinsed','1/4 cup diced onion','1/4 cup diced bell pepper','salsa and cilantro, for topping'],
+     steps:['Warm the tortillas in a dry skillet or the oven.','Sauté onion and pepper 3 minutes, then add black beans just to warm through.','In a separate pan, scramble the eggs and season.','Assemble tacos with eggs, bean mixture, salsa, and cilantro.']}
+  ],
+  lunch: [
+    {ingredients:['1.5 cups leftover Lentil & Turmeric Soup (see Dinner recipes)','2 cups mixed greens','olive oil and lemon juice, for dressing'],
+     steps:['Reheat the soup on the stovetop or in the microwave until hot.','Toss greens with a small drizzle of olive oil and a squeeze of lemon for a simple side salad.']},
+    {ingredients:['2 cans black beans, rinsed','4 cups low-sodium broth','1 onion, diced','2 cloves garlic','1 tsp cumin','1 tsp smoked paprika','juice of 1 lime','1 avocado, sliced','plain Greek yogurt, for topping'],
+     steps:['Sauté onion and garlic 4–5 minutes until soft.','Add black beans, broth, cumin, and paprika; simmer 15 minutes.','Blend half the soup (with an immersion blender or in batches) for a creamier texture, then stir back in.','Finish with lime juice.','Top with sliced avocado and a dollop of Greek yogurt.']},
+    {ingredients:['2 cans cannellini beans, rinsed','2 chicken breasts, cooked and shredded','6 cups low-sodium chicken broth','2 cloves garlic, minced','1 tsp fresh rosemary','2 cups chopped kale','zest of 1 lemon'],
+     steps:['Sauté garlic in a pot for 1 minute.','Add broth, beans, shredded chicken, and rosemary; simmer 15–20 minutes.','Stir in kale until wilted.','Finish with lemon zest and serve.']},
+    {ingredients:['8 large lettuce leaves (butter or romaine)','8 oz sliced deli turkey, low-sodium','1 avocado, sliced','1 cucumber, sliced','1 carrot, shredded','mustard or hummus'],
+     steps:['Lay lettuce leaves flat on a plate.','Layer turkey, avocado, cucumber, and carrot onto each leaf.','Add a smear of mustard or hummus.','Roll tightly like a burrito, securing with a toothpick if needed.']},
+    {ingredients:['2 chicken breasts, diced','1 zucchini, diced','1 can diced tomatoes','2 celery stalks, diced','1 can white beans, rinsed','1/2 cup chickpea pasta','4 cups low-sodium chicken broth','Italian seasoning'],
+     steps:['Brown chicken in a pot 5 minutes.','Add zucchini and celery, cook 3 minutes.','Add tomatoes, beans, broth, and seasoning; simmer 15 minutes.','Add chickpea pasta and cook per package time (usually 6–8 minutes) until tender.']},
+    {ingredients:['2 salmon fillets (4–5 oz each)','4 cups mixed greens','1 cup chickpeas, rinsed','cherry tomatoes, halved','1 cucumber, sliced','olive oil and lemon juice, for dressing','salt and pepper'],
+     steps:['Season salmon with salt and pepper; grill or pan-sear 4–5 minutes per side until cooked through.','Toss greens, chickpeas, tomatoes, and cucumber with olive oil and lemon juice.','Top the salad with flaked salmon.']},
+    {ingredients:['2 chicken breasts, sliced thin','1 can light coconut milk','3 cups low-sodium chicken broth','1 cup mushrooms, sliced','2 tbsp fish sauce','juice of 1–2 limes','galangal or ginger, fresh cilantro'],
+     steps:['Simmer broth and coconut milk together over medium heat.','Add ginger/galangal and mushrooms; simmer 5 minutes.','Add chicken and cook until just done, about 5–6 minutes.','Stir in fish sauce and lime juice off the heat.','Garnish with fresh cilantro.']},
+    {ingredients:['2 chicken breasts','romaine lettuce, chopped','light Caesar dressing','shaved parmesan','small amount of whole grain croutons'],
+     steps:['Season and grill chicken 5–6 minutes per side until cooked through; slice.','Toss romaine with a light amount of dressing (go easy — it concentrates quickly).','Top with sliced chicken, parmesan, and a few croutons.']},
+    {ingredients:['1 cup quinoa (dry)','2 chicken breasts','2 cups mixed vegetables (zucchini, bell pepper, broccoli)','olive oil','salt and pepper','lemon'],
+     steps:['Cook quinoa according to package directions.','Toss vegetables in olive oil and seasoning; roast at 425°F for 20 minutes.','Grill or bake chicken until cooked through; slice.','Assemble bowls with quinoa, roasted vegetables, and chicken. Finish with a squeeze of lemon.']},
+    {ingredients:['1 lb ground turkey','1 can black beans, rinsed','1 can kidney beans, rinsed','1 can diced tomatoes','1 onion, diced','2 cloves garlic','chili powder, cumin','low-sodium broth as needed'],
+     steps:['Brown turkey with onion and garlic in a large pot.','Add both beans, tomatoes, and spices, plus a splash of broth if it looks thick.','Simmer 25–30 minutes, stirring occasionally.','Makes several servings — freezes well for future lunches.']},
+    {ingredients:['2 cans tuna in water, drained','1/2 cup plain Greek yogurt','1 celery stalk, diced','1/4 red onion, diced','juice of 1 lemon','salt and pepper','mixed greens'],
+     steps:['Mix tuna, yogurt, celery, onion, and lemon juice in a bowl.','Season to taste with salt and pepper.','Serve over a bed of mixed greens.']},
+    {ingredients:['1.5 cups leftover Caldo de Pollo (see Dinner recipes)','1 cup green beans or broccoli'],
+     steps:['Reheat the caldo on the stovetop or microwave.','Steam green beans or broccoli 5–6 minutes until tender-crisp, and serve alongside.']},
+    {ingredients:['See the full recipe under Dinner — Chicken Shoyu Ramen Bowl'],
+     steps:['Prepare as a double batch at dinner and reheat gently for lunch the next day; shirataki noodles hold up well.']},
+    {ingredients:['2 chicken breasts','1 cucumber, diced','1 cup cherry tomatoes, halved','1/2 cup crumbled feta','kalamata olives','olive oil, lemon, oregano'],
+     steps:['Season chicken with oregano; grill until cooked through, then slice.','Combine cucumber, tomatoes, feta, and olives in a bowl.','Drizzle with olive oil and lemon juice.','Top with sliced chicken.']}
+  ],
+  dinner: [
+    {ingredients:['2 chicken breasts','3 cups mixed vegetables (broccoli, carrots, zucchini)','1 cup brown rice (dry)','olive oil, salt, pepper, garlic powder'],
+     steps:['Cook brown rice according to package directions.','Toss vegetables in olive oil and seasoning; roast at 425°F for 20–25 minutes.','Season and grill chicken 5–6 minutes per side until cooked through.','Plate chicken and vegetables with about 1/2 cup rice per person.']},
+    {ingredients:['1 whole chicken or 2 lbs bone-in thighs','8 cups water or low-sodium broth','2 carrots, chopped','2 chayote or zucchini, chopped','1 onion','3 cloves garlic','cilantro, lime, corn tortillas'],
+     steps:['Simmer chicken in broth with onion and garlic 45–60 minutes until fully cooked, skimming foam as needed.','Remove chicken, shred the meat, and discard bones.','Return shredded chicken to the pot; add carrots and chayote/zucchini. Simmer 15–20 minutes until tender.','Finish with fresh cilantro and a squeeze of lime.','Serve with warmed corn tortillas.']},
+    {ingredients:['2 chicken breasts or 1 rotisserie chicken, shredded','6 cups low-sodium chicken broth','2 tomatoes, diced','1 onion, diced','1 jalapeño, sliced','juice of 3 limes','cilantro, avocado, baked (not fried) tortilla strips'],
+     steps:['If using raw chicken, poach in broth until cooked through, then shred; if using rotisserie chicken, skip ahead.','Sauté onion, tomato, and jalapeño in a pot for 5 minutes.','Add broth and shredded chicken; simmer 15 minutes.','Stir in lime juice off the heat.','Serve topped with cilantro, avocado, and baked tortilla strips.']},
+    {ingredients:['6 cups low-sodium bone broth','3 eggs, whisked','1 tbsp fresh ginger, minced','2 cloves garlic, minced','green onion','soy sauce to taste','2 hard-boiled eggs, for serving'],
+     steps:['Simmer broth with ginger and garlic for 10 minutes.','Slowly drizzle whisked eggs into the simmering broth while gently stirring to form ribbons.','Season with a splash of soy sauce.','Top with sliced green onion; serve with a hard-boiled egg on the side.']},
+    {ingredients:['6 cups low-sodium chicken broth','2 tbsp soy sauce','1 tbsp miso paste','2 chicken breasts, grilled and sliced','2 soft-boiled eggs','2 packs shirataki noodles, rinsed well','bok choy, mushrooms, green onion, nori'],
+     steps:['Simmer broth with soy sauce and miso for 10 minutes.','Add bok choy and mushrooms; simmer 5 minutes.','Divide rinsed shirataki noodles into bowls; ladle hot broth over.','Top with sliced chicken, a soft-boiled egg, green onion, and nori.']},
+    {ingredients:['2 lbs bone-in chicken thighs','1 can hominy, drained','4 dried guajillo chiles, seeded and soaked','2 cloves garlic','1 onion','oregano','cabbage, radish, and lime, for topping'],
+     steps:['Simmer chicken in water with onion and garlic until cooked through; shred the meat and reserve the broth.','Blend soaked chiles with a bit of broth, then strain into a smooth sauce.','Combine the chile sauce, reserved broth, shredded chicken, and hominy in the pot; simmer 20 minutes with oregano.','Serve topped with shredded cabbage, sliced radish, and lime.']},
+    {ingredients:['6 cups vegetable or low-sodium chicken broth','3 tbsp white miso paste','1 block firm tofu, cubed','1 cup edamame','spinach, mushrooms','small portion shirataki or soba noodles','sesame oil'],
+     steps:['Warm the broth; once hot but not boiling, whisk in miso off direct heat to preserve its flavor and probiotics.','Add tofu, edamame, and mushrooms; simmer 5 minutes.','Wilt spinach in at the end.','Serve over a light portion of noodles with a drizzle of sesame oil.']},
+    {ingredients:['2 salmon fillets','1 bunch asparagus, trimmed','1 cup quinoa (dry)','olive oil, lemon, garlic, salt, pepper'],
+     steps:['Cook quinoa according to package directions.','Preheat oven to 400°F. Arrange salmon and asparagus on a sheet pan; drizzle with olive oil, garlic, salt, pepper, and lemon slices.','Bake 12–15 minutes until salmon flakes easily.','Serve over quinoa.']},
+    {ingredients:['1 lb ground turkey','1 egg','1/4 cup almond flour or breadcrumbs','garlic powder, Italian seasoning','3 medium zucchini, spiralized','2 cups low-sugar marinara sauce'],
+     steps:['Mix turkey, egg, almond flour, and seasoning; form into meatballs.','Bake at 400°F for 18–20 minutes, or pan-sear until cooked through.','Warm marinara sauce; add meatballs and simmer 5 minutes.','Sauté zucchini noodles 2–3 minutes just to soften; top with meatballs and sauce.']},
+    {ingredients:['1.5 lbs shrimp, peeled and deveined','2 bell peppers, sliced','1 onion, sliced','olive oil','fajita seasoning (cumin, chili powder, paprika, garlic powder)','lime, corn tortillas'],
+     steps:['Preheat oven to 425°F. Toss shrimp, peppers, and onion with olive oil and seasoning on a sheet pan.','Roast 10–12 minutes until shrimp is pink and cooked through.','Squeeze lime over the top.','Serve with warmed corn tortillas.']},
+    {ingredients:['4 bell peppers, tops cut and seeded','1 lb ground turkey','2 cups cauliflower rice','1 can diced tomatoes','onion, garlic, cumin','shredded cheese (optional)'],
+     steps:['Brown turkey with onion and garlic.','Stir in cauliflower rice, diced tomatoes, and cumin; cook 5 minutes.','Stuff the mixture into the bell peppers; place in a baking dish with a little water in the bottom.','Cover and bake at 375°F for 30 minutes. Top with cheese and bake uncovered 5 more minutes, if using.']},
+    {ingredients:['4 tilapia fillets','1 can black beans, rinsed','1 cup corn, fresh or frozen','1 tomato, diced','cilantro, lime, olive oil','mixed greens, for a side salad'],
+     steps:['Season tilapia with salt, pepper, and a little cumin; grill or pan-sear 3–4 minutes per side.','Combine black beans, corn, tomato, cilantro, and lime juice for the salsa.','Serve tilapia topped with salsa, with a side salad.']},
+    {ingredients:['1.5 cups dried green or red lentils','6 cups low-sodium broth','1 onion, diced','2 carrots, diced','2 cloves garlic','1 tbsp turmeric','1 tsp cumin','fresh ginger, spinach, lemon'],
+     steps:['Sauté onion, carrot, and garlic 5 minutes.','Add turmeric, cumin, and grated ginger; toast 30 seconds.','Add lentils and broth; simmer 25–30 minutes until lentils are tender.','Stir in spinach until wilted; finish with a squeeze of lemon.']},
+    {ingredients:['2 cans cannellini beans, rinsed','2 chicken breasts, cooked and shredded','6 cups low-sodium chicken broth','2 cloves garlic','rosemary','kale','lemon zest','1 head broccoli, for roasting'],
+     steps:['Sauté garlic in a pot; add broth, beans, shredded chicken, and rosemary.','Simmer 15–20 minutes.','Stir in kale until wilted; finish with lemon zest.','Meanwhile, toss broccoli florets in olive oil and roast at 425°F for 15 minutes; serve alongside.']}
+  ],
+  snack: [
+    {ingredients:['1 string cheese','small handful (~12) almonds'], steps:['Grab and go — no prep needed.']},
+    {ingredients:['1 apple, sliced','1–2 tbsp almond butter'], steps:['Slice the apple and serve with almond butter for dipping.']},
+    {ingredients:['3–4 celery stalks','2–3 tbsp hummus'], steps:['Cut celery into sticks and serve with hummus.']},
+    {ingredients:['small handful (~10 halves) walnuts','1 square 85%+ dark chocolate'], steps:['Portion out and enjoy together.']},
+    {ingredients:['1 cup frozen edamame, in the pod','sea salt'], steps:['Steam or microwave edamame per package directions.','Sprinkle with a little sea salt and serve warm.']},
+    {ingredients:['1/4 cup unsalted mixed nuts'], steps:['Portion into a small bowl or bag — great for on the go.']},
+    {ingredients:['1/2 cup cottage cheese','1/2 cup berries'], steps:['Top cottage cheese with berries and serve.']},
+    {ingredients:['1 hard-boiled egg (prep ahead)','sliced cucumber','pinch of salt'], steps:['Boil eggs in advance and refrigerate (they keep about a week).','Peel and serve with sliced cucumber and a pinch of salt.']},
+    {ingredients:['1 can chickpeas, rinsed and dried well','1 tbsp olive oil','cumin, paprika, salt'],
+     steps:['Preheat oven to 400°F.','Toss chickpeas with olive oil and spices.','Roast 25–30 minutes, shaking the pan halfway, until crispy.','Store in an airtight container for snacking through the week.']},
+    {ingredients:['1/2 cup plain Greek yogurt','cinnamon','optional: a few drops vanilla or a small drizzle of honey'], steps:['Dust yogurt with cinnamon and serve.']}
+  ]
+};
+
 function mealsFor(idx0){
   return {
     breakfast: BREAKFASTS[idx0 % BREAKFASTS.length],
@@ -536,6 +773,37 @@ const MILESTONES = [
   {day:56, title:'Week 8', goal:'Alcohol at or below 10/week; fasting glucose trending down if self-monitoring'},
   {day:70, title:'Week 10', goal:'Alcohol at or below 7/week; Phase 3 workouts completing successfully'},
   {day:84, title:'Week 12', goal:'Labs drawn for doctor appointment — target A1C drop of 0.8–1.5+ points'}
+];
+
+const SUPPLEMENTS = [
+  {name:'Berberine', evidence:'Strong — Multiple RCTs; 0.7–1.5% A1C reduction; comparable to metformin in some trials', dose:'500 mg × 3/day', timing:'With each meal', notes:'Consult doctor — can interact with medications. GI side effects without food. Start 1×/day, build up.'},
+  {name:'Magnesium Glycinate', evidence:'Moderate-Strong — ~45% of US adults deficient; improves insulin sensitivity', dose:'300–400 mg', timing:'Evening', notes:'Choose glycinate or malate — NOT oxide. Alcohol depletes magnesium. Also supports sleep.'},
+  {name:'Psyllium Husk Fiber', evidence:'Strong — soluble fiber directly lowers postprandial glucose', dose:'5–10g', timing:'Before main meals, dissolved in water', notes:'Start with 5g, increase slowly to avoid gas.'},
+  {name:'Zinc', evidence:'Moderate — cofactor in insulin synthesis; modest A1C reduction', dose:'15–25 mg', timing:'With dinner', notes:'Do not exceed 40 mg/day. Take with food. Heavy drinkers commonly deficient.'},
+  {name:'Ceylon Cinnamon', evidence:'Mixed — some RCTs show fasting glucose reduction', dose:'500–1,000 mg', timing:'Morning with breakfast', notes:'Must be Ceylon, NOT cassia (hepatotoxic coumarin at supplement doses).'},
+  {name:'Alpha-Lipoic Acid (R-ALA)', evidence:'Moderate — strongest for neuropathy; modest glycemic effect', dose:'300–600 mg R-ALA', timing:'Morning, away from meals', notes:'R-ALA is more bioavailable than standard ALA. Best for peripheral nerve protection.'}
+];
+
+const SCIENCE = [
+  {intervention:'Combined aerobic + resistance exercise', reduction:'0.89–0.97% reduction (meta-analyses)', timeframe:'8–12 weeks'},
+  {intervention:'Low-glycemic nutrition', reduction:'0.5–0.8% reduction', timeframe:'8–12 weeks'},
+  {intervention:'Significant alcohol reduction', reduction:'0.3–0.7% fasting glucose improvement', timeframe:'4–8 weeks'},
+  {intervention:'Targeted nutrient support (berberine, fiber)', reduction:'0.3–0.7% additional reduction', timeframe:'8–12 weeks'},
+  {intervention:'Realistic Combined Total', reduction:'1.5–2.5% A1C drop in 90 days', timeframe:'Full 90-day cycle', total:true}
+];
+
+const PLATE_METHOD = [
+  {section:'Non-Starchy Vegetables', proportion:'½ of plate', put:'Leafy greens, broccoli, bok choy, zucchini, peppers, mushrooms, cauliflower', why:'High fiber, very low glycemic — fills volume without glucose spike'},
+  {section:'Lean Protein', proportion:'¼ of plate', put:'Chicken breast, eggs, fish, turkey, Greek yogurt, tofu, legumes', why:'Slows gastric emptying; triggers satiety hormones; preserves muscle'},
+  {section:'Fiber-Rich Complex Carb', proportion:'¼ of plate', put:'Brown rice, black beans, lentils, whole grain, sweet potato, chickpea pasta', why:'Resistant starch and fiber blunts postprandial glucose response'},
+  {section:'Healthy Fat', proportion:'Small amount', put:'Avocado, olive oil, nuts, seeds', why:'Slows glucose absorption; supports satiety and inflammation control'}
+];
+
+const SLEEP_STRESS = [
+  {factor:'Short Sleep (<7 hrs)', how:'Raises cortisol → triggers liver glucose release → raises fasting blood sugar', target:'7–9 hours per night', action:'Consistent sleep/wake times — even weekends. Lights out by 10:30 PM.'},
+  {factor:'Alcohol & Sleep Quality', how:'Disrupts REM and deep sleep architecture even when it helps you fall asleep — net negative', target:'Reduce per step-down plan', action:'Alcohol reduction = direct sleep quality improvement within weeks'},
+  {factor:'Chronic Stress', how:'Sustained cortisol and adrenaline directly elevate blood glucose and worsen insulin resistance', target:'Daily 5–10 min stress reset', action:'Box breathing after workouts; progressive muscle relaxation before bed'},
+  {factor:'Outdoor Movement (Grants Pass)', how:'Sedentary indoor time increases glucose burden', target:'1–2× per week non-workout', action:'Illinois River trail, Rogue River paths — walking in nature reduces cortisol within 20 minutes'}
 ];
 
 /* ============ STATE ============ */
@@ -667,14 +935,52 @@ function renderCalendar(){
 
 /* ============ RENDER: RECIPES ============ */
 function renderRecipes(){
-  const fill=(id, arr)=>{
+  const fill=(id, names, details)=>{
     const el=document.getElementById(id);
-    el.innerHTML = arr.map(x=>`<li>${x}</li>`).join('');
+    el.innerHTML = names.map((name,i)=>{
+      const d = details[i] || {ingredients:[], steps:[]};
+      return `<li><details>
+        <summary>${name}</summary>
+        <div class="recipe-detail">
+          <div class="detail-label">Ingredients</div>
+          <ul class="ingredient-list">${d.ingredients.map(x=>`<li>${x}</li>`).join('')}</ul>
+          <div class="detail-label">Steps</div>
+          <ol class="step-list">${d.steps.map(x=>`<li>${x}</li>`).join('')}</ol>
+        </div>
+      </details></li>`;
+    }).join('');
   };
-  fill('listBreakfast', BREAKFASTS);
-  fill('listLunch', LUNCHES);
-  fill('listDinner', DINNERS);
-  fill('listSnack', SNACKS);
+  fill('listBreakfast', BREAKFASTS, RECIPE_DETAILS.breakfast);
+  fill('listLunch', LUNCHES, RECIPE_DETAILS.lunch);
+  fill('listDinner', DINNERS, RECIPE_DETAILS.dinner);
+  fill('listSnack', SNACKS, RECIPE_DETAILS.snack);
+}
+
+/* ============ RENDER: SUPPLEMENTS ============ */
+function renderSupplements(){
+  const tbody = document.getElementById('supplementRows');
+  tbody.innerHTML = SUPPLEMENTS.map(s=>`<tr>
+    <td style="font-weight:600">${s.name}</td>
+    <td>${s.evidence}</td>
+    <td>${s.dose}</td>
+    <td>${s.timing}</td>
+    <td>${s.notes}</td>
+  </tr>`).join('');
+}
+
+/* ============ RENDER: ABOUT REFERENCE TABLES ============ */
+function renderAboutTables(){
+  document.getElementById('scienceRows').innerHTML = SCIENCE.map(s=>`<tr${s.total?' style="font-weight:600"':''}>
+    <td>${s.intervention}</td><td>${s.reduction}</td><td>${s.timeframe}</td>
+  </tr>`).join('');
+
+  document.getElementById('plateRows').innerHTML = PLATE_METHOD.map(p=>`<tr>
+    <td style="font-weight:600">${p.section}</td><td>${p.proportion}</td><td>${p.put}</td><td>${p.why}</td>
+  </tr>`).join('');
+
+  document.getElementById('sleepRows').innerHTML = SLEEP_STRESS.map(s=>`<tr>
+    <td style="font-weight:600">${s.factor}</td><td>${s.how}</td><td>${s.target}</td><td>${s.action}</td>
+  </tr>`).join('');
 }
 
 /* ============ RENDER: MILESTONES ============ */
@@ -732,6 +1038,8 @@ renderHero();
 renderToday();
 renderCalendar();
 renderRecipes();
+renderSupplements();
+renderAboutTables();
 renderMilestones();
 </script>
 </body>
