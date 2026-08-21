@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rks — build index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1417;
+    --panel:#151C21;
+    --panel-2:#1A2228;
+    --grid:rgba(255,255,255,0.045);
+    --rule:#2A343A;
+    --text:#E7EEF0;
+    --text-dim:#8CA0A8;
+    --text-faint:#5C6E76;
+    --live:#49D3A0;
+    --live-glow:rgba(73,211,160,0.35);
+    --build:#E3A445;
+    --build-glow:rgba(227,164,69,0.3);
+    --slot:#3D474D;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      var(--bg);
+    background-size:34px 34px, 34px 34px, cover;
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    padding:0 0 60px;
+  }
+  .display{font-family:'Space Grotesk', sans-serif;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  header{
+    max-width:760px; margin:0 auto;
+    padding:54px 22px 30px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--text-faint);
+    display:flex; align-items:center; gap:8px;
+    margin-bottom:18px;
+  }
+  .eyebrow .dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--live);
+    box-shadow:0 0 0 3px var(--live-glow);
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:clamp(30px, 6vw, 46px);
+    line-height:1.08;
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    color:var(--text-dim);
+    font-size:15px;
+    line-height:1.6;
+    max-width:520px;
+    margin:0;
+  }
+
+  main{max-width:760px; margin:0 auto; padding:10px 22px 0;}
+
+  .rack{
+    border:1px solid var(--rule);
+    border-radius:10px;
+    background:var(--panel);
+    overflow:hidden;
+  }
+
+  .unit{
+    display:flex;
+    align-items:stretch;
+    border-bottom:1px solid var(--rule);
+    position:relative;
+    text-decoration:none;
+    color:inherit;
+    transition:background .15s ease;
+  }
+  .unit:last-child{border-bottom:none;}
+  .unit.live:hover{background:var(--panel-2);}
+  .unit.live{cursor:pointer;}
+  .unit.empty{opacity:0.55;}
+
+  .unit .rail{
+    width:34px;
+    flex-shrink:0;
+    display:flex; flex-direction:column;
+    align-items:center;
+    justify-content:space-evenly;
+    padding:14px 0;
+    border-right:1px solid var(--rule);
+  }
+  .unit .rail .hole{
+    width:5px; height:5px; border-radius:50%;
+    background:var(--rule);
+  }
+
+  .unit .body{
+    flex:1;
+    padding:20px 22px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .unit .toprow{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px; flex-wrap:wrap;
+  }
+  .unit .title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:18px;
+  }
+  .status{
+    display:flex; align-items:center; gap:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
+    padding:3px 9px 3px 7px;
+    border-radius:20px;
+    flex-shrink:0;
+  }
+  .status .led{width:6px; height:6px; border-radius:50%;}
+  .status.live{color:var(--live); background:rgba(73,211,160,0.1);}
+  .status.live .led{background:var(--live); box-shadow:0 0 0 2.5px var(--live-glow);}
+  .status.build{color:var(--build); background:rgba(227,164,69,0.1);}
+  .status.build .led{background:var(--build); box-shadow:0 0 0 2.5px var(--build-glow);}
+  .status.empty{color:var(--slot); background:rgba(255,255,255,0.03);}
+  .status.empty .led{background:var(--slot);}
+
+  .unit .host{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-faint);
+  }
+  .unit .blurb{
+    font-size:13.5px;
+    color:var(--text-dim);
+    line-height:1.55;
+    max-width:520px;
+    margin-top:2px;
+  }
+  .unit .arrow{
+    align-self:center;
+    padding-right:20px;
+    color:var(--text-faint);
+    font-size:20px;
+    flex-shrink:0;
+  }
+  .unit.live:hover .arrow{color:var(--live);}
+  .unit.live:hover .title{color:var(--live);}
+
+  footer{
+    max-width:760px; margin:26px auto 0; padding:0 22px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; color:var(--text-faint);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .eyebrow .dot{ animation:pulse 2.4s ease-in-out infinite; }
+  }
+  @keyframes pulse{
+    0%,100%{ box-shadow:0 0 0 3px var(--live-glow); }
+    50%{ box-shadow:0 0 0 6px transparent; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow"><span class="dot"></span> rks — personal build index</div>
+  <h1 class="display">Every build,<br>one panel.</h1>
+  <p>A running index of the tools I've built for myself — health tracking, trip planning, whatever's next. Pick one below.</p>
+</header>
+
+<main>
+  <div class="rack">
+
+    <!-- EDIT: update href to the real live URL once deployed -->
+    <a class="unit live" href="https://rks-a1c-roadmap.web.app" target="_blank" rel="noopener">
+      <div class="rail"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+      <div class="body">
+        <div class="toprow">
+          <span class="title">90-Day A1C Roadmap</span>
+          <span class="status live"><span class="led"></span>live</span>
+        </div>
+        <div class="host mono">rks-a1c-roadmap.web.app</div>
+        <div class="blurb">Day-by-day workout and meal calendar, tracking progress from Aug 24 to the Nov 21 lab draw.</div>
+      </div>
+      <div class="arrow">→</div>
+    </a>
+
+    <!-- EDIT: update href + status to "live" once the Firebase site is actually deployed -->
+    <a class="unit live" href="https://rks-vacation-planner.web.app" target="_blank" rel="noopener">
+      <div class="rail"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+      <div class="body">
+        <div class="toprow">
+          <span class="title">Mexico Trip Planner</span>
+          <span class="status build"><span class="led"></span>building</span>
+        </div>
+        <div class="host mono">rks-vacation-planner.web.app</div>
+        <div class="blurb">Route and stop planning for road trips to Guanajuato and Acámbaro — maps, distances, and directions.</div>
+      </div>
+      <div class="arrow">→</div>
+    </a>
+
+    <div class="unit empty">
+      <div class="rail"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+      <div class="body">
+        <div class="toprow">
+          <span class="title" style="color:var(--text-faint)">Open slot</span>
+          <span class="status empty"><span class="led"></span>reserved</span>
+        </div>
+        <div class="host mono">—</div>
+        <div class="blurb">Next build goes here.</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <span>rks · personal projects</span>
+  <span>not for medical or financial advice</span>
+</footer>
+
+</body>
+</html>
