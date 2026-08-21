@@ -1,0 +1,19 @@
+{
+  "hosting": [
+    {
+      "target": "trip-planner",
+      "public": "travel-expense-tracker",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    },
+    {
+      "target": "a1c-roadmap",
+      "public": "a1c-roadmap",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    },
+    {
+      "target": "hub",
+      "public": "hub",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    }
+  ]
+}

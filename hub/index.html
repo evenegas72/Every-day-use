@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RKS Family Apps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#12293F;
+    --navy-2:#1B3B57;
+    --paper:#F6F3EC;
+    --paper-2:#EFEAE0;
+    --teal:#0E6E72;
+    --amber:#BE6A2E;
+    --ink:#1E2328;
+    --ink-soft:#4A5158;
+    --line:#D9D3C3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+  }
+  header{
+    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, #234863 100%);
+    color:#FBF9F4;
+    padding:48px 20px 40px;
+    text-align:center;
+  }
+  header h1{
+    font-family:'Fraunces', serif;
+    font-size:clamp(28px, 5vw, 42px);
+    margin:0 0 8px;
+  }
+  header p{
+    color:#C7D6DE;
+    font-size:15px;
+    margin:0;
+  }
+  main{
+    max-width:840px;
+    margin:0 auto;
+    padding:36px 20px 60px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+  }
+  @media (max-width:640px){ main{grid-template-columns:1fr;} }
+  a.card{
+    display:block;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:24px;
+    text-decoration:none;
+    color:inherit;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  a.card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px rgba(18,41,63,0.1);
+  }
+  a.card .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--teal);
+    margin-bottom:8px;
+  }
+  a.card h2{
+    font-family:'Fraunces', serif;
+    font-size:22px;
+    margin:0 0 8px;
+    color:var(--navy);
+  }
+  a.card p{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin:0;
+  }
+  footer{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    padding-bottom:30px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>RKS Family Apps</h1>
+  <p>Personal tools, all in one place.</p>
+</header>
+
+<main>
+  <a class="card" href="https://rks-trip-planner.web.app">
+    <div class="eyebrow">Travel</div>
+    <h2>Mexico Trip Planner</h2>
+    <p>Dual-currency (USD/MXN) expense tracker for road trips, including tolls and live exchange rates.</p>
+  </a>
+
+  <a class="card" href="https://rks-a1c-roadmap.web.app">
+    <div class="eyebrow">Health</div>
+    <h2>90-Day A1C Roadmap</h2>
+    <p>Workout, meal, and habit tracker mapped to a 90-day calendar with alcohol step-down and milestones.</p>
+  </a>
+</main>
+
+<footer>RKS Family Apps · Personal use only</footer>
+
+</body>
+</html>

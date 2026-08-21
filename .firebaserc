@@ -1,0 +1,20 @@
+{
+  "projects": {
+    "default": "rks-family-apps"
+  },
+  "targets": {
+    "rks-family-apps": {
+      "hosting": {
+        "trip-planner": [
+          "rks-trip-planner"
+        ],
+        "a1c-roadmap": [
+          "rks-a1c-roadmap"
+        ],
+        "hub": [
+          "rks-hub"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90-Day A1C Roadmap — Rick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#12293F;
+    --navy-2:#1B3B57;
+    --paper:#F6F3EC;
+    --paper-2:#EFEAE0;
+    --teal:#0E6E72;
+    --teal-light:#DCEEEE;
+    --amber:#BE6A2E;
+    --amber-light:#F5E4D3;
+    --ink:#1E2328;
+    --ink-soft:#4A5158;
+    --line:#D9D3C3;
+    --good:#3E7D59;
+    --p1:#7FA6C9;
+    --p2:#3E7D96;
+    --p3:#1B4F63;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces', serif;
+    font-optical-sizing:auto;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  /* ---------- Header / Hero ---------- */
+  header.hero{
+    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, #234863 100%);
+    color:var(--paper);
+    padding:36px 20px 28px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::after{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 88% 12%, rgba(255,255,255,0.06), transparent 40%),
+      radial-gradient(circle at 8% 90%, rgba(255,255,255,0.05), transparent 35%);
+    pointer-events:none;
+  }
+  .hero-inner{max-width:920px; margin:0 auto; position:relative; z-index:1;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:#AFC9D6;
+    margin-bottom:10px;
+  }
+  .hero-title{
+    font-size:clamp(28px, 5vw, 42px);
+    font-weight:600;
+    margin:0 0 6px;
+    color:#FBF9F4;
+  }
+  .hero-sub{
+    font-size:15px;
+    color:#C7D6DE;
+    max-width:560px;
+    margin:0 0 22px;
+    line-height:1.5;
+  }
+
+  .day-dial{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  .dial-number{
+    font-family:'Fraunces', serif;
+    font-size:56px;
+    font-weight:600;
+    line-height:1;
+    color:#FBF9F4;
+  }
+  .dial-number sup{font-size:20px; color:#9FBBC9; font-weight:500;}
+  .dial-meta{font-size:13px; color:#AFC9D6; line-height:1.6;}
+  .dial-meta strong{color:#EFE7D8;}
+
+  /* strip */
+  .strip{
+    display:flex;
+    gap:2px;
+    height:14px;
+    border-radius:8px;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.15);
+  }
+  .strip .seg{flex:1; position:relative;}
+  .strip .seg.p1{background:var(--p1);}
+  .strip .seg.p2{background:var(--p2);}
+  .strip .seg.p3{background:var(--p3);}
+  .strip .seg.today{outline:2px solid #F5E4D3; outline-offset:-2px;}
+  .strip-labels{
+    display:flex; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; color:#9FBBC9;
+    margin-top:6px;
+    letter-spacing:0.03em;
+  }
+
+  /* ---------- Tabs ---------- */
+  nav.tabs{
+    position:sticky; top:0; z-index:20;
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    overflow-x:auto;
+    max-width:920px;
+    margin:0 auto;
+  }
+  nav.tabs button{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    letter-spacing:0.01em;
+    background:none;
+    border:none;
+    padding:14px 16px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    white-space:nowrap;
+    border-bottom:3px solid transparent;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  nav.tabs button:hover{color:var(--ink);}
+  nav.tabs button.active{
+    color:var(--teal);
+    border-bottom-color:var(--amber);
+  }
+  nav.tabs button:focus-visible{outline:2px solid var(--teal); outline-offset:-2px;}
+
+  main{max-width:920px; margin:0 auto; padding:24px 20px 10px;}
+  .panel{display:none;}
+  .panel.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  section.card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    margin-bottom:18px;
+  }
+  section.card h2{font-size:20px; margin:0 0 4px; color:var(--navy);}
+  section.card h3{font-size:15px; margin:18px 0 8px; color:var(--teal);}
+  .muted{color:var(--ink-soft); font-size:13.5px; line-height:1.6;}
+
+  .tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.04em;
+    padding:3px 9px;
+    border-radius:20px;
+    background:var(--teal-light);
+    color:var(--teal);
+    font-weight:600;
+    margin-right:6px;
+  }
+  .tag.amber{background:var(--amber-light); color:var(--amber);}
+
+  /* Today panel specifics */
+  .today-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;}
+  @media (max-width:600px){.today-grid{grid-template-columns:1fr;}}
+  .today-block{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px;
+    background:var(--paper-2);
+  }
+  .today-block .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .today-block .value{font-size:14.5px; font-weight:600; color:var(--ink);}
+  .today-block .detail{font-size:12.5px; color:var(--ink-soft); margin-top:4px; line-height:1.5;}
+
+  .day-jump{display:flex; gap:8px; align-items:center; margin-top:14px; flex-wrap:wrap;}
+  .day-jump input[type=date]{
+    font-family:'IBM Plex Mono', monospace;
+    padding:8px 10px; border-radius:8px; border:1px solid var(--line);
+    background:#fff; font-size:13px;
+  }
+  .day-jump button{
+    font-family:'IBM Plex Sans'; font-size:13px; font-weight:600;
+    padding:8px 14px; border-radius:8px; border:1px solid var(--teal);
+    background:var(--teal); color:#fff; cursor:pointer;
+  }
+  .day-jump button.secondary{background:#fff; color:var(--teal);}
+
+  /* Habit checklist */
+  .habit-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 4px; border-bottom:1px solid var(--line);
+    font-size:14px;
+  }
+  .habit-row:last-child{border-bottom:none;}
+  .habit-row label{display:flex; align-items:center; gap:10px; cursor:pointer;}
+  .habit-row input[type=checkbox]{
+    width:18px; height:18px; accent-color:var(--good); cursor:pointer;
+  }
+  .habit-progress{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft);
+  }
+  .note-inline{
+    font-size:12px; color:var(--ink-soft); margin-top:10px; font-style:italic;
+  }
+
+  /* Calendar */
+  .week-header{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-top:26px; margin-bottom:8px; flex-wrap:wrap; gap:6px;
+  }
+  .week-header:first-child{margin-top:0;}
+  .week-header h3{margin:0; font-size:16px; color:var(--navy);}
+  .week-header .range{font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft);}
+  .alc-note{font-size:12px; color:var(--amber); margin-bottom:8px;}
+
+  table.cal{width:100%; border-collapse:collapse; font-size:13px;}
+  table.cal th{
+    text-align:left; font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+    letter-spacing:0.05em; text-transform:uppercase; color:#fff;
+    background:var(--navy-2); padding:8px 10px;
+  }
+  table.cal th:first-child{border-radius:8px 0 0 0;}
+  table.cal th:last-child{border-radius:0 8px 0 0;}
+  table.cal td{padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  table.cal tr:nth-child(even) td{background:var(--paper-2);}
+  table.cal td.date-cell{font-weight:600; white-space:nowrap; font-family:'IBM Plex Mono', monospace; font-size:12px;}
+  .wrap{overflow-x:auto; border-radius:8px 8px 0 0;}
+
+  /* Recipes */
+  .recipe-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:600px){.recipe-grid{grid-template-columns:1fr;}}
+  ul.recipe-list{list-style:none; margin:0; padding:0;}
+  ul.recipe-list li{
+    padding:8px 0; border-bottom:1px dashed var(--line); font-size:13.5px; line-height:1.5;
+  }
+  ul.recipe-list li:last-child{border-bottom:none;}
+
+  /* Milestones */
+  .milestone{
+    display:flex; gap:14px; padding:14px 0; border-bottom:1px solid var(--line);
+  }
+  .milestone:last-child{border-bottom:none;}
+  .milestone .m-date{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--teal);
+    min-width:150px; font-weight:600;
+  }
+  .milestone .m-body .m-title{font-weight:600; margin-bottom:2px;}
+  .milestone .m-body .m-goal{font-size:13px; color:var(--ink-soft); line-height:1.5;}
+  .milestone.done .m-date{color:var(--good);}
+  .milestone.done{opacity:0.6;}
+
+  footer{
+    max-width:920px; margin:30px auto 0; padding:0 20px;
+    font-size:11.5px; color:var(--ink-soft); line-height:1.6;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Personal A1C Intervention · Prepared for Rick</div>
+    <h1 class="hero-title">90-Day A1C Roadmap</h1>
+    <p class="hero-sub">Tonal + Kickr + Wahoo, alcohol step-down, and a rotating soup-forward meal plan — mapped to real dates from Aug 24 to Nov 21, 2026.</p>
+
+    <div class="day-dial">
+      <div>
+        <div class="dial-number" id="dialDay">Day —<sup>/90</sup></div>
+      </div>
+      <div class="dial-meta">
+        <div><strong id="dialDateLabel">—</strong></div>
+        <div id="dialPhaseLabel">—</div>
+        <div id="dialCountdown">—</div>
+      </div>
+    </div>
+
+    <div class="strip" id="progressStrip"></div>
+    <div class="strip-labels">
+      <span>Aug 24 — Phase 1</span>
+      <span>Sep 23 — Phase 2</span>
+      <span>Oct 23 — Phase 3</span>
+      <span>Nov 21</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="today" class="active">Today</button>
+  <button data-tab="calendar">Full Calendar</button>
+  <button data-tab="recipes">Recipes</button>
+  <button data-tab="milestones">Milestones</button>
+  <button data-tab="about">About</button>
+</nav>
+
+<main>
+
+  <!-- TODAY -->
+  <div class="panel active" id="panel-today">
+    <section class="card">
+      <h2 id="todayTitle">—</h2>
+      <p class="muted" id="todaySub">—</p>
+
+      <div class="day-jump">
+        <button class="secondary" id="btnPrevDay">← Prev day</button>
+        <input type="date" id="dateJump">
+        <button id="btnGoDate">Go</button>
+        <button class="secondary" id="btnToday">Jump to today</button>
+        <button class="secondary" id="btnNextDay">Next day →</button>
+      </div>
+
+      <div class="today-grid">
+        <div class="today-block">
+          <div class="label">Workout</div>
+          <div class="value" id="todayWorkoutLabel">—</div>
+          <div class="detail" id="todayWorkoutDetail">—</div>
+        </div>
+        <div class="today-block">
+          <div class="label">Alcohol Target This Week</div>
+          <div class="value" id="todayAlcohol">—</div>
+        </div>
+        <div class="today-block">
+          <div class="label">Breakfast</div>
+          <div class="value" id="todayBreakfast">—</div>
+        </div>
+        <div class="today-block">
+          <div class="label">Lunch</div>
+          <div class="value" id="todayLunch">—</div>
+        </div>
+        <div class="today-block">
+          <div class="label">Dinner</div>
+          <div class="value" id="todayDinner">—</div>
+        </div>
+        <div class="today-block">
+          <div class="label">Snack</div>
+          <div class="value" id="todaySnack">—</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Daily Habit Checklist</h2>
+      <p class="muted">Checks reset when you reload the page — print the checklist from the roadmap doc if you want a permanent paper copy.</p>
+      <div id="habitList"></div>
+      <div class="habit-progress" id="habitProgress"></div>
+    </section>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="panel" id="panel-calendar">
+    <section class="card">
+      <h2>Full 90-Day Calendar</h2>
+      <p class="muted">Every day, Aug 24 → Nov 21, 2026, with its workout and rotating meals. Scroll or use your browser's find (Ctrl/Cmd+F) to jump to a date.</p>
+    </section>
+    <div id="calendarWeeks"></div>
+  </div>
+
+  <!-- RECIPES -->
+  <div class="panel" id="panel-recipes">
+    <section class="card">
+      <h2>Recipe Rotation</h2>
+      <p class="muted">These pools rotate through the 90-day calendar so meals don't repeat too often. Swap freely within a category as long as you stay within the Plate Method proportions (½ non-starchy veg, ¼ lean protein, ¼ fiber-rich carb, healthy fat).</p>
+      <div class="recipe-grid">
+        <div>
+          <h3>Breakfasts</h3>
+          <ul class="recipe-list" id="listBreakfast"></ul>
+        </div>
+        <div>
+          <h3>Lunches</h3>
+          <ul class="recipe-list" id="listLunch"></ul>
+        </div>
+        <div>
+          <h3>Dinners</h3>
+          <ul class="recipe-list" id="listDinner"></ul>
+        </div>
+        <div>
+          <h3>Snacks</h3>
+          <ul class="recipe-list" id="listSnack"></ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="panel" id="panel-milestones">
+    <section class="card">
+      <h2>90-Day Milestones</h2>
+      <p class="muted">Target dates for the alcohol step-down and workout goals, plus the lab-draw date to bring to your doctor.</p>
+      <div id="milestoneList"></div>
+    </section>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="panel" id="panel-about">
+    <section class="card">
+      <h2>About This Plan</h2>
+      <p class="muted">
+        Three 30-day phases (Aug 24–Sep 22, Sep 23–Oct 22, Oct 23–Nov 21, 2026) combining Tonal strength training (Mon/Wed/Fri), a Wahoo incline treadmill walk (Tue), and Kickr Bike cardio (Thu/Sat/Sun), alongside a 12-week alcohol step-down, a soup-forward low-glycemic nutrition framework, and an optional supplement stack. Full exercise and supplement detail lives in the companion Word document — this app is the day-to-day calendar and tracker.
+      </p>
+      <p class="muted">
+        <strong>Medical notice:</strong> this is a personal goal-setting and accountability tool, not medical advice. Work with your doctor before starting or changing exercise, nutrition, or supplement routines.
+      </p>
+    </section>
+  </div>
+
+</main>
+
+<footer>
+  90-Day A1C Roadmap · Personal use only · Generated for Rick, Grants Pass, OR · Not a substitute for medical advice.
+</footer>
+
+<script>
+/* ============ DATA (mirrors the Word document build) ============ */
+const START = new Date(2026, 7, 24); // Aug 24 2026, Monday
+const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function dateForDay(n){ const d=new Date(START); d.setDate(d.getDate()+(n-1)); return d; }
+function dayNumForDate(d){
+  const a = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const b = new Date(START.getFullYear(), START.getMonth(), START.getDate());
+  return Math.round((a-b)/86400000)+1;
+}
+function fmtShort(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function fmtFull(d){ return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
+function fmtISO(d){ return d.toISOString().slice(0,10); }
+function phaseForDay(n){ return n<=30?1:(n<=60?2:3); }
+
+const TONAL = {
+  1:{Monday:{focus:'Lower Body',exercises:'Goblet Squat, Romanian Deadlift, Leg Press, Glute Bridge',sets:'3 × 12',mode:'Guided Mode'},
+     Wednesday:{focus:'Upper Body Push',exercises:'Chest Press, Shoulder Press, Tricep Pushdown, Lateral Raise',sets:'3 × 12',mode:'Guided Mode'},
+     Friday:{focus:'Upper Body Pull + Core',exercises:'Lat Pulldown, Seated Row, Bicep Curl, Plank Hold',sets:'3 × 12',mode:'Guided Mode'}},
+  2:{Monday:{focus:'Lower Body Power',exercises:'Back Squat, Deadlift, Walking Lunge, Calf Raise',sets:'4 × 10',mode:'Spotter Mode'},
+     Wednesday:{focus:'Push + Core',exercises:'Incline Press, Arnold Press, Skull Crusher, Cable Crunch',sets:'4 × 10',mode:'Spotter Mode'},
+     Friday:{focus:'Pull + Functional',exercises:'Pull-Ups (assisted), T-Bar Row, Hammer Curl, Pallof Press',sets:'4 × 10',mode:'Challenge Mode'}},
+  3:{Monday:{focus:'Full Lower Body',exercises:'Barbell Squat, Single-Leg RDL, Step-Up, Hip Thrust',sets:'4 × 8–10',mode:'Max IR Challenge'},
+     Wednesday:{focus:'Full Upper Push',exercises:'Weighted Dip, Military Press, Cable Fly, Tricep Overhead Extension',sets:'4 × 8–10',mode:'Challenge Mode'},
+     Friday:{focus:'Full Upper Pull + Core',exercises:'Weighted Pull-Up, Bent-Over Row, Face Pull, Ab Rollout',sets:'4 × 8–10',mode:'Challenge Mode'}}
+};
+const KICKR = {
+  1:{Thursday:{type:'Tempo Intervals',duration:'25–30 min',detail:'3×6 min @ 75–80% HR, 2 min easy between'},
+     Saturday:{type:'Longer Endurance Ride',duration:'45–60 min',detail:'Zone 2–3 (65–75% HR) — most impactful aerobic session'},
+     Sunday:{type:'Easy Recovery Spin',duration:'30–40 min',detail:'50–60% HR — promotes glucose clearance'}},
+  2:{Thursday:{type:'Sweet Spot Intervals',duration:'30 min',detail:'2×12 min @ 88–93% FTP — strongest glucose-disposal session'},
+     Saturday:{type:'Endurance + Climb Simulation',duration:'60 min',detail:'Zone 2–3 with route feature'},
+     Sunday:{type:'Aerobic Foundation',duration:'40 min',detail:'Zone 2 (65–70% HR) — active recovery'}},
+  3:{Thursday:{type:'Tempo Cruise',duration:'30 min',detail:'20 min sustained @ 80–85% HR'},
+     Saturday:{type:'Challenge Ride',duration:'60–75 min',detail:'Structured Wahoo workout or group ride sim — signature session'},
+     Sunday:{type:'Active Recovery',duration:'45 min',detail:'Zone 2 + 5-min cooldown stretch'}}
+};
+const WAHOO_WALK = {
+  1:{type:'Incline Treadmill Walk',duration:'30 min',detail:'4–6% incline @ 3.2–3.5 mph — Zone 2 (60–65% max HR)'},
+  2:{type:'Incline Treadmill Walk',duration:'35 min',detail:'6–8% incline @ 3.2–3.5 mph — Zone 2 (65–70% max HR)'},
+  3:{type:'Incline Treadmill Walk',duration:'40 min',detail:'8–10% incline @ 3.0–3.3 mph — Zone 2 (65–70% max HR), steeper grade'}
+};
+function workoutFor(n){
+  const d=dateForDay(n), dow=DOW[d.getDay()], ph=phaseForDay(n);
+  if(TONAL[ph][dow]){const w=TONAL[ph][dow]; return {kind:'Tonal',label:'Tonal — '+w.focus,detail:w.exercises+' · '+w.sets+' · '+w.mode};}
+  if(dow==='Tuesday'){const w=WAHOO_WALK[ph]; return {kind:'Wahoo',label:'Wahoo — '+w.type,detail:w.duration+' · '+w.detail};}
+  if(KICKR[ph][dow]){const w=KICKR[ph][dow]; return {kind:'Kickr',label:'Kickr — '+w.type,detail:w.duration+' · '+w.detail};}
+  return {kind:'Rest',label:'Rest / Mobility',detail:'Optional light walk or stretching'};
+}
+
+const ALCOHOL_WEEK = {
+  1:'3 beers/night max (21/week) — track every drink',
+  2:'3 beers/night max (21/week) — track every drink',
+  3:'2–3 beers/night (17/week) — delay first drink by 1 hr',
+  4:'2–3 beers/night (17/week) — delay first drink by 1 hr',
+  5:'2 beers/night max (14/week) — 2 alcohol-free days',
+  6:'2 beers/night max (14/week) — 2 alcohol-free days',
+  7:'1–2 beers (10/week) — add a 3rd alcohol-free day',
+  8:'1–2 beers (10/week) — add a 3rd alcohol-free day',
+  9:'1 beer/night on drinking days (7/week) — only with dinner',
+  10:'1 beer/night on drinking days (7/week) — only with dinner',
+  11:'0–1 beer, target 4–5 alcohol-free nights (≤5/week)',
+  12:'0–1 beer, target 4–5 alcohol-free nights (≤5/week)',
+  13:'0–1 beer, target 4–5 alcohol-free nights (≤5/week)'
+};
+
+const BREAKFASTS=['Greek yogurt + berries + chia seeds','2-egg veggie scramble + 1 slice whole grain toast','Protein smoothie (spinach, protein powder, frozen berries, flaxseed, almond milk)','Overnight oats (rolled oats, chia, almond milk, cinnamon, berries)','Veggie omelette (3 eggs, peppers, onion, spinach)','Cottage cheese + sliced peaches + walnuts','Chia pudding (almond milk, vanilla) + mixed berries','Smoked salmon + avocado on whole grain toast','Make-ahead egg muffins (spinach & feta) + fruit','Greek yogurt parfait with low-sugar granola & pumpkin seeds','Protein pancakes (oat flour, egg whites, banana) + almond butter','Turkey sausage + sautéed spinach + ½ avocado','Cottage cheese bowl + walnuts + cinnamon + berries','Veggie & black bean breakfast tacos (corn tortilla, eggs)'];
+const LUNCHES=['Leftover lentil & turmeric soup + side salad','Black bean soup + sliced avocado','White bean & chicken soup','Turkey & veggie wrap in lettuce leaves','Chicken vegetable minestrone (modified, chickpea pasta)','Big salad with grilled salmon, chickpeas, olive oil','Tom Kha coconut chicken soup','Grilled chicken Caesar (light dressing) over greens','Quinoa bowl with roasted vegetables + grilled chicken','Turkey chili (bean-forward, no added sugar)','Greek-yogurt tuna salad over mixed greens','Caldo de Pollo + side of steamed veggies','Chicken shoyu ramen bowl (shirataki noodles)','Mediterranean bowl: grilled chicken, cucumber, tomato, feta, olive oil'];
+const DINNERS=['Grilled chicken + roasted vegetables + ½ cup brown rice','Caldo de Pollo + 1–2 corn tortillas','Sopa de Lima (Yucatán lime chicken soup)','Bone broth egg drop soup + hard-boiled eggs','Chicken shoyu ramen bowl','Pozole rojo (modified — chicken, ½ cup hominy)','Miso vegetable ramen (noodle-light, extra veggies)','Baked salmon + asparagus + quinoa','Turkey meatballs + zucchini noodles + marinara','Sheet-pan shrimp fajitas (peppers, onion, lime, corn tortillas)','Stuffed bell peppers (ground turkey, cauliflower rice)','Grilled tilapia + black bean & corn salsa + side salad','Lentil & turmeric soup + side salad','White bean & chicken soup + roasted broccoli'];
+const SNACKS=['String cheese + almonds','Apple + almond butter','Celery + hummus','Walnuts + 1 square dark chocolate (85%+)','Edamame','Mixed nuts (unsalted)','Berries + cottage cheese','Hard-boiled egg + cucumber slices','Roasted chickpeas','Greek yogurt + cinnamon'];
+
+function mealsFor(idx0){
+  return {
+    breakfast: BREAKFASTS[idx0 % BREAKFASTS.length],
+    lunch: LUNCHES[(idx0+5) % LUNCHES.length],
+    dinner: DINNERS[(idx0+9) % DINNERS.length],
+    snack: SNACKS[idx0 % SNACKS.length]
+  };
+}
+
+const HABITS = [
+  {key:'tonal', label:'🏋️ Tonal / Wahoo / Kickr session completed'},
+  {key:'alcohol', label:'🍺 Alcohol within weekly target'},
+  {key:'protein', label:'🥩 Protein at every meal'},
+  {key:'sleep', label:'🛏️ In bed by 10:30 PM'},
+  {key:'supplements', label:'💊 Supplements taken'},
+  {key:'soup', label:'🥣 Soup for lunch or dinner'},
+  {key:'fiber', label:'🌿 Psyllium fiber before main meal'}
+];
+
+const MILESTONES = [
+  {day:14, title:'Week 2', goal:'First alcohol-free day streak (2+ consecutive days)'},
+  {day:30, title:'Week 4', goal:'Alcohol at or below 17 drinks/week; all 6 weekly sessions completed'},
+  {day:42, title:'Week 6', goal:'Noticeable energy improvement; clothes fitting better; resting HR trending down'},
+  {day:56, title:'Week 8', goal:'Alcohol at or below 10/week; fasting glucose trending down if self-monitoring'},
+  {day:70, title:'Week 10', goal:'Alcohol at or below 7/week; Phase 3 workouts completing successfully'},
+  {day:84, title:'Week 12', goal:'Labs drawn for doctor appointment — target A1C drop of 0.8–1.5+ points'}
+];
+
+/* ============ STATE ============ */
+let habitState = {}; // in-memory only, resets on reload
+let selectedDayNum = clampDay(dayNumForDate(new Date()));
+
+function clampDay(n){ return Math.max(1, Math.min(90, n)); }
+
+/* ============ RENDER: HERO ============ */
+function renderHero(){
+  const n = clampDay(dayNumForDate(new Date()));
+  const d = dateForDay(n);
+  document.getElementById('dialDay').innerHTML = (n>=1&&n<=90? ('Day '+n) : '—') + '<sup>/90</sup>';
+  document.getElementById('dialDateLabel').textContent = fmtFull(new Date());
+  const ph = phaseForDay(n);
+  document.getElementById('dialPhaseLabel').textContent = 'Phase ' + ph + ' of 3';
+  const labDate = dateForDay(84);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((labDate - today)/86400000);
+  document.getElementById('dialCountdown').textContent = diff>=0
+    ? diff + ' days to lab draw (' + fmtShort(labDate) + ')'
+    : 'Plan window: Aug 24 – Nov 21, 2026';
+
+  const strip = document.getElementById('progressStrip');
+  strip.innerHTML='';
+  for(let i=1;i<=90;i++){
+    const seg=document.createElement('div');
+    seg.className='seg p'+phaseForDay(i)+(i===n?' today':'');
+    strip.appendChild(seg);
+  }
+}
+
+/* ============ RENDER: TODAY PANEL ============ */
+function renderToday(){
+  const n = selectedDayNum;
+  const d = dateForDay(n);
+  const w = workoutFor(n);
+  const meals = mealsFor(n-1);
+  const weekNum = Math.floor((n-1)/7)+1;
+  const alc = ALCOHOL_WEEK[weekNum] || ALCOHOL_WEEK[13];
+
+  document.getElementById('todayTitle').textContent = fmtFull(d) + ' · Day ' + n + '/90';
+  document.getElementById('todaySub').textContent = 'Phase ' + phaseForDay(n) + ' — week ' + weekNum;
+  document.getElementById('todayWorkoutLabel').textContent = w.label;
+  document.getElementById('todayWorkoutDetail').textContent = w.detail;
+  document.getElementById('todayAlcohol').textContent = alc;
+  document.getElementById('todayBreakfast').textContent = meals.breakfast;
+  document.getElementById('todayLunch').textContent = meals.lunch;
+  document.getElementById('todayDinner').textContent = meals.dinner;
+  document.getElementById('todaySnack').textContent = meals.snack;
+
+  document.getElementById('dateJump').value = fmtISO(d);
+  renderHabits(n);
+}
+
+function renderHabits(n){
+  if(!habitState[n]) habitState[n] = {};
+  const container = document.getElementById('habitList');
+  container.innerHTML='';
+  HABITS.forEach(h=>{
+    const row = document.createElement('div');
+    row.className='habit-row';
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type='checkbox';
+    cb.checked = !!habitState[n][h.key];
+    cb.addEventListener('change', ()=>{
+      habitState[n][h.key] = cb.checked;
+      updateHabitProgress(n);
+    });
+    const span = document.createElement('span');
+    span.textContent = h.label;
+    label.appendChild(cb);
+    label.appendChild(span);
+    row.appendChild(label);
+    container.appendChild(row);
+  });
+  updateHabitProgress(n);
+}
+function updateHabitProgress(n){
+  const state = habitState[n] || {};
+  const done = HABITS.filter(h=>state[h.key]).length;
+  document.getElementById('habitProgress').textContent = done + ' / ' + HABITS.length + ' habits checked for this day';
+}
+
+/* ============ RENDER: CALENDAR ============ */
+function renderCalendar(){
+  const container = document.getElementById('calendarWeeks');
+  container.innerHTML='';
+  let dayNum=1, week=1;
+  while(dayNum<=90){
+    const startDate = dateForDay(dayNum);
+    const days=[];
+    for(let i=0;i<7 && dayNum<=90;i++){ days.push(dayNum); dayNum++; }
+    const endDate = dateForDay(dayNum-1);
+    const ph = phaseForDay(days[0]);
+
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `
+      <div class="week-header">
+        <h3>Week ${week} <span class="tag">Phase ${ph}</span></h3>
+        <span class="range">${fmtShort(startDate)} – ${fmtShort(endDate)}</span>
+      </div>
+      <div class="alc-note">🍺 ${ALCOHOL_WEEK[week] || ALCOHOL_WEEK[13]}</div>
+      <div class="wrap">
+      <table class="cal">
+        <thead><tr><th>Date</th><th>Workout</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Snack</th></tr></thead>
+        <tbody>
+          ${days.map(dn=>{
+            const d=dateForDay(dn); const dow=DOW[d.getDay()];
+            const w=workoutFor(dn); const m=mealsFor(dn-1);
+            return `<tr>
+              <td class="date-cell">${dow.slice(0,3)} ${fmtShort(d)}</td>
+              <td>${w.label}</td>
+              <td>${m.breakfast}</td>
+              <td>${m.lunch}</td>
+              <td>${m.dinner}</td>
+              <td>${m.snack}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>
+    `;
+    container.appendChild(wrap);
+    week++;
+  }
+}
+
+/* ============ RENDER: RECIPES ============ */
+function renderRecipes(){
+  const fill=(id, arr)=>{
+    const el=document.getElementById(id);
+    el.innerHTML = arr.map(x=>`<li>${x}</li>`).join('');
+  };
+  fill('listBreakfast', BREAKFASTS);
+  fill('listLunch', LUNCHES);
+  fill('listDinner', DINNERS);
+  fill('listSnack', SNACKS);
+}
+
+/* ============ RENDER: MILESTONES ============ */
+function renderMilestones(){
+  const container = document.getElementById('milestoneList');
+  container.innerHTML='';
+  const todayN = clampDay(dayNumForDate(new Date()));
+  MILESTONES.forEach(m=>{
+    const d = dateForDay(m.day);
+    const done = todayN > m.day;
+    const row = document.createElement('div');
+    row.className = 'milestone' + (done?' done':'');
+    row.innerHTML = `
+      <div class="m-date">${fmtFull(d)}<br>Day ${m.day}</div>
+      <div class="m-body">
+        <div class="m-title">${m.title}${done?' ✓':''}</div>
+        <div class="m-goal">${m.goal}</div>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+/* ============ TABS ============ */
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-tab]');
+  if(!btn) return;
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+});
+
+/* ============ DAY NAV ============ */
+document.getElementById('btnPrevDay').addEventListener('click', ()=>{
+  selectedDayNum = clampDay(selectedDayNum-1); renderToday();
+});
+document.getElementById('btnNextDay').addEventListener('click', ()=>{
+  selectedDayNum = clampDay(selectedDayNum+1); renderToday();
+});
+document.getElementById('btnToday').addEventListener('click', ()=>{
+  selectedDayNum = clampDay(dayNumForDate(new Date())); renderToday();
+});
+document.getElementById('btnGoDate').addEventListener('click', ()=>{
+  const val = document.getElementById('dateJump').value;
+  if(!val) return;
+  const parts = val.split('-').map(Number);
+  const d = new Date(parts[0], parts[1]-1, parts[2]);
+  selectedDayNum = clampDay(dayNumForDate(d));
+  renderToday();
+});
+
+/* ============ INIT ============ */
+renderHero();
+renderToday();
+renderCalendar();
+renderRecipes();
+renderMilestones();
+</script>
+</body>
+</html>
