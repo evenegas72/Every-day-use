@@ -121,6 +121,23 @@
     letter-spacing:0.03em;
   }
 
+  /* Language toggle */
+  .lang-toggle{
+    position:absolute; top:14px; right:14px; z-index:5;
+    display:flex; gap:2px;
+    background:rgba(255,255,255,0.08);
+    border-radius:20px; padding:3px;
+  }
+  .lang-toggle button{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:11.5px; font-weight:600;
+    padding:5px 10px; border-radius:16px; border:none;
+    background:transparent; color:#C7D6DE; cursor:pointer;
+    white-space:nowrap; transition:background .15s ease, color .15s ease;
+  }
+  .lang-toggle button.active{background:#FBF9F4; color:var(--navy);}
+  .lang-toggle button:hover:not(.active){color:#fff;}
+
   /* ---------- Tabs ---------- */
   nav.tabs{
     position:sticky; top:0; z-index:20;
@@ -316,10 +333,14 @@
 <body>
 
 <header class="hero">
+  <div class="lang-toggle" id="langToggle">
+    <button type="button" class="lang-btn active" data-lang="en" aria-label="English (US)">🇺🇸 EN</button>
+    <button type="button" class="lang-btn" data-lang="es" aria-label="Español (México)">🇲🇽 ES</button>
+  </div>
   <div class="hero-inner">
-    <div class="eyebrow">Personal A1C Intervention · Prepared for Rick</div>
-    <h1 class="hero-title">90-Day A1C Roadmap</h1>
-    <p class="hero-sub">Tonal + Kickr + Wahoo, alcohol step-down, and a rotating soup-forward meal plan — mapped to real dates from Aug 24 to Nov 21, 2026.</p>
+    <div class="eyebrow" data-i18n="eyebrow">Personal A1C Intervention · Prepared for Rick</div>
+    <h1 class="hero-title" data-i18n="heroTitle">90-Day A1C Roadmap</h1>
+    <p class="hero-sub" data-i18n="heroSub">Tonal + Kickr + Wahoo, alcohol step-down, and a rotating soup-forward meal plan — mapped to real dates from Aug 24 to Nov 21, 2026.</p>
 
     <div class="day-dial">
       <div>
@@ -334,21 +355,21 @@
 
     <div class="strip" id="progressStrip"></div>
     <div class="strip-labels">
-      <span>Aug 24 — Phase 1</span>
-      <span>Sep 23 — Phase 2</span>
-      <span>Oct 23 — Phase 3</span>
-      <span>Nov 21</span>
+      <span data-i18n="stripLabel1">Aug 24 — Phase 1</span>
+      <span data-i18n="stripLabel2">Sep 23 — Phase 2</span>
+      <span data-i18n="stripLabel3">Oct 23 — Phase 3</span>
+      <span data-i18n="stripLabel4">Nov 21</span>
     </div>
   </div>
 </header>
 
 <nav class="tabs" id="tabs">
-  <button data-tab="today" class="active">Today</button>
-  <button data-tab="calendar">Full Calendar</button>
-  <button data-tab="recipes">Recipes</button>
-  <button data-tab="supplements">Supplements</button>
-  <button data-tab="milestones">Milestones</button>
-  <button data-tab="about">About</button>
+  <button data-tab="today" data-i18n="tabToday" class="active">Today</button>
+  <button data-tab="calendar" data-i18n="tabCalendar">Full Calendar</button>
+  <button data-tab="recipes" data-i18n="tabRecipes">Recipes</button>
+  <button data-tab="supplements" data-i18n="tabSupplements">Supplements</button>
+  <button data-tab="milestones" data-i18n="tabMilestones">Milestones</button>
+  <button data-tab="about" data-i18n="tabAbout">About</button>
 </nav>
 
 <main>
@@ -360,45 +381,45 @@
       <p class="muted" id="todaySub">—</p>
 
       <div class="day-jump">
-        <button class="secondary" id="btnPrevDay">← Prev day</button>
+        <button class="secondary" id="btnPrevDay" data-i18n="btnPrevDay">← Prev day</button>
         <input type="date" id="dateJump">
-        <button id="btnGoDate">Go</button>
-        <button class="secondary" id="btnToday">Jump to today</button>
-        <button class="secondary" id="btnNextDay">Next day →</button>
+        <button id="btnGoDate" data-i18n="btnGoDate">Go</button>
+        <button class="secondary" id="btnToday" data-i18n="btnToday">Jump to today</button>
+        <button class="secondary" id="btnNextDay" data-i18n="btnNextDay">Next day →</button>
       </div>
 
       <div class="today-grid">
         <div class="today-block">
-          <div class="label">Workout</div>
+          <div class="label" data-i18n="labelWorkout">Workout</div>
           <div class="value" id="todayWorkoutLabel">—</div>
           <div class="detail" id="todayWorkoutDetail">—</div>
         </div>
         <div class="today-block">
-          <div class="label">Alcohol Target This Week</div>
+          <div class="label" data-i18n="labelAlcohol">Alcohol Target This Week</div>
           <div class="value" id="todayAlcohol">—</div>
         </div>
         <div class="today-block">
-          <div class="label">Breakfast</div>
+          <div class="label" data-i18n="labelBreakfast">Breakfast</div>
           <div class="value" id="todayBreakfast">—</div>
         </div>
         <div class="today-block">
-          <div class="label">Lunch</div>
+          <div class="label" data-i18n="labelLunch">Lunch</div>
           <div class="value" id="todayLunch">—</div>
         </div>
         <div class="today-block">
-          <div class="label">Dinner</div>
+          <div class="label" data-i18n="labelDinner">Dinner</div>
           <div class="value" id="todayDinner">—</div>
         </div>
         <div class="today-block">
-          <div class="label">Snack</div>
+          <div class="label" data-i18n="labelSnack">Snack</div>
           <div class="value" id="todaySnack">—</div>
         </div>
       </div>
     </section>
 
     <section class="card">
-      <h2>Daily Habit Checklist</h2>
-      <p class="muted">Checks reset when you reload the page — print the checklist from the roadmap doc if you want a permanent paper copy.</p>
+      <h2 data-i18n="habitTitle">Daily Habit Checklist</h2>
+      <p class="muted" data-i18n="habitDesc">Checks reset when you reload the page — print the checklist from the roadmap doc if you want a permanent paper copy.</p>
       <div id="habitList"></div>
       <div class="habit-progress" id="habitProgress"></div>
     </section>
@@ -407,8 +428,8 @@
   <!-- CALENDAR -->
   <div class="panel" id="panel-calendar">
     <section class="card">
-      <h2>Full 90-Day Calendar</h2>
-      <p class="muted">Every day, Aug 24 → Nov 21, 2026, with its workout and rotating meals. Scroll or use your browser's find (Ctrl/Cmd+F) to jump to a date.</p>
+      <h2 data-i18n="calendarTitle">Full 90-Day Calendar</h2>
+      <p class="muted" data-i18n="calendarDesc">Every day, Aug 24 → Nov 21, 2026, with its workout and rotating meals. Scroll or use your browser's find (Ctrl/Cmd+F) to jump to a date.</p>
     </section>
     <div id="calendarWeeks"></div>
   </div>
@@ -416,56 +437,50 @@
   <!-- RECIPES -->
   <div class="panel" id="panel-recipes">
     <section class="card">
-      <h2>Recipe Rotation</h2>
-      <p class="muted">These pools rotate through the 90-day calendar so meals don't repeat too often. Swap freely within a category as long as you stay within the Plate Method proportions (½ non-starchy veg, ¼ lean protein, ¼ fiber-rich carb, healthy fat). Tap any recipe to expand ingredients and steps.</p>
+      <h2 data-i18n="recipesTitle">Recipe Rotation</h2>
+      <p class="muted" data-i18n="recipesDesc">These pools rotate through the 90-day calendar so meals don't repeat too often. Swap freely within a category as long as you stay within the Plate Method proportions (½ non-starchy veg, ¼ lean protein, ¼ fiber-rich carb, healthy fat). Tap any recipe to expand ingredients and steps.</p>
       <div class="recipe-grid">
         <div>
-          <h3>Breakfasts</h3>
+          <h3 data-i18n="catBreakfasts">Breakfasts</h3>
           <ul class="recipe-list" id="listBreakfast"></ul>
         </div>
         <div>
-          <h3>Lunches</h3>
+          <h3 data-i18n="catLunches">Lunches</h3>
           <ul class="recipe-list" id="listLunch"></ul>
         </div>
         <div>
-          <h3>Dinners</h3>
+          <h3 data-i18n="catDinners">Dinners</h3>
           <ul class="recipe-list" id="listDinner"></ul>
         </div>
         <div>
-          <h3>Snacks</h3>
+          <h3 data-i18n="catSnacks">Snacks</h3>
           <ul class="recipe-list" id="listSnack"></ul>
         </div>
       </div>
     </section>
 
     <section class="card">
-      <h2>🍜 Soup Rotation — Reference</h2>
-      <p class="muted">Soups are one of the best blood-sugar management tools available: high volume, high protein, high fiber, and easy to batch-cook. Batch-cook 2 soups on Sunday — they refrigerate 4–5 days and form the backbone of the week's lunches and dinners.</p>
-      <h3>Top-rated for A1C impact</h3>
+      <h2 data-i18n="soupTitle">🍜 Soup Rotation — Reference</h2>
+      <p class="muted" data-i18n="soupDesc">Soups are one of the best blood-sugar management tools available: high volume, high protein, high fiber, and easy to batch-cook. Batch-cook 2 soups on Sunday — they refrigerate 4–5 days and form the backbone of the week's lunches and dinners.</p>
+      <h3 data-i18n="soupSubtitle">Top-rated for A1C impact</h3>
       <div class="wrap">
       <table class="cal">
-        <thead><tr><th>Soup</th><th>Key Ingredients</th><th>A1C Benefit</th></tr></thead>
-        <tbody>
-          <tr><td style="font-weight:600">Lentil &amp; Turmeric Soup</td><td>Green/red lentils, turmeric, cumin, ginger, garlic, spinach, tomatoes</td><td>★★★★★ — GI ~32; 8g fiber/serving; turmeric supports insulin sensitivity</td></tr>
-          <tr><td style="font-weight:600">White Bean &amp; Chicken Soup</td><td>Cannellini beans, chicken breast, garlic, rosemary, kale, lemon zest</td><td>★★★★☆ — 22g protein + 7g fiber per serving</td></tr>
-          <tr><td style="font-weight:600">Bone Broth Egg Drop Soup</td><td>Low-sodium bone broth, whisked eggs, ginger, garlic, green onion</td><td>★★★★☆ — near-zero carbs; 15-min prep</td></tr>
-          <tr><td style="font-weight:600">Chicken Vegetable Minestrone (Modified)</td><td>Zucchini, tomatoes, celery, white beans, chicken, chickpea pasta (½ cup max)</td><td>★★★★☆ — chickpea pasta doubles fiber/protein vs. regular pasta</td></tr>
-          <tr><td style="font-weight:600">Thai Coconut Chicken Soup (Tom Kha)</td><td>Light coconut milk, chicken breast, mushrooms, galangal, lemongrass, lime, fish sauce</td><td>★★★☆☆ — healthy fats slow absorption; use light coconut milk only</td></tr>
-        </tbody>
+        <thead><tr><th data-i18n="thSoup">Soup</th><th data-i18n="thSoupIngr">Key Ingredients</th><th data-i18n="thSoupBenefit">A1C Benefit</th></tr></thead>
+        <tbody id="soupRows"></tbody>
       </table>
       </div>
-      <div class="callout"><strong>📦 Soup prep strategy:</strong> Keep frozen bone broth cubes on hand for 15-minute emergency meals. Buy a rotisserie chicken weekly — it's your universal protein base for Sopa de Lima, Caldo de Pollo, Ramen, and Minestrone.</div>
+      <div class="callout" data-i18n="soupCallout" data-i18n-html>📦 Soup prep strategy: Keep frozen bone broth cubes on hand for 15-minute emergency meals.</div>
     </section>
   </div>
 
   <!-- SUPPLEMENTS -->
   <div class="panel" id="panel-supplements">
     <section class="card">
-      <h2>💊 Nutrient Support Strategy</h2>
-      <div class="callout warn"><strong>⚠️ Important before starting supplements:</strong> These are adjuncts to lifestyle change — not replacements. Discuss all supplements with your doctor before starting, especially if you are on any medications. Berberine in particular can interact with certain drugs. Bring this table to your appointment.</div>
+      <h2 data-i18n="supplementsTitle">💊 Nutrient Support Strategy</h2>
+      <div class="callout warn" data-i18n="supplementsWarn" data-i18n-html>⚠️ Important before starting supplements: consult your doctor.</div>
       <div class="wrap">
       <table class="cal">
-        <thead><tr><th>Supplement</th><th>Evidence Level</th><th>Dose</th><th>Timing</th><th>Key Notes</th></tr></thead>
+        <thead><tr><th data-i18n="thSupplement">Supplement</th><th data-i18n="thEvidence">Evidence Level</th><th data-i18n="thDose">Dose</th><th data-i18n="thTiming">Timing</th><th data-i18n="thNotes">Key Notes</th></tr></thead>
         <tbody id="supplementRows"></tbody>
       </table>
       </div>
@@ -475,100 +490,195 @@
   <!-- MILESTONES -->
   <div class="panel" id="panel-milestones">
     <section class="card">
-      <h2>90-Day Milestones</h2>
-      <p class="muted">Target dates for the alcohol step-down and workout goals, plus the lab-draw date to bring to your doctor.</p>
+      <h2 data-i18n="milestonesTitle">90-Day Milestones</h2>
+      <p class="muted" data-i18n="milestonesDesc">Target dates for the alcohol step-down and workout goals, plus the lab-draw date to bring to your doctor.</p>
       <div id="milestoneList"></div>
     </section>
 
     <section class="card">
-      <h2>What to Tell Your Doctor</h2>
-      <p class="muted">Bring data to the appointment — not just a summary. Screenshots from the Tonal app (workout history, weight progression) and Wahoo app (ride duration, heart rate zones) are legitimate clinical data.</p>
-      <ul class="ingredient-list" style="margin-left:20px; font-size:13.5px; color:var(--ink);">
-        <li>"I completed approximately 225–250 minutes of combined aerobic and resistance exercise per week for 12 weeks — both aerobic cycling and machine-based resistance training."</li>
-        <li>"I reduced my nightly alcohol intake from 4–5 beers to [X] per night by week 12."</li>
-        <li>"I followed a low-glycemic meal pattern emphasizing protein, fiber, and vegetable-based soups."</li>
-        <li>"I added berberine (500 mg 3×/day), magnesium glycinate (400 mg), and psyllium husk fiber (5–10g before meals) — here are the exact products and doses."</li>
-      </ul>
+      <h2 data-i18n="doctorTitle">What to Tell Your Doctor</h2>
+      <p class="muted" data-i18n="doctorDesc">Bring data to the appointment — not just a summary. Screenshots from the Tonal app (workout history, weight progression) and Wahoo app (ride duration, heart rate zones) are legitimate clinical data.</p>
+      <ul class="ingredient-list" id="doctorPoints" style="margin-left:20px; font-size:13.5px; color:var(--ink);"></ul>
     </section>
   </div>
 
   <!-- ABOUT -->
   <div class="panel" id="panel-about">
     <section class="card">
-      <h2>About This Plan</h2>
-      <p class="muted">
+      <h2 data-i18n="aboutTitle">About This Plan</h2>
+      <p class="muted" data-i18n="aboutPara">
         Three 30-day phases (Aug 24–Sep 22, Sep 23–Oct 22, Oct 23–Nov 21, 2026) combining Tonal strength training (Mon/Wed/Fri), a Wahoo incline treadmill walk (Tue), and Kickr Bike cardio (Thu/Sat/Sun), alongside a 12-week alcohol step-down, a soup-forward low-glycemic nutrition framework, and an optional supplement stack. Your A1C reflects average blood glucose over the past 2–3 months, so this 90-day window maps to one complete A1C measurement cycle — Day 1 is Monday, August 24, 2026, and Day 90 lands on Saturday, November 21, 2026, right before your lab draw and doctor visit.
       </p>
-      <p class="muted">
-        <strong>Medical notice:</strong> this is a personal goal-setting and accountability tool, not medical advice. Work with your doctor before starting or changing exercise, nutrition, or supplement routines.
+      <p class="muted" data-i18n="aboutMedical" data-i18n-html>
+        <strong>Medical notice:</strong> this is a personal goal-setting and accountability tool, not medical advice.
       </p>
     </section>
 
     <section class="card">
-      <h2>The Science Behind This Plan</h2>
+      <h2 data-i18n="scienceTitle">The Science Behind This Plan</h2>
       <div class="wrap">
       <table class="cal">
-        <thead><tr><th>Intervention</th><th>Evidence-Based A1C Reduction</th><th>Timeframe</th></tr></thead>
+        <thead><tr><th data-i18n="thIntervention">Intervention</th><th data-i18n="thReduction">Evidence-Based A1C Reduction</th><th data-i18n="thTimeframe">Timeframe</th></tr></thead>
         <tbody id="scienceRows"></tbody>
       </table>
       </div>
-      <div class="callout"><strong>💡 Your personal advantage:</strong> Tonal handles your strength training, the Kickr Bike handles your cardio — together they're a medical-grade intervention. Research consistently shows that combined aerobic and resistance training outperforms either modality alone for A1C reduction. You're not starting from zero — you're starting with the right equipment and a concrete plan.</div>
+      <div class="callout" data-i18n="scienceCallout" data-i18n-html>💡 Your personal advantage.</div>
     </section>
 
     <section class="card">
-      <h2>🥗 The Plate Method (Every Meal)</h2>
+      <h2 data-i18n="plateTitle">🥗 The Plate Method (Every Meal)</h2>
       <div class="wrap">
       <table class="cal">
-        <thead><tr><th>Plate Section</th><th>Proportion</th><th>What to Put There</th><th>Why It Works</th></tr></thead>
+        <thead><tr><th data-i18n="thPlateSection">Plate Section</th><th data-i18n="thProportion">Proportion</th><th data-i18n="thPutThere">What to Put There</th><th data-i18n="thWhyWorks">Why It Works</th></tr></thead>
         <tbody id="plateRows"></tbody>
       </table>
       </div>
-      <h3>Meal Timing Strategies</h3>
-      <ul class="ingredient-list" style="margin-left:20px; font-size:13.5px; color:var(--ink-soft);">
-        <li>Eat within 1–2 hours of waking — breakfast stabilizes morning cortisol-driven glucose elevation</li>
-        <li>No eating within 2 hours of bedtime — nighttime glucose is least efficiently managed</li>
-        <li>Try to ride the Kickr after dinner when scheduling allows — direct glucose utilization</li>
-        <li>Never skip a meal entirely — replace with a protein-rich snack if needed to avoid rebound hunger</li>
-      </ul>
+      <h3 data-i18n="timingTitle">Meal Timing Strategies</h3>
+      <ul class="ingredient-list" id="timingList" style="margin-left:20px; font-size:13.5px; color:var(--ink-soft);"></ul>
     </section>
 
     <section class="card">
-      <h2>😴 Sleep &amp; Stress — The Hidden A1C Drivers</h2>
-      <p class="muted">Sleep and stress are two of the most underestimated contributors to elevated A1C, and they're particularly relevant given alcohol's effect on sleep architecture.</p>
+      <h2 data-i18n="sleepTitle">😴 Sleep &amp; Stress — The Hidden A1C Drivers</h2>
+      <p class="muted" data-i18n="sleepDesc">Sleep and stress are two of the most underestimated contributors to elevated A1C, and they're particularly relevant given alcohol's effect on sleep architecture.</p>
       <div class="wrap">
       <table class="cal">
-        <thead><tr><th>Factor</th><th>How It Raises A1C</th><th>Target</th><th>Action</th></tr></thead>
+        <thead><tr><th data-i18n="thFactor">Factor</th><th data-i18n="thHowRaises">How It Raises A1C</th><th data-i18n="thTarget">Target</th><th data-i18n="thAction">Action</th></tr></thead>
         <tbody id="sleepRows"></tbody>
       </table>
       </div>
-      <div class="callout"><strong>🌲 Grants Pass nature advantage:</strong> The Illinois River corridor and Rogue River trails offer low-barrier, cortisol-reducing movement that complements your structured training. A 20-minute riverside walk after dinner is a legitimate glucose management tool.</div>
+      <div class="callout" data-i18n="sleepCallout" data-i18n-html>🌲 Grants Pass nature advantage.</div>
     </section>
 
     <section class="card">
-      <h2>🎯 Your 90-Day Edge</h2>
+      <h2 data-i18n="edgeTitle">🎯 Your 90-Day Edge</h2>
       <div class="wrap">
       <table class="cal">
-        <thead><tr><th>Your Advantage</th><th>Why It Matters</th></tr></thead>
-        <tbody>
-          <tr><td style="font-weight:600">Tonal Smart Gym</td><td>AI-adjusted resistance training = progressive overload without guesswork. Resistance training is the most consistently underutilized A1C intervention — you have the best tool for it.</td></tr>
-          <tr><td style="font-weight:600">Wahoo Kickr Bike</td><td>Structured aerobic sessions with heart rate data and ERG mode = clinical-grade cardio without leaving the house. Zone 2 and HIIT intervals are the two most evidence-backed aerobic protocols for A1C.</td></tr>
-          <tr><td style="font-weight:600">Alcohol Reduction</td><td>Going from 4–5 beers nightly to 1 or fewer is arguably the single fastest-acting change in this plan — fasting glucose can improve within 2–3 weeks of significant reduction.</td></tr>
-          <tr><td style="font-weight:600">Soup-Forward Nutrition</td><td>Sustainable, satisfying, culturally rich, and evidence-backed. High protein + high fiber + high volume = natural glucose control.</td></tr>
-          <tr><td style="font-weight:600">90-Day Timing</td><td>A1C measures the last 2–3 months of glucose — meaning this plan maps exactly to one complete A1C measurement cycle.</td></tr>
-        </tbody>
+        <thead><tr><th data-i18n="thAdvantage">Your Advantage</th><th data-i18n="thWhyMatters">Why It Matters</th></tr></thead>
+        <tbody id="edgeRows"></tbody>
       </table>
       </div>
-      <div class="callout"><strong>💬 The bottom line:</strong> Show up to your appointment with data — not just hope. The Tonal app, the Wahoo app, and a simple drink tracker are your evidence. You've already made the decision to act — now the plan does the rest.</div>
+      <div class="callout" data-i18n="edgeCallout" data-i18n-html>💬 The bottom line.</div>
     </section>
   </div>
 
 </main>
 
-<footer>
+<footer data-i18n="footer">
   90-Day A1C Roadmap · Personal use only · Generated for Rick, Grants Pass, OR · Not a substitute for medical advice.
 </footer>
 
 <script>
+/* ============ LANGUAGE ============ */
+let LANG = 'en';
+try{ const saved = localStorage.getItem('a1c_lang'); if(saved==='es'||saved==='en') LANG = saved; }catch(e){}
+
+const UI = {
+  en: {
+    eyebrow:'Personal A1C Intervention · Prepared for Rick',
+    heroTitle:'90-Day A1C Roadmap',
+    heroSub:'Tonal + Kickr + Wahoo, alcohol step-down, and a rotating soup-forward meal plan — mapped to real dates from Aug 24 to Nov 21, 2026.',
+    stripLabel1:'Aug 24 — Phase 1', stripLabel2:'Sep 23 — Phase 2', stripLabel3:'Oct 23 — Phase 3', stripLabel4:'Nov 21',
+    tabToday:'Today', tabCalendar:'Full Calendar', tabRecipes:'Recipes', tabSupplements:'Supplements', tabMilestones:'Milestones', tabAbout:'About',
+    btnPrevDay:'← Prev day', btnGoDate:'Go', btnToday:'Jump to today', btnNextDay:'Next day →',
+    labelWorkout:'Workout', labelAlcohol:'Alcohol Target This Week', labelBreakfast:'Breakfast', labelLunch:'Lunch', labelDinner:'Dinner', labelSnack:'Snack',
+    habitTitle:'Daily Habit Checklist',
+    habitDesc:"Checks reset when you reload the page — print the checklist from the roadmap doc if you want a permanent paper copy.",
+    habitProgress:(done,total)=>`${done} / ${total} habits checked for this day`,
+    calendarTitle:'Full 90-Day Calendar',
+    calendarDesc:"Every day, Aug 24 → Nov 21, 2026, with its workout and rotating meals. Scroll or use your browser's find (Ctrl/Cmd+F) to jump to a date.",
+    thDate:'Date', thWorkout:'Workout', thBreakfast:'Breakfast', thLunch:'Lunch', thDinner:'Dinner', thSnack:'Snack',
+    weekLabel:'Week', phaseLabel:'Phase',
+    recipesTitle:'Recipe Rotation',
+    recipesDesc:"These pools rotate through the 90-day calendar so meals don't repeat too often. Swap freely within a category as long as you stay within the Plate Method proportions (½ non-starchy veg, ¼ lean protein, ¼ fiber-rich carb, healthy fat). Tap any recipe to expand ingredients and steps.",
+    catBreakfasts:'Breakfasts', catLunches:'Lunches', catDinners:'Dinners', catSnacks:'Snacks',
+    ingredientsLabel:'Ingredients', stepsLabel:'Steps',
+    soupTitle:'🍜 Soup Rotation — Reference',
+    soupDesc:"Soups are one of the best blood-sugar management tools available: high volume, high protein, high fiber, and easy to batch-cook. Batch-cook 2 soups on Sunday — they refrigerate 4–5 days and form the backbone of the week's lunches and dinners.",
+    soupSubtitle:'Top-rated for A1C impact',
+    thSoup:'Soup', thSoupIngr:'Key Ingredients', thSoupBenefit:'A1C Benefit',
+    soupCallout:'<strong>📦 Soup prep strategy:</strong> Keep frozen bone broth cubes on hand for 15-minute emergency meals. Buy a rotisserie chicken weekly — it\'s your universal protein base for Sopa de Lima, Caldo de Pollo, Ramen, and Minestrone.',
+    supplementsTitle:'💊 Nutrient Support Strategy',
+    supplementsWarn:'<strong>⚠️ Important before starting supplements:</strong> These are adjuncts to lifestyle change — not replacements. Discuss all supplements with your doctor before starting, especially if you are on any medications. Berberine in particular can interact with certain drugs. Bring this table to your appointment.',
+    thSupplement:'Supplement', thEvidence:'Evidence Level', thDose:'Dose', thTiming:'Timing', thNotes:'Key Notes',
+    milestonesTitle:'90-Day Milestones',
+    milestonesDesc:'Target dates for the alcohol step-down and workout goals, plus the lab-draw date to bring to your doctor.',
+    doctorTitle:'What to Tell Your Doctor',
+    doctorDesc:'Bring data to the appointment — not just a summary. Screenshots from the Tonal app (workout history, weight progression) and Wahoo app (ride duration, heart rate zones) are legitimate clinical data.',
+    aboutTitle:'About This Plan',
+    aboutPara:"Three 30-day phases (Aug 24–Sep 22, Sep 23–Oct 22, Oct 23–Nov 21, 2026) combining Tonal strength training (Mon/Wed/Fri), a Wahoo incline treadmill walk (Tue), and Kickr Bike cardio (Thu/Sat/Sun), alongside a 12-week alcohol step-down, a soup-forward low-glycemic nutrition framework, and an optional supplement stack. Your A1C reflects average blood glucose over the past 2–3 months, so this 90-day window maps to one complete A1C measurement cycle — Day 1 is Monday, August 24, 2026, and Day 90 lands on Saturday, November 21, 2026, right before your lab draw and doctor visit.",
+    aboutMedical:'<strong>Medical notice:</strong> this is a personal goal-setting and accountability tool, not medical advice. Work with your doctor before starting or changing exercise, nutrition, or supplement routines.',
+    scienceTitle:'The Science Behind This Plan',
+    thIntervention:'Intervention', thReduction:'Evidence-Based A1C Reduction', thTimeframe:'Timeframe',
+    scienceCallout:"<strong>💡 Your personal advantage:</strong> Tonal handles your strength training, the Kickr Bike handles your cardio — together they're a medical-grade intervention. Research consistently shows that combined aerobic and resistance training outperforms either modality alone for A1C reduction. You're not starting from zero — you're starting with the right equipment and a concrete plan.",
+    plateTitle:'🥗 The Plate Method (Every Meal)',
+    thPlateSection:'Plate Section', thProportion:'Proportion', thPutThere:'What to Put There', thWhyWorks:'Why It Works',
+    timingTitle:'Meal Timing Strategies',
+    timingList:['Eat within 1–2 hours of waking — breakfast stabilizes morning cortisol-driven glucose elevation','No eating within 2 hours of bedtime — nighttime glucose is least efficiently managed','Try to ride the Kickr after dinner when scheduling allows — direct glucose utilization','Never skip a meal entirely — replace with a protein-rich snack if needed to avoid rebound hunger'],
+    sleepTitle:'😴 Sleep & Stress — The Hidden A1C Drivers',
+    sleepDesc:"Sleep and stress are two of the most underestimated contributors to elevated A1C, and they're particularly relevant given alcohol's effect on sleep architecture.",
+    thFactor:'Factor', thHowRaises:'How It Raises A1C', thTarget:'Target', thAction:'Action',
+    sleepCallout:'<strong>🌲 Grants Pass nature advantage:</strong> The Illinois River corridor and Rogue River trails offer low-barrier, cortisol-reducing movement that complements your structured training. A 20-minute riverside walk after dinner is a legitimate glucose management tool.',
+    edgeTitle:'🎯 Your 90-Day Edge',
+    thAdvantage:'Your Advantage', thWhyMatters:'Why It Matters',
+    edgeCallout:"<strong>💬 The bottom line:</strong> Show up to your appointment with data — not just hope. The Tonal app, the Wahoo app, and a simple drink tracker are your evidence. You've already made the decision to act — now the plan does the rest.",
+    footer:'90-Day A1C Roadmap · Personal use only · Generated for Rick, Grants Pass, OR · Not a substitute for medical advice.',
+    doctorPoints:['"I completed approximately 225–250 minutes of combined aerobic and resistance exercise per week for 12 weeks — both aerobic cycling and machine-based resistance training."','"I reduced my nightly alcohol intake from 4–5 beers to [X] per night by week 12."','"I followed a low-glycemic meal pattern emphasizing protein, fiber, and vegetable-based soups."','"I added berberine (500 mg 3×/day), magnesium glycinate (400 mg), and psyllium husk fiber (5–10g before meals) — here are the exact products and doses."'],
+    restLabel:'Rest / Mobility', restDetail:'Optional light walk or stretching'
+  },
+  es: {
+    eyebrow:'Intervención Personal de A1C · Preparado para Rick',
+    heroTitle:'Plan de 90 Días para el A1C',
+    heroSub:'Tonal + Kickr + Wahoo, reducción gradual de alcohol y un plan de comidas rotativo basado en sopas — organizado con fechas reales del 24 de agosto al 21 de noviembre de 2026.',
+    stripLabel1:'24 ago — Fase 1', stripLabel2:'23 sep — Fase 2', stripLabel3:'23 oct — Fase 3', stripLabel4:'21 nov',
+    tabToday:'Hoy', tabCalendar:'Calendario', tabRecipes:'Recetas', tabSupplements:'Suplementos', tabMilestones:'Hitos', tabAbout:'Acerca de',
+    btnPrevDay:'← Día anterior', btnGoDate:'Ir', btnToday:'Hoy', btnNextDay:'Día siguiente →',
+    labelWorkout:'Entrenamiento', labelAlcohol:'Meta de Alcohol Esta Semana', labelBreakfast:'Desayuno', labelLunch:'Almuerzo', labelDinner:'Cena', labelSnack:'Colación',
+    habitTitle:'Lista Diaria de Hábitos',
+    habitDesc:'Las casillas se reinician al recargar la página — imprime la lista del documento del plan si quieres una copia permanente en papel.',
+    habitProgress:(done,total)=>`${done} / ${total} hábitos marcados hoy`,
+    calendarTitle:'Calendario Completo de 90 Días',
+    calendarDesc:'Cada día, del 24 de agosto al 21 de noviembre de 2026, con su entrenamiento y comidas rotativas. Usa el buscador de tu navegador (Ctrl/Cmd+F) para saltar a una fecha.',
+    thDate:'Fecha', thWorkout:'Entrenamiento', thBreakfast:'Desayuno', thLunch:'Almuerzo', thDinner:'Cena', thSnack:'Colación',
+    weekLabel:'Semana', phaseLabel:'Fase',
+    recipesTitle:'Rotación de Recetas',
+    recipesDesc:'Estas listas rotan a lo largo del calendario de 90 días para que las comidas no se repitan demasiado. Cambia libremente dentro de cada categoría siempre que mantengas las proporciones del Método del Plato (½ verduras sin almidón, ¼ proteína magra, ¼ carbohidrato rico en fibra, grasa saludable). Toca cualquier receta para ver ingredientes y pasos.',
+    catBreakfasts:'Desayunos', catLunches:'Almuerzos', catDinners:'Cenas', catSnacks:'Colaciones',
+    ingredientsLabel:'Ingredientes', stepsLabel:'Pasos',
+    soupTitle:'🍜 Rotación de Sopas — Referencia',
+    soupDesc:'Las sopas son una de las mejores herramientas para controlar el azúcar en la sangre: gran volumen, alta en proteína, alta en fibra y fáciles de preparar en lote. Prepara 2 sopas el domingo — se conservan 4–5 días en el refrigerador y son la base de los almuerzos y cenas de la semana.',
+    soupSubtitle:'Las mejor calificadas por su impacto en el A1C',
+    thSoup:'Sopa', thSoupIngr:'Ingredientes Clave', thSoupBenefit:'Beneficio para el A1C',
+    soupCallout:'<strong>📦 Estrategia de preparación:</strong> Ten cubos de caldo de hueso congelados a la mano para comidas de emergencia en 15 minutos. Compra un pollo rostizado cada semana — es tu base de proteína universal para la Sopa de Lima, el Caldo de Pollo, el Ramen y el Minestrone.',
+    supplementsTitle:'💊 Estrategia de Apoyo con Suplementos',
+    supplementsWarn:'<strong>⚠️ Importante antes de empezar con suplementos:</strong> Estos son un complemento al cambio de estilo de vida — no un reemplazo. Consulta todos los suplementos con tu doctor antes de empezar, especialmente si tomas algún medicamento. La berberina en particular puede interactuar con ciertos fármacos. Lleva esta tabla a tu consulta.',
+    thSupplement:'Suplemento', thEvidence:'Nivel de Evidencia', thDose:'Dosis', thTiming:'Horario', thNotes:'Notas Clave',
+    milestonesTitle:'Hitos de 90 Días',
+    milestonesDesc:'Fechas meta para la reducción de alcohol y los objetivos de entrenamiento, además de la fecha de laboratorios para llevar a tu doctor.',
+    doctorTitle:'Qué Decirle a tu Doctor',
+    doctorDesc:'Lleva datos a la consulta — no solo un resumen. Las capturas de pantalla de la app de Tonal (historial de entrenamientos, progreso de peso) y de la app de Wahoo (duración de los recorridos, zonas de frecuencia cardiaca) son datos clínicos legítimos.',
+    aboutTitle:'Acerca de Este Plan',
+    aboutPara:'Tres fases de 30 días (24 ago–22 sep, 23 sep–22 oct, 23 oct–21 nov de 2026) que combinan entrenamiento de fuerza con Tonal (lun/mié/vie), una caminata inclinada en la caminadora Wahoo (mar) y cardio en la Kickr Bike (jue/sáb/dom), junto con una reducción de alcohol de 12 semanas, un marco de nutrición bajo en índice glucémico basado en sopas, y un conjunto opcional de suplementos. Tu A1C refleja el promedio de glucosa en sangre de los últimos 2–3 meses, así que esta ventana de 90 días corresponde exactamente a un ciclo completo de medición de A1C — el Día 1 es el lunes 24 de agosto de 2026, y el Día 90 cae el sábado 21 de noviembre de 2026, justo antes de tus laboratorios y tu consulta médica.',
+    aboutMedical:'<strong>Aviso médico:</strong> esta es una herramienta personal para establecer metas y mantener la responsabilidad, no es un consejo médico. Trabaja con tu doctor antes de comenzar o cambiar rutinas de ejercicio, nutrición o suplementos.',
+    scienceTitle:'La Ciencia Detrás de Este Plan',
+    thIntervention:'Intervención', thReduction:'Reducción de A1C Basada en Evidencia', thTimeframe:'Plazo',
+    scienceCallout:'<strong>💡 Tu ventaja personal:</strong> Tonal se encarga de tu entrenamiento de fuerza, la Kickr Bike se encarga de tu cardio — juntos son una intervención de nivel clínico. La investigación muestra consistentemente que el entrenamiento combinado aeróbico y de resistencia supera a cualquiera de los dos por separado para reducir el A1C. No estás empezando de cero — estás empezando con el equipo correcto y un plan concreto.',
+    plateTitle:'🥗 El Método del Plato (Cada Comida)',
+    thPlateSection:'Sección del Plato', thProportion:'Proporción', thPutThere:'Qué Poner Ahí', thWhyWorks:'Por Qué Funciona',
+    timingTitle:'Estrategias de Horario de Comidas',
+    timingList:['Come dentro de la 1–2 horas después de despertar — el desayuno estabiliza la elevación de glucosa impulsada por el cortisol matutino','No comas dentro de las 2 horas antes de dormir — la glucosa nocturna se regula menos eficientemente','Cuando el horario lo permita, intenta pedalear en la Kickr después de cenar — utiliza la glucosa directamente','Nunca te saltes una comida por completo — reemplázala con una colación rica en proteína si es necesario para evitar hambre de rebote'],
+    sleepTitle:'😴 Sueño y Estrés — Los Factores Ocultos del A1C',
+    sleepDesc:'El sueño y el estrés son dos de los factores más subestimados que elevan el A1C, y son particularmente relevantes dado el efecto del alcohol sobre la arquitectura del sueño.',
+    thFactor:'Factor', thHowRaises:'Cómo Eleva el A1C', thTarget:'Meta', thAction:'Acción',
+    sleepCallout:'<strong>🌲 Ventaja natural de Grants Pass:</strong> El corredor del río Illinois y los senderos del río Rogue ofrecen movimiento accesible que reduce el cortisol y complementa tu entrenamiento estructurado. Una caminata de 20 minutos junto al río después de cenar es una herramienta legítima para controlar la glucosa.',
+    edgeTitle:'🎯 Tu Ventaja de 90 Días',
+    thAdvantage:'Tu Ventaja', thWhyMatters:'Por Qué Importa',
+    edgeCallout:'<strong>💬 En resumen:</strong> Llega a tu consulta con datos — no solo con esperanza. La app de Tonal, la app de Wahoo y un simple registro de bebidas son tu evidencia. Ya tomaste la decisión de actuar — ahora el plan hace el resto.',
+    footer:'Plan de 90 Días para el A1C · Uso personal únicamente · Generado para Rick, Grants Pass, OR · No sustituye el consejo médico.',
+    doctorPoints:['"Completé aproximadamente 225–250 minutos de ejercicio combinado (aeróbico y de resistencia) por semana durante 12 semanas — tanto ciclismo aeróbico como entrenamiento de resistencia con máquinas."','"Reduje mi consumo nocturno de alcohol de 4–5 cervezas a [X] por noche para la semana 12."','"Seguí un patrón de alimentación bajo en índice glucémico, con énfasis en proteína, fibra y sopas a base de vegetales."','"Agregué berberina (500 mg 3×/día), glicinato de magnesio (400 mg) y fibra de psyllium (5–10g antes de las comidas) — aquí están los productos y dosis exactos."'],
+    restLabel:'Descanso / Movilidad', restDetail:'Caminata ligera o estiramiento opcional'
+  }
+};
+
 /* ============ DATA (mirrors the Word document build) ============ */
 const START = new Date(2026, 7, 24); // Aug 24 2026, Monday
 const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -579,69 +689,79 @@ function dayNumForDate(d){
   const b = new Date(START.getFullYear(), START.getMonth(), START.getDate());
   return Math.round((a-b)/86400000)+1;
 }
-function fmtShort(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
-function fmtFull(d){ return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
+function fmtShort(d){ return d.toLocaleDateString(LANG==='es'?'es-MX':'en-US',{month:'short',day:'numeric'}); }
+function fmtFull(d){ return d.toLocaleDateString(LANG==='es'?'es-MX':'en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}); }
 function fmtISO(d){ return d.toISOString().slice(0,10); }
 function phaseForDay(n){ return n<=30?1:(n<=60?2:3); }
 
 const TONAL = {
-  1:{Monday:{focus:'Lower Body',exercises:'Goblet Squat, Romanian Deadlift, Leg Press, Glute Bridge',sets:'3 × 12',mode:'Guided Mode'},
-     Wednesday:{focus:'Upper Body Push',exercises:'Chest Press, Shoulder Press, Tricep Pushdown, Lateral Raise',sets:'3 × 12',mode:'Guided Mode'},
-     Friday:{focus:'Upper Body Pull + Core',exercises:'Lat Pulldown, Seated Row, Bicep Curl, Plank Hold',sets:'3 × 12',mode:'Guided Mode'}},
-  2:{Monday:{focus:'Lower Body Power',exercises:'Back Squat, Deadlift, Walking Lunge, Calf Raise',sets:'4 × 10',mode:'Spotter Mode'},
-     Wednesday:{focus:'Push + Core',exercises:'Incline Press, Arnold Press, Skull Crusher, Cable Crunch',sets:'4 × 10',mode:'Spotter Mode'},
-     Friday:{focus:'Pull + Functional',exercises:'Pull-Ups (assisted), T-Bar Row, Hammer Curl, Pallof Press',sets:'4 × 10',mode:'Challenge Mode'}},
-  3:{Monday:{focus:'Full Lower Body',exercises:'Barbell Squat, Single-Leg RDL, Step-Up, Hip Thrust',sets:'4 × 8–10',mode:'Max IR Challenge'},
-     Wednesday:{focus:'Full Upper Push',exercises:'Weighted Dip, Military Press, Cable Fly, Tricep Overhead Extension',sets:'4 × 8–10',mode:'Challenge Mode'},
-     Friday:{focus:'Full Upper Pull + Core',exercises:'Weighted Pull-Up, Bent-Over Row, Face Pull, Ab Rollout',sets:'4 × 8–10',mode:'Challenge Mode'}}
+  1:{Monday:{en:{focus:'Lower Body',exercises:'Goblet Squat, Romanian Deadlift, Leg Press, Glute Bridge',sets:'3 × 12',mode:'Guided Mode'},es:{focus:'Piernas',exercises:'Sentadilla Goblet, Peso Muerto Rumano, Prensa de Pierna, Puente de Glúteo',sets:'3 × 12',mode:'Modo Guiado'}},
+     Wednesday:{en:{focus:'Upper Body Push',exercises:'Chest Press, Shoulder Press, Tricep Pushdown, Lateral Raise',sets:'3 × 12',mode:'Guided Mode'},es:{focus:'Tren Superior (Empuje)',exercises:'Press de Pecho, Press de Hombro, Extensión de Tríceps, Elevación Lateral',sets:'3 × 12',mode:'Modo Guiado'}},
+     Friday:{en:{focus:'Upper Body Pull + Core',exercises:'Lat Pulldown, Seated Row, Bicep Curl, Plank Hold',sets:'3 × 12',mode:'Guided Mode'},es:{focus:'Tren Superior (Jalón) + Core',exercises:'Jalón al Pecho, Remo Sentado, Curl de Bíceps, Plancha',sets:'3 × 12',mode:'Modo Guiado'}}},
+  2:{Monday:{en:{focus:'Lower Body Power',exercises:'Back Squat, Deadlift, Walking Lunge, Calf Raise',sets:'4 × 10',mode:'Spotter Mode'},es:{focus:'Piernas (Potencia)',exercises:'Sentadilla con Barra, Peso Muerto, Zancada Caminando, Elevación de Pantorrilla',sets:'4 × 10',mode:'Modo Asistido'}},
+     Wednesday:{en:{focus:'Push + Core',exercises:'Incline Press, Arnold Press, Skull Crusher, Cable Crunch',sets:'4 × 10',mode:'Spotter Mode'},es:{focus:'Empuje + Core',exercises:'Press Inclinado, Press Arnold, Rompecráneos, Crunch con Cable',sets:'4 × 10',mode:'Modo Asistido'}},
+     Friday:{en:{focus:'Pull + Functional',exercises:'Pull-Ups (assisted), T-Bar Row, Hammer Curl, Pallof Press',sets:'4 × 10',mode:'Challenge Mode'},es:{focus:'Jalón + Funcional',exercises:'Dominadas (asistidas), Remo en Barra T, Curl Martillo, Press Pallof',sets:'4 × 10',mode:'Modo Desafío'}}},
+  3:{Monday:{en:{focus:'Full Lower Body',exercises:'Barbell Squat, Single-Leg RDL, Step-Up, Hip Thrust',sets:'4 × 8–10',mode:'Max IR Challenge'},es:{focus:'Piernas Completo',exercises:'Sentadilla con Barra, Peso Muerto Rumano a Una Pierna, Step-Up, Hip Thrust',sets:'4 × 8–10',mode:'Desafío Máx. IR'}},
+     Wednesday:{en:{focus:'Full Upper Push',exercises:'Weighted Dip, Military Press, Cable Fly, Tricep Overhead Extension',sets:'4 × 8–10',mode:'Challenge Mode'},es:{focus:'Tren Superior Completo (Empuje)',exercises:'Fondos con Peso, Press Militar, Aperturas con Cable, Extensión de Tríceps sobre la Cabeza',sets:'4 × 8–10',mode:'Modo Desafío'}},
+     Friday:{en:{focus:'Full Upper Pull + Core',exercises:'Weighted Pull-Up, Bent-Over Row, Face Pull, Ab Rollout',sets:'4 × 8–10',mode:'Challenge Mode'},es:{focus:'Tren Superior Completo (Jalón) + Core',exercises:'Dominada con Peso, Remo Inclinado, Face Pull, Rueda Abdominal',sets:'4 × 8–10',mode:'Modo Desafío'}}}
 };
 const KICKR = {
-  1:{Thursday:{type:'Tempo Intervals',duration:'25–30 min',detail:'3×6 min @ 75–80% HR, 2 min easy between'},
-     Saturday:{type:'Longer Endurance Ride',duration:'45–60 min',detail:'Zone 2–3 (65–75% HR) — most impactful aerobic session'},
-     Sunday:{type:'Easy Recovery Spin',duration:'30–40 min',detail:'50–60% HR — promotes glucose clearance'}},
-  2:{Thursday:{type:'Sweet Spot Intervals',duration:'30 min',detail:'2×12 min @ 88–93% FTP — strongest glucose-disposal session'},
-     Saturday:{type:'Endurance + Climb Simulation',duration:'60 min',detail:'Zone 2–3 with route feature'},
-     Sunday:{type:'Aerobic Foundation',duration:'40 min',detail:'Zone 2 (65–70% HR) — active recovery'}},
-  3:{Thursday:{type:'Tempo Cruise',duration:'30 min',detail:'20 min sustained @ 80–85% HR'},
-     Saturday:{type:'Challenge Ride',duration:'60–75 min',detail:'Structured Wahoo workout or group ride sim — signature session'},
-     Sunday:{type:'Active Recovery',duration:'45 min',detail:'Zone 2 + 5-min cooldown stretch'}}
+  1:{Thursday:{en:{type:'Tempo Intervals',duration:'25–30 min',detail:'3×6 min @ 75–80% HR, 2 min easy between'},es:{type:'Intervalos de Tempo',duration:'25–30 min',detail:'3×6 min al 75–80% FC, 2 min suave entre series'}},
+     Saturday:{en:{type:'Longer Endurance Ride',duration:'45–60 min',detail:'Zone 2–3 (65–75% HR) — most impactful aerobic session'},es:{type:'Recorrido Largo de Resistencia',duration:'45–60 min',detail:'Zona 2–3 (65–75% FC) — la sesión aeróbica de mayor impacto'}},
+     Sunday:{en:{type:'Easy Recovery Spin',duration:'30–40 min',detail:'50–60% HR — promotes glucose clearance'},es:{type:'Pedaleo Suave de Recuperación',duration:'30–40 min',detail:'50–60% FC — favorece la eliminación de glucosa'}}},
+  2:{Thursday:{en:{type:'Sweet Spot Intervals',duration:'30 min',detail:'2×12 min @ 88–93% FTP — strongest glucose-disposal session'},es:{type:'Intervalos Sweet Spot',duration:'30 min',detail:'2×12 min al 88–93% FTP — la sesión con mayor efecto en la eliminación de glucosa'}},
+     Saturday:{en:{type:'Endurance + Climb Simulation',duration:'60 min',detail:'Zone 2–3 with route feature'},es:{type:'Resistencia + Simulación de Subida',duration:'60 min',detail:'Zona 2–3 con función de ruta'}},
+     Sunday:{en:{type:'Aerobic Foundation',duration:'40 min',detail:'Zone 2 (65–70% HR) — active recovery'},es:{type:'Base Aeróbica',duration:'40 min',detail:'Zona 2 (65–70% FC) — recuperación activa'}}},
+  3:{Thursday:{en:{type:'Tempo Cruise',duration:'30 min',detail:'20 min sustained @ 80–85% HR'},es:{type:'Tempo Sostenido',duration:'30 min',detail:'20 min sostenidos al 80–85% FC'}},
+     Saturday:{en:{type:'Challenge Ride',duration:'60–75 min',detail:'Structured Wahoo workout or group ride sim — signature session'},es:{type:'Recorrido Desafío',duration:'60–75 min',detail:'Entrenamiento estructurado de Wahoo o simulación de recorrido grupal — la sesión insignia de la semana'}},
+     Sunday:{en:{type:'Active Recovery',duration:'45 min',detail:'Zone 2 + 5-min cooldown stretch'},es:{type:'Recuperación Activa',duration:'45 min',detail:'Zona 2 + 5 min de estiramiento final'}}}
 };
 const WAHOO_WALK = {
-  1:{type:'Incline Treadmill Walk',duration:'30 min',detail:'4–6% incline @ 3.2–3.5 mph — Zone 2 (60–65% max HR)'},
-  2:{type:'Incline Treadmill Walk',duration:'35 min',detail:'6–8% incline @ 3.2–3.5 mph — Zone 2 (65–70% max HR)'},
-  3:{type:'Incline Treadmill Walk',duration:'40 min',detail:'8–10% incline @ 3.0–3.3 mph — Zone 2 (65–70% max HR), steeper grade'}
+  1:{en:{type:'Incline Treadmill Walk',duration:'30 min',detail:'4–6% incline @ 3.2–3.5 mph — Zone 2 (60–65% max HR)'},es:{type:'Caminata Inclinada en Caminadora',duration:'30 min',detail:'Inclinación 4–6% a 3.2–3.5 mph — Zona 2 (60–65% FC máx.)'}},
+  2:{en:{type:'Incline Treadmill Walk',duration:'35 min',detail:'6–8% incline @ 3.2–3.5 mph — Zone 2 (65–70% max HR)'},es:{type:'Caminata Inclinada en Caminadora',duration:'35 min',detail:'Inclinación 6–8% a 3.2–3.5 mph — Zona 2 (65–70% FC máx.)'}},
+  3:{en:{type:'Incline Treadmill Walk',duration:'40 min',detail:'8–10% incline @ 3.0–3.3 mph — Zone 2 (65–70% max HR), steeper grade'},es:{type:'Caminata Inclinada en Caminadora',duration:'40 min',detail:'Inclinación 8–10% a 3.0–3.3 mph — Zona 2 (65–70% FC máx.), la pendiente más pronunciada del plan'}}
 };
 function workoutFor(n){
   const d=dateForDay(n), dow=DOW[d.getDay()], ph=phaseForDay(n);
-  if(TONAL[ph][dow]){const w=TONAL[ph][dow]; return {kind:'Tonal',label:'Tonal — '+w.focus,detail:w.exercises+' · '+w.sets+' · '+w.mode};}
-  if(dow==='Tuesday'){const w=WAHOO_WALK[ph]; return {kind:'Wahoo',label:'Wahoo — '+w.type,detail:w.duration+' · '+w.detail};}
-  if(KICKR[ph][dow]){const w=KICKR[ph][dow]; return {kind:'Kickr',label:'Kickr — '+w.type,detail:w.duration+' · '+w.detail};}
-  return {kind:'Rest',label:'Rest / Mobility',detail:'Optional light walk or stretching'};
+  if(TONAL[ph][dow]){const w=TONAL[ph][dow][LANG]; return {kind:'Tonal',label:'Tonal — '+w.focus,detail:w.exercises+' · '+w.sets+' · '+w.mode};}
+  if(dow==='Tuesday'){const w=WAHOO_WALK[ph][LANG]; return {kind:'Wahoo',label:'Wahoo — '+w.type,detail:w.duration+' · '+w.detail};}
+  if(KICKR[ph][dow]){const w=KICKR[ph][dow][LANG]; return {kind:'Kickr',label:'Kickr — '+w.type,detail:w.duration+' · '+w.detail};}
+  return {kind:'Rest',label:UI[LANG].restLabel,detail:UI[LANG].restDetail};
 }
 
 const ALCOHOL_WEEK = {
-  1:'3 beers/night max (21/week) — track every drink',
-  2:'3 beers/night max (21/week) — track every drink',
-  3:'2–3 beers/night (17/week) — delay first drink by 1 hr',
-  4:'2–3 beers/night (17/week) — delay first drink by 1 hr',
-  5:'2 beers/night max (14/week) — 2 alcohol-free days',
-  6:'2 beers/night max (14/week) — 2 alcohol-free days',
-  7:'1–2 beers (10/week) — add a 3rd alcohol-free day',
-  8:'1–2 beers (10/week) — add a 3rd alcohol-free day',
-  9:'1 beer/night on drinking days (7/week) — only with dinner',
-  10:'1 beer/night on drinking days (7/week) — only with dinner',
-  11:'0–1 beer, target 4–5 alcohol-free nights (≤5/week)',
-  12:'0–1 beer, target 4–5 alcohol-free nights (≤5/week)',
-  13:'0–1 beer, target 4–5 alcohol-free nights (≤5/week)'
+  1:{en:'3 beers/night max (21/week) — track every drink',es:'3 cervezas por noche como máximo (21/semana) — registra cada bebida'},
+  2:{en:'3 beers/night max (21/week) — track every drink',es:'3 cervezas por noche como máximo (21/semana) — registra cada bebida'},
+  3:{en:'2–3 beers/night (17/week) — delay first drink by 1 hr',es:'2–3 cervezas por noche (17/semana) — retrasa la primera bebida 1 hora'},
+  4:{en:'2–3 beers/night (17/week) — delay first drink by 1 hr',es:'2–3 cervezas por noche (17/semana) — retrasa la primera bebida 1 hora'},
+  5:{en:'2 beers/night max (14/week) — 2 alcohol-free days',es:'2 cervezas por noche como máximo (14/semana) — 2 días sin alcohol'},
+  6:{en:'2 beers/night max (14/week) — 2 alcohol-free days',es:'2 cervezas por noche como máximo (14/semana) — 2 días sin alcohol'},
+  7:{en:'1–2 beers (10/week) — add a 3rd alcohol-free day',es:'1–2 cervezas (10/semana) — agrega un 3er día sin alcohol'},
+  8:{en:'1–2 beers (10/week) — add a 3rd alcohol-free day',es:'1–2 cervezas (10/semana) — agrega un 3er día sin alcohol'},
+  9:{en:'1 beer/night on drinking days (7/week) — only with dinner',es:'1 cerveza por noche en días que bebas (7/semana) — solo con la cena'},
+  10:{en:'1 beer/night on drinking days (7/week) — only with dinner',es:'1 cerveza por noche en días que bebas (7/semana) — solo con la cena'},
+  11:{en:'0–1 beer, target 4–5 alcohol-free nights (≤5/week)',es:'0–1 cerveza, meta de 4–5 noches sin alcohol (≤5/semana)'},
+  12:{en:'0–1 beer, target 4–5 alcohol-free nights (≤5/week)',es:'0–1 cerveza, meta de 4–5 noches sin alcohol (≤5/semana)'},
+  13:{en:'0–1 beer, target 4–5 alcohol-free nights (≤5/week)',es:'0–1 cerveza, meta de 4–5 noches sin alcohol (≤5/semana)'}
 };
 
-const BREAKFASTS=['Greek yogurt + berries + chia seeds','2-egg veggie scramble + 1 slice whole grain toast','Protein smoothie (spinach, protein powder, frozen berries, flaxseed, almond milk)','Overnight oats (rolled oats, chia, almond milk, cinnamon, berries)','Veggie omelette (3 eggs, peppers, onion, spinach)','Cottage cheese + sliced peaches + walnuts','Chia pudding (almond milk, vanilla) + mixed berries','Smoked salmon + avocado on whole grain toast','Make-ahead egg muffins (spinach & feta) + fruit','Greek yogurt parfait with low-sugar granola & pumpkin seeds','Protein pancakes (oat flour, egg whites, banana) + almond butter','Turkey sausage + sautéed spinach + ½ avocado','Cottage cheese bowl + walnuts + cinnamon + berries','Veggie & black bean breakfast tacos (corn tortilla, eggs)'];
-const LUNCHES=['Leftover lentil & turmeric soup + side salad','Black bean soup + sliced avocado','White bean & chicken soup','Turkey & veggie wrap in lettuce leaves','Chicken vegetable minestrone (modified, chickpea pasta)','Big salad with grilled salmon, chickpeas, olive oil','Tom Kha coconut chicken soup','Grilled chicken Caesar (light dressing) over greens','Quinoa bowl with roasted vegetables + grilled chicken','Turkey chili (bean-forward, no added sugar)','Greek-yogurt tuna salad over mixed greens','Caldo de Pollo + side of steamed veggies','Chicken shoyu ramen bowl (shirataki noodles)','Mediterranean bowl: grilled chicken, cucumber, tomato, feta, olive oil'];
-const DINNERS=['Grilled chicken + roasted vegetables + ½ cup brown rice','Caldo de Pollo + 1–2 corn tortillas','Sopa de Lima (Yucatán lime chicken soup)','Bone broth egg drop soup + hard-boiled eggs','Chicken shoyu ramen bowl','Pozole rojo (modified — chicken, ½ cup hominy)','Miso vegetable ramen (noodle-light, extra veggies)','Baked salmon + asparagus + quinoa','Turkey meatballs + zucchini noodles + marinara','Sheet-pan shrimp fajitas (peppers, onion, lime, corn tortillas)','Stuffed bell peppers (ground turkey, cauliflower rice)','Grilled tilapia + black bean & corn salsa + side salad','Lentil & turmeric soup + side salad','White bean & chicken soup + roasted broccoli'];
-const SNACKS=['String cheese + almonds','Apple + almond butter','Celery + hummus','Walnuts + 1 square dark chocolate (85%+)','Edamame','Mixed nuts (unsalted)','Berries + cottage cheese','Hard-boiled egg + cucumber slices','Roasted chickpeas','Greek yogurt + cinnamon'];
+const MEAL_NAMES = {
+  en: {
+    breakfast:['Greek yogurt + berries + chia seeds','2-egg veggie scramble + 1 slice whole grain toast','Protein smoothie (spinach, protein powder, frozen berries, flaxseed, almond milk)','Overnight oats (rolled oats, chia, almond milk, cinnamon, berries)','Veggie omelette (3 eggs, peppers, onion, spinach)','Cottage cheese + sliced peaches + walnuts','Chia pudding (almond milk, vanilla) + mixed berries','Smoked salmon + avocado on whole grain toast','Make-ahead egg muffins (spinach & feta) + fruit','Greek yogurt parfait with low-sugar granola & pumpkin seeds','Protein pancakes (oat flour, egg whites, banana) + almond butter','Turkey sausage + sautéed spinach + ½ avocado','Cottage cheese bowl + walnuts + cinnamon + berries','Veggie & black bean breakfast tacos (corn tortilla, eggs)'],
+    lunch:['Leftover lentil & turmeric soup + side salad','Black bean soup + sliced avocado','White bean & chicken soup','Turkey & veggie wrap in lettuce leaves','Chicken vegetable minestrone (modified, chickpea pasta)','Big salad with grilled salmon, chickpeas, olive oil','Tom Kha coconut chicken soup','Grilled chicken Caesar (light dressing) over greens','Quinoa bowl with roasted vegetables + grilled chicken','Turkey chili (bean-forward, no added sugar)','Greek-yogurt tuna salad over mixed greens','Caldo de Pollo + side of steamed veggies','Chicken shoyu ramen bowl (shirataki noodles)','Mediterranean bowl: grilled chicken, cucumber, tomato, feta, olive oil'],
+    dinner:['Grilled chicken + roasted vegetables + ½ cup brown rice','Caldo de Pollo + 1–2 corn tortillas','Sopa de Lima (Yucatán lime chicken soup)','Bone broth egg drop soup + hard-boiled eggs','Chicken shoyu ramen bowl','Pozole rojo (modified — chicken, ½ cup hominy)','Miso vegetable ramen (noodle-light, extra veggies)','Baked salmon + asparagus + quinoa','Turkey meatballs + zucchini noodles + marinara','Sheet-pan shrimp fajitas (peppers, onion, lime, corn tortillas)','Stuffed bell peppers (ground turkey, cauliflower rice)','Grilled tilapia + black bean & corn salsa + side salad','Lentil & turmeric soup + side salad','White bean & chicken soup + roasted broccoli'],
+    snack:['String cheese + almonds','Apple + almond butter','Celery + hummus','Walnuts + 1 square dark chocolate (85%+)','Edamame','Mixed nuts (unsalted)','Berries + cottage cheese','Hard-boiled egg + cucumber slices','Roasted chickpeas','Greek yogurt + cinnamon']
+  },
+  es: {
+    breakfast:['Yogur griego + moras + semillas de chía','Huevos revueltos con verduras + 1 rebanada de pan integral tostado','Licuado de proteína (espinaca, proteína en polvo, moras congeladas, linaza, leche de almendra)','Avena remojada toda la noche (avena, chía, leche de almendra, canela, moras)','Omelette de verduras (3 huevos, pimientos, cebolla, espinaca)','Queso cottage + durazno en rebanadas + nueces','Pudín de chía (leche de almendra, vainilla) + moras mixtas','Salmón ahumado + aguacate en pan integral tostado','Muffins de huevo preparados con anticipación (espinaca y feta) + fruta','Parfait de yogur griego con granola baja en azúcar y semillas de calabaza','Hot cakes de proteína (harina de avena, claras de huevo, plátano) + crema de almendra','Salchicha de pavo + espinaca salteada + ½ aguacate','Queso cottage con nueces, canela y moras','Tacos de desayuno de frijol negro y verduras (tortilla de maíz, huevo)'],
+    lunch:['Sopa de lentejas y cúrcuma del día anterior + ensalada','Sopa de frijol negro + aguacate en rebanadas','Sopa de alubias blancas y pollo','Tacos de lechuga con pavo y verduras','Minestrone de pollo y verduras (modificado, con pasta de garbanzo)','Ensalada grande con salmón a la parrilla, garbanzos y aceite de oliva','Sopa thai de coco y pollo (Tom Kha)','Ensalada César ligera con pollo a la parrilla','Bowl de quinoa con verduras rostizadas y pollo a la parrilla','Chili de pavo (con muchos frijoles, sin azúcar añadida)','Ensalada de atún con yogur griego sobre lechugas mixtas','Caldo de pollo + verduras al vapor','Ramen de pollo shoyu (con fideos shirataki)','Bowl mediterráneo: pollo a la parrilla, pepino, jitomate, queso feta, aceite de oliva'],
+    dinner:['Pollo a la parrilla + verduras rostizadas + ½ taza de arroz integral','Caldo de pollo + 1–2 tortillas de maíz','Sopa de lima (estilo yucateco, con pollo)','Sopa de huevo en caldo de hueso + huevo cocido','Ramen de pollo shoyu','Pozole rojo (modificado — con pollo, ½ taza de maíz pozolero)','Ramen de verduras con miso (con pocos fideos, más verduras)','Salmón al horno + espárragos + quinoa','Albóndigas de pavo + fideos de calabacita + salsa marinara','Fajitas de camarón al horno (pimientos, cebolla, limón, tortillas de maíz)','Pimientos rellenos (pavo molido, arroz de coliflor)','Tilapia a la parrilla + salsa de frijol negro y elote + ensalada','Sopa de lentejas y cúrcuma + ensalada','Sopa de alubias blancas y pollo + brócoli rostizado'],
+    snack:['Queso en hebras + almendras','Manzana + crema de almendra','Apio + hummus','Nueces + 1 cuadro de chocolate oscuro (85%+)','Edamame','Frutos secos mixtos (sin sal)','Moras + queso cottage','Huevo cocido + pepino en rebanadas','Garbanzos rostizados','Yogur griego + canela']
+  }
+};
 
-/* Ingredients + steps, index-matched to BREAKFASTS / LUNCHES / DINNERS / SNACKS above */
-const RECIPE_DETAILS = {
+/* Ingredients + steps, index-matched to MEAL_NAMES above */
+const RECIPE_DETAILS = { en: {
   breakfast: [
     {ingredients:['2 cups plain Greek yogurt','1 cup mixed berries (fresh or frozen)','2 tbsp chia seeds','splash of vanilla extract','drizzle of honey (optional, small amount)'],
      steps:['Spoon yogurt into two bowls.','Top each with berries and a sprinkle of chia seeds.','Add a splash of vanilla; let sit 5 minutes if using frozen berries so they thaw slightly.','Serve as-is, or with a light drizzle of honey.']},
@@ -745,66 +865,222 @@ const RECIPE_DETAILS = {
      steps:['Preheat oven to 400°F.','Toss chickpeas with olive oil and spices.','Roast 25–30 minutes, shaking the pan halfway, until crispy.','Store in an airtight container for snacking through the week.']},
     {ingredients:['1/2 cup plain Greek yogurt','cinnamon','optional: a few drops vanilla or a small drizzle of honey'], steps:['Dust yogurt with cinnamon and serve.']}
   ]
-};
+}, es: {
+  breakfast: [
+    {ingredients:['2 tazas de yogur griego natural','1 taza de moras mixtas (frescas o congeladas)','2 cdas de semillas de chía','un chorrito de extracto de vainilla','un poco de miel (opcional)'],
+     steps:['Sirve el yogur en dos tazones.','Cubre cada uno con las moras y una pizca de semillas de chía.','Agrega un chorrito de vainilla; si usas moras congeladas, deja reposar 5 minutos para que se descongelen un poco.','Sirve así, o con un poco de miel encima.']},
+    {ingredients:['4 huevos grandes','1/2 taza de pimiento morrón picado','1/4 de taza de cebolla picada','1 taza de espinaca fresca','1 cdta de aceite de oliva','sal y pimienta','2 rebanadas de pan integral'],
+     steps:['Calienta el aceite de oliva en un sartén a fuego medio.','Saltea la cebolla y el pimiento 3–4 minutos hasta que se suavicen.','Agrega la espinaca y cocina 1 minuto hasta que se marchite.','Bate los huevos con sal y pimienta, viértelos en el sartén y revuelve hasta que cuajen.','Tuesta el pan y sirve junto con los huevos.']},
+    {ingredients:['1 taza de leche de almendra sin azúcar','1 medida de proteína en polvo (vainilla o natural)','1 taza de espinaca fresca','3/4 de taza de moras mixtas congeladas','1 cda de linaza molida','hielo al gusto'],
+     steps:['Coloca todos los ingredientes en una licuadora.','Licúa hasta que quede suave, agregando agua o hielo hasta la consistencia que prefieras.','Sirve y bebe de inmediato para la mejor textura.']},
+    {ingredients:['1 taza de avena en hojuelas','1 1/2 tazas de leche de almendra','2 cdas de semillas de chía','1 cdta de canela','1 taza de moras (para decorar)'],
+     steps:['Combina la avena, la leche de almendra, la chía y la canela en dos frascos o recipientes.','Mezcla bien, tapa y refrigera toda la noche (mínimo 4 horas).','Por la mañana, agrega las moras frescas antes de comer.','Tip: prepara ambos frascos la noche anterior para los dos.']},
+    {ingredients:['6 huevos grandes','1/2 taza de pimientos picados','1/4 de taza de cebolla picada','1 taza de espinaca fresca','1 cdta de aceite de oliva','sal y pimienta','opcional: 1/4 de taza de queso rallado'],
+     steps:['Saltea la cebolla y el pimiento en aceite de oliva 3 minutos, agrega la espinaca hasta que se marchite; retira del sartén.','Bate los huevos con sal y pimienta. Vierte en el mismo sartén a fuego medio-bajo.','Cuando los huevos estén casi cuajados, agrega las verduras (y el queso, si usas) en una mitad.','Dobla el omelette, cocina 1 minuto más y sirve.']},
+    {ingredients:['1 1/2 tazas de queso cottage','1 durazno fresco en rebanadas (o 1 taza de durazno en almíbar, escurrido)','1/4 de taza de nueces picadas','canela al gusto'],
+     steps:['Divide el queso cottage en dos tazones.','Cubre con el durazno en rebanadas y las nueces picadas.','Termina con una pizca de canela.']},
+    {ingredients:['1/3 de taza de semillas de chía','1 1/2 tazas de leche de almendra','1 cdta de extracto de vainilla','1 taza de moras mixtas'],
+     steps:['Bate las semillas de chía, la leche de almendra y la vainilla en un recipiente.','Refrigera mínimo 4 horas o toda la noche, revolviendo una vez a los 30 minutos para evitar grumos.','Cubre con las moras justo antes de servir.']},
+    {ingredients:['4 rebanadas de pan integral','4 oz de salmón ahumado','1 aguacate maduro','un chorrito de jugo de limón','alcaparras (opcional)','pimienta negra'],
+     steps:['Tuesta el pan.','Machaca el aguacate con un chorrito de limón; unta sobre el pan.','Cubre con el salmón ahumado, alcaparras si usas, y pimienta negra recién molida.']},
+    {ingredients:['8 huevos grandes','1 taza de espinaca picada','1/2 taza de queso feta desmoronado','sal y pimienta','aceite en spray','fruta al gusto, para servir'],
+     steps:['Precalienta el horno a 175°C (350°F) y engrasa ligeramente un molde para muffins.','Bate los huevos con sal y pimienta.','Reparte la espinaca y el queso feta en los moldes, luego vierte la mezcla de huevo sobre cada uno.','Hornea 18–20 minutos hasta que cuajen. Rinde unos 12 muffins — refrigera lo que sobre hasta 4 días.','Sirve 2–3 muffins por persona con una pieza de fruta.']},
+    {ingredients:['2 tazas de yogur griego natural','1/2 taza de granola baja en azúcar','1/4 de taza de semillas de calabaza','1/2 taza de moras'],
+     steps:['Coloca capas de yogur, moras y granola en vasos o tazones.','Cubre con las semillas de calabaza y sirve.']},
+    {ingredients:['1 taza de harina de avena','4 claras de huevo','1 plátano maduro, machacado','1/2 cdta de polvo para hornear','un chorrito de leche de almendra si la mezcla está muy espesa','2 cdas de crema de almendra, para decorar'],
+     steps:['Mezcla la harina de avena, las claras, el plátano machacado y el polvo para hornear hasta obtener una mezcla tersa; agrega leche de almendra si hace falta.','Cocina los hot cakes en un sartén antiadherente ligeramente engrasado, 2–3 minutos por lado hasta dorar.','Sirve con crema de almendra encima.']},
+    {ingredients:['4–6 salchichas de pavo para desayuno','2 tazas de espinaca fresca','1 cdta de aceite de oliva','1 aguacate','sal y pimienta'],
+     steps:['Cocina las salchichas según las instrucciones del paquete.','Saltea la espinaca en aceite de oliva 2 minutos hasta que se marchite; sazona.','Sirve las salchichas y la espinaca con medio aguacate por plato.']},
+    {ingredients:['1 1/2 tazas de queso cottage','1/4 de taza de nueces','canela al gusto','1 taza de moras'],
+     steps:['Divide el queso cottage en dos tazones.','Cubre con las nueces y las moras.','Termina con una pizca de canela.']},
+    {ingredients:['4 tortillas de maíz','4 huevos grandes','1/2 taza de frijol negro, enjuagado','1/4 de taza de cebolla picada','1/4 de taza de pimiento picado','salsa y cilantro, para servir'],
+     steps:['Calienta las tortillas en un sartén seco o en el horno.','Saltea la cebolla y el pimiento 3 minutos, agrega el frijol negro solo para calentar.','En otro sartén, revuelve los huevos y sazona.','Arma los tacos con huevo, frijoles, salsa y cilantro.']}
+  ],
+  lunch: [
+    {ingredients:['1.5 tazas de sopa de lentejas y cúrcuma del día anterior (ver recetas de cena)','2 tazas de lechugas mixtas','aceite de oliva y jugo de limón, para aderezar'],
+     steps:['Recalienta la sopa en la estufa o el microondas hasta que esté caliente.','Mezcla las lechugas con un poco de aceite de oliva y limón para una ensalada sencilla.']},
+    {ingredients:['2 latas de frijol negro, enjuagado','4 tazas de caldo bajo en sodio','1 cebolla picada','2 dientes de ajo','1 cdta de comino','1 cdta de paprika ahumada','jugo de 1 limón','1 aguacate en rebanadas','yogur griego natural, para decorar'],
+     steps:['Saltea la cebolla y el ajo 4–5 minutos hasta que se suavicen.','Agrega el frijol negro, el caldo, el comino y la paprika; deja hervir a fuego lento 15 minutos.','Licúa la mitad de la sopa (con licuadora de inmersión o por tandas) para una textura más cremosa, y regrésala a la olla.','Termina con el jugo de limón.','Sirve con el aguacate en rebanadas y una cucharada de yogur griego.']},
+    {ingredients:['2 latas de alubias blancas, enjuagadas','2 pechugas de pollo, cocidas y deshebradas','6 tazas de caldo de pollo bajo en sodio','2 dientes de ajo, picados','1 cdta de romero fresco','2 tazas de kale picado','ralladura de 1 limón'],
+     steps:['Saltea el ajo en una olla 1 minuto.','Agrega el caldo, las alubias, el pollo deshebrado y el romero; deja hervir a fuego lento 15–20 minutos.','Incorpora el kale hasta que se marchite.','Termina con la ralladura de limón y sirve.']},
+    {ingredients:['8 hojas grandes de lechuga (mantequilla o romana)','8 oz de pechuga de pavo en rebanadas, baja en sodio','1 aguacate en rebanadas','1 pepino en rebanadas','1 zanahoria rallada','mostaza o hummus'],
+     steps:['Extiende las hojas de lechuga en un plato.','Coloca el pavo, el aguacate, el pepino y la zanahoria sobre cada hoja.','Añade un poco de mostaza o hummus.','Enrolla firmemente como un burrito, asegurando con un palillo si es necesario.']},
+    {ingredients:['2 pechugas de pollo, en cubos','1 calabacita, en cubos','1 lata de jitomate picado','2 tallos de apio, en cubos','1 lata de alubias blancas, enjuagadas','1/2 taza de pasta de garbanzo','4 tazas de caldo de pollo bajo en sodio','sazonador italiano'],
+     steps:['Dora el pollo en una olla 5 minutos.','Agrega la calabacita y el apio, cocina 3 minutos.','Agrega el jitomate, las alubias, el caldo y el sazonador; deja hervir a fuego lento 15 minutos.','Agrega la pasta de garbanzo y cocina según el tiempo del paquete (usualmente 6–8 minutos) hasta que esté al dente.']},
+    {ingredients:['2 filetes de salmón (4–5 oz cada uno)','4 tazas de lechugas mixtas','1 taza de garbanzos, enjuagados','jitomates cherry, partidos a la mitad','1 pepino, en rebanadas','aceite de oliva y jugo de limón, para aderezar','sal y pimienta'],
+     steps:['Sazona el salmón con sal y pimienta; ásalo o dóralo en sartén 4–5 minutos por lado hasta que esté cocido.','Mezcla las lechugas, los garbanzos, los jitomates y el pepino con aceite de oliva y limón.','Corona la ensalada con el salmón desmenuzado.']},
+    {ingredients:['2 pechugas de pollo, en rebanadas delgadas','1 lata de leche de coco light','3 tazas de caldo de pollo bajo en sodio','1 taza de champiñones en rebanadas','2 cdas de salsa de pescado','jugo de 1–2 limones','galanga o jengibre, cilantro fresco'],
+     steps:['Hierve el caldo y la leche de coco juntos a fuego medio.','Agrega el jengibre o galanga y los champiñones; deja hervir a fuego lento 5 minutos.','Agrega el pollo y cocina hasta que esté listo, unos 5–6 minutos.','Incorpora la salsa de pescado y el jugo de limón fuera del fuego.','Decora con cilantro fresco.']},
+    {ingredients:['2 pechugas de pollo','lechuga romana, picada','aderezo César ligero','queso parmesano en láminas','un poco de crutones de grano entero'],
+     steps:['Sazona y asa el pollo 5–6 minutos por lado hasta que esté cocido; córtalo en rebanadas.','Mezcla la lechuga romana con poco aderezo (con cuidado — se concentra rápido).','Corona con el pollo en rebanadas, el parmesano y unos crutones.']},
+    {ingredients:['1 taza de quinoa (cruda)','2 pechugas de pollo','2 tazas de verduras mixtas (calabacita, pimiento, brócoli)','aceite de oliva','sal y pimienta','limón'],
+     steps:['Cocina la quinoa según las instrucciones del paquete.','Mezcla las verduras con aceite de oliva y sazonador; rostiza a 220°C (425°F) por 20 minutos.','Asa o hornea el pollo hasta que esté cocido; córtalo en rebanadas.','Arma los bowls con la quinoa, las verduras rostizadas y el pollo. Termina con un chorrito de limón.']},
+    {ingredients:['1 lb de pavo molido','1 lata de frijol negro, enjuagado','1 lata de frijol rojo, enjuagado','1 lata de jitomate picado','1 cebolla picada','2 dientes de ajo','chile en polvo, comino','caldo bajo en sodio, si es necesario'],
+     steps:['Dora el pavo con la cebolla y el ajo en una olla grande.','Agrega ambos frijoles, el jitomate y las especias, más un poco de caldo si queda muy espeso.','Deja hervir a fuego lento 25–30 minutos, moviendo de vez en cuando.','Rinde varias porciones — se congela bien para futuros almuerzos.']},
+    {ingredients:['2 latas de atún en agua, escurrido','1/2 taza de yogur griego natural','1 tallo de apio, picado','1/4 de cebolla morada, picada','jugo de 1 limón','sal y pimienta','lechugas mixtas'],
+     steps:['Mezcla el atún, el yogur, el apio, la cebolla y el jugo de limón en un tazón.','Sazona con sal y pimienta al gusto.','Sirve sobre una cama de lechugas mixtas.']},
+    {ingredients:['1.5 tazas de caldo de pollo del día anterior (ver recetas de cena)','1 taza de ejotes o brócoli'],
+     steps:['Recalienta el caldo en la estufa o el microondas.','Cuece al vapor los ejotes o el brócoli 5–6 minutos hasta que estén tiernos-crujientes, y sirve junto al caldo.']},
+    {ingredients:['Ver la receta completa en Cenas — Ramen de Pollo Shoyu'],
+     steps:['Prepara una porción doble en la cena y recalienta con cuidado al día siguiente para el almuerzo; los fideos shirataki se conservan bien.']},
+    {ingredients:['2 pechugas de pollo','1 pepino, en cubos','1 taza de jitomates cherry, partidos a la mitad','1/2 taza de queso feta desmoronado','aceitunas kalamata','aceite de oliva, limón, orégano'],
+     steps:['Sazona el pollo con orégano; ásalo hasta que esté cocido, luego rebánalo.','Combina el pepino, los jitomates, el queso feta y las aceitunas en un tazón.','Rocía con aceite de oliva y jugo de limón.','Corona con el pollo en rebanadas.']}
+  ],
+  dinner: [
+    {ingredients:['2 pechugas de pollo','3 tazas de verduras mixtas (brócoli, zanahoria, calabacita)','1 taza de arroz integral (crudo)','aceite de oliva, sal, pimienta, ajo en polvo'],
+     steps:['Cocina el arroz integral según las instrucciones del paquete.','Mezcla las verduras con aceite de oliva y sazonador; rostiza a 220°C (425°F) por 20–25 minutos.','Sazona y asa el pollo 5–6 minutos por lado hasta que esté cocido.','Sirve el pollo y las verduras con aproximadamente 1/2 taza de arroz por persona.']},
+    {ingredients:['1 pollo entero o 2 lbs de muslos con hueso','8 tazas de agua o caldo bajo en sodio','2 zanahorias, picadas','2 chayotes o calabacitas, picadas','1 cebolla','3 dientes de ajo','cilantro, limón, tortillas de maíz'],
+     steps:['Hierve el pollo en el caldo con cebolla y ajo 45–60 minutos hasta que esté bien cocido, retirando la espuma según se forme.','Retira el pollo, deshébralo y desecha los huesos.','Regresa el pollo deshebrado a la olla; agrega las zanahorias y el chayote/calabacita. Cocina 15–20 minutos hasta que estén tiernos.','Termina con cilantro fresco y un chorrito de limón.','Sirve con tortillas de maíz calientes.']},
+    {ingredients:['2 pechugas de pollo o 1 pollo rostizado, deshebrado','6 tazas de caldo de pollo bajo en sodio','2 jitomates, en cubos','1 cebolla, picada','1 jalapeño, en rebanadas','jugo de 3 limones','cilantro, aguacate, tiritas de tortilla horneadas (no fritas)'],
+     steps:['Si usas pollo crudo, cuécelo en el caldo hasta que esté listo y deshébralo; si usas pollo rostizado, puedes saltarte este paso.','Saltea la cebolla, el jitomate y el jalapeño en una olla 5 minutos.','Agrega el caldo y el pollo deshebrado; deja hervir a fuego lento 15 minutos.','Incorpora el jugo de limón fuera del fuego.','Sirve con cilantro, aguacate y tiritas de tortilla horneada.']},
+    {ingredients:['6 tazas de caldo de hueso bajo en sodio','3 huevos, batidos','1 cda de jengibre fresco, picado','2 dientes de ajo, picados','cebollín','salsa de soya al gusto','2 huevos cocidos, para servir'],
+     steps:['Hierve el caldo con el jengibre y el ajo a fuego lento por 10 minutos.','Vierte los huevos batidos poco a poco en el caldo hirviendo mientras revuelves suavemente para formar hebras.','Sazona con un poco de salsa de soya.','Decora con cebollín en rebanadas; sirve con un huevo cocido al lado.']},
+    {ingredients:['6 tazas de caldo de pollo bajo en sodio','2 cdas de salsa de soya','1 cda de pasta de miso','2 pechugas de pollo, asadas y en rebanadas','2 huevos tibios','2 paquetes de fideos shirataki, bien enjuagados','bok choy, champiñones, cebollín, alga nori'],
+     steps:['Hierve el caldo con la salsa de soya y el miso a fuego lento por 10 minutos.','Agrega el bok choy y los champiñones; cocina 5 minutos.','Reparte los fideos shirataki enjuagados en los tazones; vierte el caldo caliente encima.','Corona con el pollo en rebanadas, un huevo tibio, cebollín y alga nori.']},
+    {ingredients:['2 lbs de muslo de pollo con hueso','1 lata de maíz pozolero, escurrido','4 chiles guajillo secos, sin semillas y remojados','2 dientes de ajo','1 cebolla','orégano','col, rábano y limón, para decorar'],
+     steps:['Hierve el pollo en agua con cebolla y ajo hasta que esté bien cocido; deshébralo y reserva el caldo.','Licúa los chiles remojados con un poco de caldo, luego cuela para obtener una salsa tersa.','Combina la salsa de chile, el caldo reservado, el pollo deshebrado y el maíz pozolero en la olla; deja hervir 20 minutos con el orégano.','Sirve con col picada, rábano en rebanadas y limón.']},
+    {ingredients:['6 tazas de caldo de verduras o de pollo bajo en sodio','3 cdas de pasta de miso blanco','1 bloque de tofu firme, en cubos','1 taza de edamame','espinaca, champiñones','una porción pequeña de fideos shirataki o soba','aceite de ajonjolí'],
+     steps:['Calienta el caldo; cuando esté caliente pero sin hervir, incorpora el miso fuera del fuego directo para conservar su sabor y probióticos.','Agrega el tofu, el edamame y los champiñones; deja hervir 5 minutos.','Incorpora la espinaca al final hasta que se marchite.','Sirve sobre una porción ligera de fideos con un chorrito de aceite de ajonjolí.']},
+    {ingredients:['2 filetes de salmón','1 manojo de espárragos, sin la base dura','1 taza de quinoa (cruda)','aceite de oliva, limón, ajo, sal, pimienta'],
+     steps:['Cocina la quinoa según las instrucciones del paquete.','Precalienta el horno a 200°C (400°F). Acomoda el salmón y los espárragos en una charola; rocía con aceite de oliva, ajo, sal, pimienta y rebanadas de limón.','Hornea 12–15 minutos hasta que el salmón se desmenuce fácilmente.','Sirve sobre la quinoa.']},
+    {ingredients:['1 lb de pavo molido','1 huevo','1/4 de taza de harina de almendra o pan molido','ajo en polvo, sazonador italiano','3 calabacitas medianas, en espiral','2 tazas de salsa marinara baja en azúcar'],
+     steps:['Mezcla el pavo, el huevo, la harina de almendra y el sazonador; forma las albóndigas.','Hornea a 200°C (400°F) por 18–20 minutos, o dora en sartén hasta que estén cocidas.','Calienta la salsa marinara; agrega las albóndigas y deja hervir 5 minutos.','Saltea los fideos de calabacita 2–3 minutos solo para suavizarlos; sirve con las albóndigas y la salsa encima.']},
+    {ingredients:['1.5 lbs de camarón, pelado y limpio','2 pimientos, en rebanadas','1 cebolla, en rebanadas','aceite de oliva','sazonador para fajitas (comino, chile en polvo, paprika, ajo en polvo)','limón, tortillas de maíz'],
+     steps:['Precalienta el horno a 220°C (425°F). Mezcla el camarón, los pimientos y la cebolla con aceite de oliva y el sazonador en una charola.','Hornea 10–12 minutos hasta que el camarón esté rosado y cocido.','Exprime limón por encima.','Sirve con tortillas de maíz calientes.']},
+    {ingredients:['4 pimientos, con la parte superior cortada y sin semillas','1 lb de pavo molido','2 tazas de arroz de coliflor','1 lata de jitomate picado','cebolla, ajo, comino','queso rallado (opcional)'],
+     steps:['Dora el pavo con la cebolla y el ajo.','Incorpora el arroz de coliflor, el jitomate picado y el comino; cocina 5 minutos.','Rellena los pimientos con la mezcla; colócalos en un refractario con un poco de agua en el fondo.','Cubre y hornea a 190°C (375°F) por 30 minutos. Si usas queso, agrégalo y hornea destapado 5 minutos más.']},
+    {ingredients:['4 filetes de tilapia','1 lata de frijol negro, enjuagado','1 taza de elote, fresco o congelado','1 jitomate, en cubos','cilantro, limón, aceite de oliva','lechugas mixtas, para una ensalada'],
+     steps:['Sazona la tilapia con sal, pimienta y un poco de comino; ásala o dórala en sartén 3–4 minutos por lado.','Combina el frijol negro, el elote, el jitomate, el cilantro y el jugo de limón para la salsa.','Sirve la tilapia con la salsa encima y una ensalada de acompañamiento.']},
+    {ingredients:['1.5 tazas de lentejas verdes o rojas, secas','6 tazas de caldo bajo en sodio','1 cebolla, picada','2 zanahorias, picadas','2 dientes de ajo','1 cda de cúrcuma','1 cdta de comino','jengibre fresco, espinaca, limón'],
+     steps:['Saltea la cebolla, la zanahoria y el ajo 5 minutos.','Agrega la cúrcuma, el comino y el jengibre rallado; tuesta 30 segundos.','Agrega las lentejas y el caldo; deja hervir a fuego lento 25–30 minutos hasta que las lentejas estén tiernas.','Incorpora la espinaca hasta que se marchite; termina con un chorrito de limón.']},
+    {ingredients:['2 latas de alubias blancas, enjuagadas','2 pechugas de pollo, cocidas y deshebradas','6 tazas de caldo de pollo bajo en sodio','2 dientes de ajo','romero','kale','ralladura de limón','1 cabeza de brócoli, para rostizar'],
+     steps:['Saltea el ajo en una olla; agrega el caldo, las alubias, el pollo deshebrado y el romero.','Deja hervir a fuego lento 15–20 minutos.','Incorpora el kale hasta que se marchite; termina con la ralladura de limón.','Mientras tanto, mezcla los ramilletes de brócoli con aceite de oliva y rostiza a 220°C (425°F) por 15 minutos; sirve al lado.']}
+  ],
+  snack: [
+    {ingredients:['1 queso en hebras (string cheese)','un puñito (~12) de almendras'], steps:['Listo para llevar — no requiere preparación.']},
+    {ingredients:['1 manzana, en rebanadas','1–2 cdas de crema de almendra'], steps:['Rebana la manzana y sirve con la crema de almendra para remojar.']},
+    {ingredients:['3–4 tallos de apio','2–3 cdas de hummus'], steps:['Corta el apio en bastones y sirve con hummus.']},
+    {ingredients:['un puñito (~10 mitades) de nueces','1 cuadro de chocolate oscuro 85%+'], steps:['Sirve y disfruta juntos.']},
+    {ingredients:['1 taza de edamame congelado, en vaina','sal de mar'], steps:['Cuece el edamame al vapor o en microondas según las instrucciones del paquete.','Espolvorea un poco de sal de mar y sirve caliente.']},
+    {ingredients:['1/4 de taza de frutos secos mixtos sin sal'], steps:['Sirve en un tazón pequeño o bolsa — ideal para llevar.']},
+    {ingredients:['1/2 taza de queso cottage','1/2 taza de moras'], steps:['Cubre el queso cottage con las moras y sirve.']},
+    {ingredients:['1 huevo cocido (preparado con anticipación)','pepino en rebanadas','una pizca de sal'], steps:['Cuece los huevos con anticipación y refrigéralos (se conservan alrededor de una semana).','Pela y sirve con pepino en rebanadas y una pizca de sal.']},
+    {ingredients:['1 lata de garbanzos, enjuagados y bien secos','1 cda de aceite de oliva','comino, paprika, sal'],
+     steps:['Precalienta el horno a 200°C (400°F).','Mezcla los garbanzos con el aceite de oliva y las especias.','Rostiza 25–30 minutos, agitando la charola a la mitad, hasta que estén crujientes.','Guarda en un recipiente hermético para toda la semana.']},
+    {ingredients:['1/2 taza de yogur griego natural','canela','opcional: unas gotas de vainilla o un poco de miel'], steps:['Espolvorea el yogur con canela y sirve.']}
+  ]
+} };
 
 function mealsFor(idx0){
+  const M = MEAL_NAMES[LANG];
   return {
-    breakfast: BREAKFASTS[idx0 % BREAKFASTS.length],
-    lunch: LUNCHES[(idx0+5) % LUNCHES.length],
-    dinner: DINNERS[(idx0+9) % DINNERS.length],
-    snack: SNACKS[idx0 % SNACKS.length]
+    breakfast: M.breakfast[idx0 % M.breakfast.length],
+    lunch: M.lunch[(idx0+5) % M.lunch.length],
+    dinner: M.dinner[(idx0+9) % M.dinner.length],
+    snack: M.snack[idx0 % M.snack.length]
   };
 }
 
 const HABITS = [
-  {key:'tonal', label:'🏋️ Tonal / Wahoo / Kickr session completed'},
-  {key:'alcohol', label:'🍺 Alcohol within weekly target'},
-  {key:'protein', label:'🥩 Protein at every meal'},
-  {key:'sleep', label:'🛏️ In bed by 10:30 PM'},
-  {key:'supplements', label:'💊 Supplements taken'},
-  {key:'soup', label:'🥣 Soup for lunch or dinner'},
-  {key:'fiber', label:'🌿 Psyllium fiber before main meal'}
+  {key:'tonal', en:'🏋️ Tonal / Wahoo / Kickr session completed', es:'🏋️ Sesión de Tonal / Wahoo / Kickr completada'},
+  {key:'alcohol', en:'🍺 Alcohol within weekly target', es:'🍺 Alcohol dentro de la meta semanal'},
+  {key:'protein', en:'🥩 Protein at every meal', es:'🥩 Proteína en cada comida'},
+  {key:'sleep', en:'🛏️ In bed by 10:30 PM', es:'🛏️ En la cama antes de las 10:30 PM'},
+  {key:'supplements', en:'💊 Supplements taken', es:'💊 Suplementos tomados'},
+  {key:'soup', en:'🥣 Soup for lunch or dinner', es:'🥣 Sopa en el almuerzo o la cena'},
+  {key:'fiber', en:'🌿 Psyllium fiber before main meal', es:'🌿 Fibra de psyllium antes de la comida principal'}
 ];
 
 const MILESTONES = [
-  {day:14, title:'Week 2', goal:'First alcohol-free day streak (2+ consecutive days)'},
-  {day:30, title:'Week 4', goal:'Alcohol at or below 17 drinks/week; all 6 weekly sessions completed'},
-  {day:42, title:'Week 6', goal:'Noticeable energy improvement; clothes fitting better; resting HR trending down'},
-  {day:56, title:'Week 8', goal:'Alcohol at or below 10/week; fasting glucose trending down if self-monitoring'},
-  {day:70, title:'Week 10', goal:'Alcohol at or below 7/week; Phase 3 workouts completing successfully'},
-  {day:84, title:'Week 12', goal:'Labs drawn for doctor appointment — target A1C drop of 0.8–1.5+ points'}
+  {day:14, en:{title:'Week 2', goal:'First alcohol-free day streak (2+ consecutive days)'}, es:{title:'Semana 2', goal:'Primera racha de días sin alcohol (2+ días consecutivos)'}},
+  {day:30, en:{title:'Week 4', goal:'Alcohol at or below 17 drinks/week; all 6 weekly sessions completed'}, es:{title:'Semana 4', goal:'Alcohol en 17 bebidas/semana o menos; las 6 sesiones semanales completadas'}},
+  {day:42, en:{title:'Week 6', goal:'Noticeable energy improvement; clothes fitting better; resting HR trending down'}, es:{title:'Semana 6', goal:'Mejora notable de energía; la ropa queda mejor; la frecuencia cardiaca en reposo va bajando'}},
+  {day:56, en:{title:'Week 8', goal:'Alcohol at or below 10/week; fasting glucose trending down if self-monitoring'}, es:{title:'Semana 8', goal:'Alcohol en 10/semana o menos; glucosa en ayunas a la baja si te la monitoreas'}},
+  {day:70, en:{title:'Week 10', goal:'Alcohol at or below 7/week; Phase 3 workouts completing successfully'}, es:{title:'Semana 10', goal:'Alcohol en 7/semana o menos; entrenamientos de la Fase 3 completándose con éxito'}},
+  {day:84, en:{title:'Week 12', goal:'Labs drawn for doctor appointment — target A1C drop of 0.8–1.5+ points'}, es:{title:'Semana 12', goal:'Laboratorios listos para la consulta médica — meta de reducción de A1C de 0.8–1.5+ puntos'}}
 ];
 
-const SUPPLEMENTS = [
+const SUPPLEMENTS = { en: [
   {name:'Berberine', evidence:'Strong — Multiple RCTs; 0.7–1.5% A1C reduction; comparable to metformin in some trials', dose:'500 mg × 3/day', timing:'With each meal', notes:'Consult doctor — can interact with medications. GI side effects without food. Start 1×/day, build up.'},
   {name:'Magnesium Glycinate', evidence:'Moderate-Strong — ~45% of US adults deficient; improves insulin sensitivity', dose:'300–400 mg', timing:'Evening', notes:'Choose glycinate or malate — NOT oxide. Alcohol depletes magnesium. Also supports sleep.'},
   {name:'Psyllium Husk Fiber', evidence:'Strong — soluble fiber directly lowers postprandial glucose', dose:'5–10g', timing:'Before main meals, dissolved in water', notes:'Start with 5g, increase slowly to avoid gas.'},
   {name:'Zinc', evidence:'Moderate — cofactor in insulin synthesis; modest A1C reduction', dose:'15–25 mg', timing:'With dinner', notes:'Do not exceed 40 mg/day. Take with food. Heavy drinkers commonly deficient.'},
   {name:'Ceylon Cinnamon', evidence:'Mixed — some RCTs show fasting glucose reduction', dose:'500–1,000 mg', timing:'Morning with breakfast', notes:'Must be Ceylon, NOT cassia (hepatotoxic coumarin at supplement doses).'},
   {name:'Alpha-Lipoic Acid (R-ALA)', evidence:'Moderate — strongest for neuropathy; modest glycemic effect', dose:'300–600 mg R-ALA', timing:'Morning, away from meals', notes:'R-ALA is more bioavailable than standard ALA. Best for peripheral nerve protection.'}
-];
+], es: [
+  {name:'Berberina', evidence:'Fuerte — Múltiples ensayos clínicos; reducción de A1C de 0.7–1.5%; comparable a la metformina en algunos estudios', dose:'500 mg × 3/día', timing:'Con cada comida', notes:'Consulta a tu doctor — puede interactuar con medicamentos. Causa molestias digestivas si se toma sin alimento. Empieza con 1×/día y aumenta gradualmente.'},
+  {name:'Glicinato de Magnesio', evidence:'Moderada a fuerte — ~45% de los adultos en EE. UU. tienen deficiencia; mejora la sensibilidad a la insulina', dose:'300–400 mg', timing:'Por la noche', notes:'Elige glicinato o malato — NO óxido. El alcohol agota el magnesio. También favorece el sueño.'},
+  {name:'Fibra de Cáscara de Psyllium', evidence:'Fuerte — la fibra soluble reduce directamente la glucosa después de comer', dose:'5–10g', timing:'Antes de las comidas principales, disuelta en agua', notes:'Empieza con 5g y aumenta poco a poco para evitar gases.'},
+  {name:'Zinc', evidence:'Moderada — cofactor en la síntesis de insulina; reducción modesta del A1C', dose:'15–25 mg', timing:'Con la cena', notes:'No exceder 40 mg/día. Tómalo con alimento. Las personas que beben mucho suelen tener deficiencia.'},
+  {name:'Canela de Ceylán', evidence:'Mixta — algunos ensayos clínicos muestran reducción de la glucosa en ayunas', dose:'500–1,000 mg', timing:'Por la mañana con el desayuno', notes:'Debe ser de Ceylán, NO cassia (contiene cumarina hepatotóxica en dosis de suplemento).'},
+  {name:'Ácido Alfa-Lipoico (R-ALA)', evidence:'Moderada — la más fuerte para neuropatía; efecto glucémico modesto', dose:'300–600 mg R-ALA', timing:'Por la mañana, alejado de las comidas', notes:'El R-ALA es más biodisponible que el ALA estándar. Ideal para la protección de nervios periféricos.'}
+] };
 
-const SCIENCE = [
+const SCIENCE = { en: [
   {intervention:'Combined aerobic + resistance exercise', reduction:'0.89–0.97% reduction (meta-analyses)', timeframe:'8–12 weeks'},
   {intervention:'Low-glycemic nutrition', reduction:'0.5–0.8% reduction', timeframe:'8–12 weeks'},
   {intervention:'Significant alcohol reduction', reduction:'0.3–0.7% fasting glucose improvement', timeframe:'4–8 weeks'},
   {intervention:'Targeted nutrient support (berberine, fiber)', reduction:'0.3–0.7% additional reduction', timeframe:'8–12 weeks'},
   {intervention:'Realistic Combined Total', reduction:'1.5–2.5% A1C drop in 90 days', timeframe:'Full 90-day cycle', total:true}
-];
+], es: [
+  {intervention:'Ejercicio combinado (aeróbico + resistencia)', reduction:'Reducción de 0.89–0.97% (metaanálisis)', timeframe:'8–12 semanas'},
+  {intervention:'Alimentación baja en índice glucémico', reduction:'Reducción de 0.5–0.8%', timeframe:'8–12 semanas'},
+  {intervention:'Reducción significativa de alcohol', reduction:'Mejora de 0.3–0.7% en la glucosa en ayunas', timeframe:'4–8 semanas'},
+  {intervention:'Apoyo nutricional específico (berberina, fibra)', reduction:'Reducción adicional de 0.3–0.7%', timeframe:'8–12 semanas'},
+  {intervention:'Total Combinado Realista', reduction:'Reducción de A1C de 1.5–2.5% en 90 días', timeframe:'Ciclo completo de 90 días', total:true}
+] };
 
-const PLATE_METHOD = [
+const PLATE_METHOD = { en: [
   {section:'Non-Starchy Vegetables', proportion:'½ of plate', put:'Leafy greens, broccoli, bok choy, zucchini, peppers, mushrooms, cauliflower', why:'High fiber, very low glycemic — fills volume without glucose spike'},
   {section:'Lean Protein', proportion:'¼ of plate', put:'Chicken breast, eggs, fish, turkey, Greek yogurt, tofu, legumes', why:'Slows gastric emptying; triggers satiety hormones; preserves muscle'},
   {section:'Fiber-Rich Complex Carb', proportion:'¼ of plate', put:'Brown rice, black beans, lentils, whole grain, sweet potato, chickpea pasta', why:'Resistant starch and fiber blunts postprandial glucose response'},
   {section:'Healthy Fat', proportion:'Small amount', put:'Avocado, olive oil, nuts, seeds', why:'Slows glucose absorption; supports satiety and inflammation control'}
-];
+], es: [
+  {section:'Verduras Sin Almidón', proportion:'½ del plato', put:'Verduras de hoja verde, brócoli, bok choy, calabacita, pimientos, champiñones, coliflor', why:'Alta en fibra, muy bajo índice glucémico — da volumen sin elevar la glucosa'},
+  {section:'Proteína Magra', proportion:'¼ del plato', put:'Pechuga de pollo, huevo, pescado, pavo, yogur griego, tofu, legumbres', why:'Retrasa el vaciado gástrico; activa hormonas de saciedad; preserva el músculo'},
+  {section:'Carbohidrato Complejo Rico en Fibra', proportion:'¼ del plato', put:'Arroz integral, frijoles negros, lentejas, granos enteros, camote, pasta de garbanzo', why:'El almidón resistente y la fibra atenúan la respuesta de glucosa después de comer'},
+  {section:'Grasa Saludable', proportion:'Cantidad pequeña', put:'Aguacate, aceite de oliva, nueces, semillas', why:'Ralentiza la absorción de glucosa; favorece la saciedad y controla la inflamación'}
+] };
 
-const SLEEP_STRESS = [
+const SLEEP_STRESS = { en: [
   {factor:'Short Sleep (<7 hrs)', how:'Raises cortisol → triggers liver glucose release → raises fasting blood sugar', target:'7–9 hours per night', action:'Consistent sleep/wake times — even weekends. Lights out by 10:30 PM.'},
   {factor:'Alcohol & Sleep Quality', how:'Disrupts REM and deep sleep architecture even when it helps you fall asleep — net negative', target:'Reduce per step-down plan', action:'Alcohol reduction = direct sleep quality improvement within weeks'},
   {factor:'Chronic Stress', how:'Sustained cortisol and adrenaline directly elevate blood glucose and worsen insulin resistance', target:'Daily 5–10 min stress reset', action:'Box breathing after workouts; progressive muscle relaxation before bed'},
   {factor:'Outdoor Movement (Grants Pass)', how:'Sedentary indoor time increases glucose burden', target:'1–2× per week non-workout', action:'Illinois River trail, Rogue River paths — walking in nature reduces cortisol within 20 minutes'}
-];
+], es: [
+  {factor:'Dormir Poco (<7 hrs)', how:'Eleva el cortisol → provoca liberación de glucosa hepática → eleva la glucosa en ayunas', target:'7–9 horas por noche', action:'Horarios consistentes de sueño y despertar — incluso los fines de semana. Luces apagadas antes de las 10:30 PM.'},
+  {factor:'Alcohol y Calidad del Sueño', how:'Altera el sueño REM y profundo aunque ayude a conciliar el sueño — el efecto neto es negativo', target:'Reducir según el plan gradual', action:'Reducir el alcohol = mejora directa en la calidad del sueño en cuestión de semanas'},
+  {factor:'Estrés Crónico', how:'El cortisol y la adrenalina sostenidos elevan directamente la glucosa y empeoran la resistencia a la insulina', target:'5–10 min diarios para liberar estrés', action:'Respiración en caja después de entrenar; relajación muscular progresiva antes de dormir'},
+  {factor:'Movimiento al Aire Libre (Grants Pass)', how:'El tiempo sedentario en interiores aumenta la carga de glucosa', target:'1–2 veces por semana, fuera del entrenamiento', action:'El sendero del río Illinois, los caminos del río Rogue — caminar en la naturaleza reduce el cortisol en 20 minutos'}
+] };
+
+const SOUP_TABLE = { en: [
+  {soup:'Lentil & Turmeric Soup', ingr:'Green/red lentils, turmeric, cumin, ginger, garlic, spinach, tomatoes', benefit:'★★★★★ — GI ~32; 8g fiber/serving; turmeric supports insulin sensitivity'},
+  {soup:'White Bean & Chicken Soup', ingr:'Cannellini beans, chicken breast, garlic, rosemary, kale, lemon zest', benefit:'★★★★☆ — 22g protein + 7g fiber per serving'},
+  {soup:'Bone Broth Egg Drop Soup', ingr:'Low-sodium bone broth, whisked eggs, ginger, garlic, green onion', benefit:'★★★★☆ — near-zero carbs; 15-min prep'},
+  {soup:'Chicken Vegetable Minestrone (Modified)', ingr:'Zucchini, tomatoes, celery, white beans, chicken, chickpea pasta (½ cup max)', benefit:'★★★★☆ — chickpea pasta doubles fiber/protein vs. regular pasta'},
+  {soup:'Thai Coconut Chicken Soup (Tom Kha)', ingr:'Light coconut milk, chicken breast, mushrooms, galangal, lemongrass, lime, fish sauce', benefit:'★★★☆☆ — healthy fats slow absorption; use light coconut milk only'}
+], es: [
+  {soup:'Sopa de Lentejas y Cúrcuma', ingr:'Lentejas verdes o rojas, cúrcuma, comino, jengibre, ajo, espinaca, jitomate', benefit:'★★★★★ — IG ~32; 8g de fibra por porción; la cúrcuma favorece la sensibilidad a la insulina'},
+  {soup:'Sopa de Alubias Blancas y Pollo', ingr:'Alubias blancas (cannellini), pechuga de pollo, ajo, romero, kale, ralladura de limón', benefit:'★★★★☆ — 22g de proteína + 7g de fibra por porción'},
+  {soup:'Sopa de Huevo en Caldo de Hueso', ingr:'Caldo de hueso bajo en sodio, huevos batidos, jengibre, ajo, cebollín', benefit:'★★★★☆ — casi cero carbohidratos; se prepara en 15 minutos'},
+  {soup:'Minestrone de Pollo y Verduras (Modificado)', ingr:'Calabacita, jitomate, apio, alubias blancas, pollo, pasta de garbanzo (½ taza máx.)', benefit:'★★★★☆ — la pasta de garbanzo duplica la fibra y proteína frente a la pasta normal'},
+  {soup:'Sopa Thai de Coco y Pollo (Tom Kha)', ingr:'Leche de coco light, pechuga de pollo, champiñones, galanga, té limón, limón, salsa de pescado', benefit:'★★★☆☆ — las grasas saludables ralentizan la absorción; usa solo leche de coco light'}
+] };
+
+const EDGE_ADVANTAGES = { en: [
+  {advantage:'Tonal Smart Gym', why:'AI-adjusted resistance training = progressive overload without guesswork. Resistance training is the most consistently underutilized A1C intervention — you have the best tool for it.'},
+  {advantage:'Wahoo Kickr Bike', why:'Structured aerobic sessions with heart rate data and ERG mode = clinical-grade cardio without leaving the house. Zone 2 and HIIT intervals are the two most evidence-backed aerobic protocols for A1C.'},
+  {advantage:'Alcohol Reduction', why:'Going from 4–5 beers nightly to 1 or fewer is arguably the single fastest-acting change in this plan — fasting glucose can improve within 2–3 weeks of significant reduction.'},
+  {advantage:'Soup-Forward Nutrition', why:'Sustainable, satisfying, culturally rich, and evidence-backed. High protein + high fiber + high volume = natural glucose control.'},
+  {advantage:'90-Day Timing', why:'A1C measures the last 2–3 months of glucose — meaning this plan maps exactly to one complete A1C measurement cycle.'}
+], es: [
+  {advantage:'Tonal Smart Gym', why:'Entrenamiento de resistencia ajustado por IA = sobrecarga progresiva sin adivinar. El entrenamiento de resistencia es la intervención para el A1C más subutilizada — tienes la mejor herramienta para ello.'},
+  {advantage:'Wahoo Kickr Bike', why:'Sesiones aeróbicas estructuradas con datos de frecuencia cardiaca y modo ERG = cardio de nivel clínico sin salir de casa. Zona 2 e intervalos HIIT son los dos protocolos aeróbicos con más evidencia para el A1C.'},
+  {advantage:'Reducción de Alcohol', why:'Pasar de 4–5 cervezas por noche a 1 o menos es posiblemente el cambio de efecto más rápido de todo este plan — la glucosa en ayunas puede mejorar en 2–3 semanas con una reducción significativa.'},
+  {advantage:'Nutrición Basada en Sopas', why:'Sostenible, satisfactoria, culturalmente rica y respaldada por evidencia. Alta proteína + alta fibra + gran volumen = control natural de la glucosa.'},
+  {advantage:'Duración de 90 Días', why:'El A1C mide los últimos 2–3 meses de glucosa — lo que significa que este plan corresponde exactamente a un ciclo completo de medición de A1C.'}
+] };
 
 /* ============ STATE ============ */
 let habitState = {}; // in-memory only, resets on reload
@@ -814,18 +1090,19 @@ function clampDay(n){ return Math.max(1, Math.min(90, n)); }
 
 /* ============ RENDER: HERO ============ */
 function renderHero(){
+  const L = UI[LANG];
   const n = clampDay(dayNumForDate(new Date()));
   const d = dateForDay(n);
-  document.getElementById('dialDay').innerHTML = (n>=1&&n<=90? ('Day '+n) : '—') + '<sup>/90</sup>';
+  document.getElementById('dialDay').innerHTML = (n>=1&&n<=90? ((LANG==='es'?'Día ':'Day ')+n) : '—') + '<sup>/90</sup>';
   document.getElementById('dialDateLabel').textContent = fmtFull(new Date());
   const ph = phaseForDay(n);
-  document.getElementById('dialPhaseLabel').textContent = 'Phase ' + ph + ' of 3';
+  document.getElementById('dialPhaseLabel').textContent = (LANG==='es'?'Fase ':'Phase ') + ph + (LANG==='es'?' de 3':' of 3');
   const labDate = dateForDay(84);
   const today = new Date(); today.setHours(0,0,0,0);
   const diff = Math.round((labDate - today)/86400000);
   document.getElementById('dialCountdown').textContent = diff>=0
-    ? diff + ' days to lab draw (' + fmtShort(labDate) + ')'
-    : 'Plan window: Aug 24 – Nov 21, 2026';
+    ? (LANG==='es' ? diff + ' días para los laboratorios (' + fmtShort(labDate) + ')' : diff + ' days to lab draw (' + fmtShort(labDate) + ')')
+    : (LANG==='es' ? 'Duración del plan: 24 de agosto – 21 de noviembre de 2026' : 'Plan window: Aug 24 – Nov 21, 2026');
 
   const strip = document.getElementById('progressStrip');
   strip.innerHTML='';
@@ -838,15 +1115,16 @@ function renderHero(){
 
 /* ============ RENDER: TODAY PANEL ============ */
 function renderToday(){
+  const L = UI[LANG];
   const n = selectedDayNum;
   const d = dateForDay(n);
   const w = workoutFor(n);
   const meals = mealsFor(n-1);
   const weekNum = Math.floor((n-1)/7)+1;
-  const alc = ALCOHOL_WEEK[weekNum] || ALCOHOL_WEEK[13];
+  const alc = (ALCOHOL_WEEK[weekNum] || ALCOHOL_WEEK[13])[LANG];
 
-  document.getElementById('todayTitle').textContent = fmtFull(d) + ' · Day ' + n + '/90';
-  document.getElementById('todaySub').textContent = 'Phase ' + phaseForDay(n) + ' — week ' + weekNum;
+  document.getElementById('todayTitle').textContent = fmtFull(d) + ' · ' + (LANG==='es'?'Día ':'Day ') + n + '/90';
+  document.getElementById('todaySub').textContent = (LANG==='es'?'Fase ':'Phase ') + phaseForDay(n) + (LANG==='es'?' — semana ':' — week ') + weekNum;
   document.getElementById('todayWorkoutLabel').textContent = w.label;
   document.getElementById('todayWorkoutDetail').textContent = w.detail;
   document.getElementById('todayAlcohol').textContent = alc;
@@ -875,7 +1153,7 @@ function renderHabits(n){
       updateHabitProgress(n);
     });
     const span = document.createElement('span');
-    span.textContent = h.label;
+    span.textContent = h[LANG];
     label.appendChild(cb);
     label.appendChild(span);
     row.appendChild(label);
@@ -886,11 +1164,13 @@ function renderHabits(n){
 function updateHabitProgress(n){
   const state = habitState[n] || {};
   const done = HABITS.filter(h=>state[h.key]).length;
-  document.getElementById('habitProgress').textContent = done + ' / ' + HABITS.length + ' habits checked for this day';
+  document.getElementById('habitProgress').textContent = UI[LANG].habitProgress(done, HABITS.length);
 }
 
 /* ============ RENDER: CALENDAR ============ */
+const DOW_LABEL = { en: DOW, es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
 function renderCalendar(){
+  const L = UI[LANG];
   const container = document.getElementById('calendarWeeks');
   container.innerHTML='';
   let dayNum=1, week=1;
@@ -904,19 +1184,19 @@ function renderCalendar(){
     const wrap = document.createElement('div');
     wrap.innerHTML = `
       <div class="week-header">
-        <h3>Week ${week} <span class="tag">Phase ${ph}</span></h3>
+        <h3>${L.weekLabel} ${week} <span class="tag">${L.phaseLabel} ${ph}</span></h3>
         <span class="range">${fmtShort(startDate)} – ${fmtShort(endDate)}</span>
       </div>
-      <div class="alc-note">🍺 ${ALCOHOL_WEEK[week] || ALCOHOL_WEEK[13]}</div>
+      <div class="alc-note">🍺 ${(ALCOHOL_WEEK[week] || ALCOHOL_WEEK[13])[LANG]}</div>
       <div class="wrap">
       <table class="cal">
-        <thead><tr><th>Date</th><th>Workout</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Snack</th></tr></thead>
+        <thead><tr><th>${L.thDate}</th><th>${L.thWorkout}</th><th>${L.thBreakfast}</th><th>${L.thLunch}</th><th>${L.thDinner}</th><th>${L.thSnack}</th></tr></thead>
         <tbody>
           ${days.map(dn=>{
-            const d=dateForDay(dn); const dow=DOW[d.getDay()];
+            const d=dateForDay(dn); const dowLabel=DOW_LABEL[LANG][d.getDay()];
             const w=workoutFor(dn); const m=mealsFor(dn-1);
             return `<tr>
-              <td class="date-cell">${dow.slice(0,3)} ${fmtShort(d)}</td>
+              <td class="date-cell">${dowLabel.slice(0,3)} ${fmtShort(d)}</td>
               <td>${w.label}</td>
               <td>${m.breakfast}</td>
               <td>${m.lunch}</td>
@@ -935,6 +1215,9 @@ function renderCalendar(){
 
 /* ============ RENDER: RECIPES ============ */
 function renderRecipes(){
+  const L = UI[LANG];
+  const M = MEAL_NAMES[LANG];
+  const D = RECIPE_DETAILS[LANG];
   const fill=(id, names, details)=>{
     const el=document.getElementById(id);
     el.innerHTML = names.map((name,i)=>{
@@ -942,24 +1225,28 @@ function renderRecipes(){
       return `<li><details>
         <summary>${name}</summary>
         <div class="recipe-detail">
-          <div class="detail-label">Ingredients</div>
+          <div class="detail-label">${L.ingredientsLabel}</div>
           <ul class="ingredient-list">${d.ingredients.map(x=>`<li>${x}</li>`).join('')}</ul>
-          <div class="detail-label">Steps</div>
+          <div class="detail-label">${L.stepsLabel}</div>
           <ol class="step-list">${d.steps.map(x=>`<li>${x}</li>`).join('')}</ol>
         </div>
       </details></li>`;
     }).join('');
   };
-  fill('listBreakfast', BREAKFASTS, RECIPE_DETAILS.breakfast);
-  fill('listLunch', LUNCHES, RECIPE_DETAILS.lunch);
-  fill('listDinner', DINNERS, RECIPE_DETAILS.dinner);
-  fill('listSnack', SNACKS, RECIPE_DETAILS.snack);
+  fill('listBreakfast', M.breakfast, D.breakfast);
+  fill('listLunch', M.lunch, D.lunch);
+  fill('listDinner', M.dinner, D.dinner);
+  fill('listSnack', M.snack, D.snack);
+
+  document.getElementById('soupRows').innerHTML = SOUP_TABLE[LANG].map(s=>`<tr>
+    <td style="font-weight:600">${s.soup}</td><td>${s.ingr}</td><td>${s.benefit}</td>
+  </tr>`).join('');
 }
 
 /* ============ RENDER: SUPPLEMENTS ============ */
 function renderSupplements(){
   const tbody = document.getElementById('supplementRows');
-  tbody.innerHTML = SUPPLEMENTS.map(s=>`<tr>
+  tbody.innerHTML = SUPPLEMENTS[LANG].map(s=>`<tr>
     <td style="font-weight:600">${s.name}</td>
     <td>${s.evidence}</td>
     <td>${s.dose}</td>
@@ -970,17 +1257,24 @@ function renderSupplements(){
 
 /* ============ RENDER: ABOUT REFERENCE TABLES ============ */
 function renderAboutTables(){
-  document.getElementById('scienceRows').innerHTML = SCIENCE.map(s=>`<tr${s.total?' style="font-weight:600"':''}>
+  const L = UI[LANG];
+  document.getElementById('scienceRows').innerHTML = SCIENCE[LANG].map(s=>`<tr${s.total?' style="font-weight:600"':''}>
     <td>${s.intervention}</td><td>${s.reduction}</td><td>${s.timeframe}</td>
   </tr>`).join('');
 
-  document.getElementById('plateRows').innerHTML = PLATE_METHOD.map(p=>`<tr>
+  document.getElementById('plateRows').innerHTML = PLATE_METHOD[LANG].map(p=>`<tr>
     <td style="font-weight:600">${p.section}</td><td>${p.proportion}</td><td>${p.put}</td><td>${p.why}</td>
   </tr>`).join('');
 
-  document.getElementById('sleepRows').innerHTML = SLEEP_STRESS.map(s=>`<tr>
+  document.getElementById('sleepRows').innerHTML = SLEEP_STRESS[LANG].map(s=>`<tr>
     <td style="font-weight:600">${s.factor}</td><td>${s.how}</td><td>${s.target}</td><td>${s.action}</td>
   </tr>`).join('');
+
+  document.getElementById('edgeRows').innerHTML = EDGE_ADVANTAGES[LANG].map(a=>`<tr>
+    <td style="font-weight:600">${a.advantage}</td><td>${a.why}</td>
+  </tr>`).join('');
+
+  document.getElementById('timingList').innerHTML = L.timingList.map(t=>`<li>${t}</li>`).join('');
 }
 
 /* ============ RENDER: MILESTONES ============ */
@@ -989,20 +1283,62 @@ function renderMilestones(){
   container.innerHTML='';
   const todayN = clampDay(dayNumForDate(new Date()));
   MILESTONES.forEach(m=>{
+    const info = m[LANG];
     const d = dateForDay(m.day);
     const done = todayN > m.day;
     const row = document.createElement('div');
     row.className = 'milestone' + (done?' done':'');
     row.innerHTML = `
-      <div class="m-date">${fmtFull(d)}<br>Day ${m.day}</div>
+      <div class="m-date">${fmtFull(d)}<br>${LANG==='es'?'Día':'Day'} ${m.day}</div>
       <div class="m-body">
-        <div class="m-title">${m.title}${done?' ✓':''}</div>
-        <div class="m-goal">${m.goal}</div>
+        <div class="m-title">${info.title}${done?' ✓':''}</div>
+        <div class="m-goal">${info.goal}</div>
       </div>
     `;
     container.appendChild(row);
   });
+
+  document.getElementById('doctorPoints').innerHTML = UI[LANG].doctorPoints.map(p=>`<li>${p}</li>`).join('');
 }
+
+/* ============ STATIC TEXT / LANGUAGE SWITCH ============ */
+function translateStatic(){
+  const L = UI[LANG];
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    const val = L[key];
+    if(val===undefined) return;
+    if(el.hasAttribute('data-i18n-html')) el.innerHTML = val;
+    else el.textContent = val;
+  });
+}
+
+function renderAll(){
+  translateStatic();
+  renderHero();
+  renderToday();
+  renderCalendar();
+  renderRecipes();
+  renderSupplements();
+  renderAboutTables();
+  renderMilestones();
+}
+
+function setLang(l){
+  if(l!==LANG){
+    LANG = l;
+    try{ localStorage.setItem('a1c_lang', l); }catch(e){}
+  }
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active', b.dataset.lang===LANG));
+  renderAll();
+}
+
+document.getElementById('langToggle').addEventListener('click', e=>{
+  const btn = e.target.closest('.lang-btn');
+  if(!btn) return;
+  setLang(btn.dataset.lang);
+});
 
 /* ============ TABS ============ */
 document.getElementById('tabs').addEventListener('click', e=>{
@@ -1034,13 +1370,8 @@ document.getElementById('btnGoDate').addEventListener('click', ()=>{
 });
 
 /* ============ INIT ============ */
-renderHero();
-renderToday();
-renderCalendar();
-renderRecipes();
-renderSupplements();
-renderAboutTables();
-renderMilestones();
+document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active', b.dataset.lang===LANG));
+renderAll();
 </script>
 </body>
 </html>
