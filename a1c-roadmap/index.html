@@ -291,23 +291,87 @@
   /* Recipes */
   .recipe-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
   @media (max-width:600px){.recipe-grid{grid-template-columns:1fr;}}
-  ul.recipe-list{list-style:none; margin:0; padding:0;}
-  ul.recipe-list li{border-bottom:1px dashed var(--line);}
-  ul.recipe-list li:last-child{border-bottom:none;}
-  ul.recipe-list details{padding:8px 0;}
-  ul.recipe-list summary{
-    cursor:pointer; font-size:13.5px; font-weight:600; color:var(--ink);
-    line-height:1.5;
+  .recipe-card{
+    border:1px solid var(--line); border-radius:10px; margin-bottom:10px;
+    background:var(--paper-2); overflow:hidden;
   }
-  ul.recipe-list summary:hover{color:var(--teal);}
-  .recipe-detail{margin-top:10px; padding-left:2px;}
-  .detail-label{
-    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.08em;
-    text-transform:uppercase; color:var(--ink-soft); margin:10px 0 4px;
+  .recipe-card summary{
+    padding:10px 14px; font-weight:600; font-size:13.5px; cursor:pointer;
+    list-style:none; display:flex; justify-content:space-between; align-items:center;
+    color:var(--ink);
   }
-  .detail-label:first-child{margin-top:0;}
+  .recipe-card summary::-webkit-details-marker{display:none;}
+  .recipe-card summary::after{content:"+"; color:var(--teal); font-size:16px; font-weight:700;}
+  .recipe-card[open] summary::after{content:"–";}
+  .recipe-card .recipe-body{padding:0 14px 14px;}
+  .recipe-card .ing-label, .recipe-card .steps-label{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--teal); margin:10px 0 4px;
+  }
+  .recipe-card .ing-list{font-size:12.5px; color:var(--ink-soft); line-height:1.6; margin:0; padding-left:18px;}
+  .recipe-card .step-list{font-size:12.5px; color:var(--ink); line-height:1.6; margin:0; padding-left:18px;}
   ul.ingredient-list, ol.step-list{
     margin:0 0 0 18px; padding:0; font-size:12.5px; color:var(--ink-soft); line-height:1.6;
+  }
+  .recipe-link{
+    display:inline-block; margin-top:8px; font-size:12px; font-weight:600;
+    color:var(--teal); text-decoration:none;
+  }
+  .recipe-link:hover{text-decoration:underline;}
+
+  /* Progress / Exercise Tracker */
+  .progress-stats{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0 6px;
+  }
+  @media (max-width:600px){.progress-stats{grid-template-columns:1fr;}}
+  .stat-block{
+    border:1px solid var(--line); border-radius:10px; padding:14px; background:var(--paper-2); text-align:center;
+  }
+  .stat-block .stat-num{font-family:'Fraunces', serif; font-size:28px; font-weight:600; color:var(--navy);}
+  .stat-block .stat-label{font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin-top:2px;}
+
+  .week-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 4px; border-bottom:1px solid var(--line); font-size:14px;
+  }
+  .week-row:last-child{border-bottom:none;}
+  .week-row .wr-label{display:flex; flex-direction:column;}
+  .week-row .wr-date{font-size:12px; color:var(--ink-soft);}
+  .week-row input[type=checkbox]{width:18px; height:18px; accent-color:var(--good); cursor:pointer;}
+
+  .overview-grid{
+    display:grid; grid-template-columns:repeat(15, 1fr); grid-auto-rows:22px; gap:4px; margin-top:10px;
+  }
+  @media (max-width:600px){.overview-grid{grid-template-columns:repeat(9,1fr); grid-auto-rows:26px;}}
+  .ov-cell{
+    height:100%; width:100%; border-radius:3px; cursor:pointer; position:relative;
+    border:1px solid rgba(0,0,0,0.06);
+  }
+  .ov-cell.ov-p1{background:var(--p1);}
+  .ov-cell.ov-p2{background:var(--p2);}
+  .ov-cell.ov-p3{background:var(--p3);}
+  .ov-cell.ov-future{opacity:0.35;}
+  .ov-cell.ov-done::after{
+    content:"✓"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:9px; font-weight:700;
+  }
+  .ov-cell.ov-missed::after{
+    content:"×"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:rgba(255,255,255,0.7); font-size:10px;
+  }
+  .overview-legend{
+    display:flex; gap:16px; margin-top:10px; font-size:12px; color:var(--ink-soft); flex-wrap:wrap;
+  }
+  .overview-legend span{display:flex; align-items:center; gap:6px;}
+  .ov-swatch{width:10px; height:10px; border-radius:2px; display:inline-block;}
+  .ov-swatch.ov-done{background:var(--good);}
+  .ov-swatch.ov-missed{background:var(--amber);}
+  .ov-swatch.ov-future{background:var(--line);}
+
+  .persist-note{
+    margin-top:16px; padding:12px 14px; border-radius:10px;
+    background:var(--amber-light); border:1px solid var(--amber);
+    font-size:12.5px; color:var(--ink); line-height:1.6;
   }
 
   /* Milestones */
@@ -369,6 +433,7 @@
   <button data-tab="recipes" data-i18n="tabRecipes">Recipes</button>
   <button data-tab="supplements" data-i18n="tabSupplements">Supplements</button>
   <button data-tab="milestones" data-i18n="tabMilestones">Milestones</button>
+  <button data-tab="progress" data-i18n="tabProgress">Progress</button>
   <button data-tab="about" data-i18n="tabAbout">About</button>
 </nav>
 
@@ -401,18 +466,22 @@
         <div class="today-block">
           <div class="label" data-i18n="labelBreakfast">Breakfast</div>
           <div class="value" id="todayBreakfast">—</div>
+          <a href="#" class="recipe-link" id="linkBreakfast" data-i18n="viewRecipe">View recipe →</a>
         </div>
         <div class="today-block">
           <div class="label" data-i18n="labelLunch">Lunch</div>
           <div class="value" id="todayLunch">—</div>
+          <a href="#" class="recipe-link" id="linkLunch" data-i18n="viewRecipe">View recipe →</a>
         </div>
         <div class="today-block">
           <div class="label" data-i18n="labelDinner">Dinner</div>
           <div class="value" id="todayDinner">—</div>
+          <a href="#" class="recipe-link" id="linkDinner" data-i18n="viewRecipe">View recipe →</a>
         </div>
         <div class="today-block">
           <div class="label" data-i18n="labelSnack">Snack</div>
           <div class="value" id="todaySnack">—</div>
+          <a href="#" class="recipe-link" id="linkSnack" data-i18n="viewRecipe">View recipe →</a>
         </div>
       </div>
     </section>
@@ -442,19 +511,19 @@
       <div class="recipe-grid">
         <div>
           <h3 data-i18n="catBreakfasts">Breakfasts</h3>
-          <ul class="recipe-list" id="listBreakfast"></ul>
+          <div id="cardsBreakfast"></div>
         </div>
         <div>
           <h3 data-i18n="catLunches">Lunches</h3>
-          <ul class="recipe-list" id="listLunch"></ul>
+          <div id="cardsLunch"></div>
         </div>
         <div>
           <h3 data-i18n="catDinners">Dinners</h3>
-          <ul class="recipe-list" id="listDinner"></ul>
+          <div id="cardsDinner"></div>
         </div>
         <div>
           <h3 data-i18n="catSnacks">Snacks</h3>
-          <ul class="recipe-list" id="listSnack"></ul>
+          <div id="cardsSnack"></div>
         </div>
       </div>
     </section>
@@ -499,6 +568,31 @@
       <h2 data-i18n="doctorTitle">What to Tell Your Doctor</h2>
       <p class="muted" data-i18n="doctorDesc">Bring data to the appointment — not just a summary. Screenshots from the Tonal app (workout history, weight progression) and Wahoo app (ride duration, heart rate zones) are legitimate clinical data.</p>
       <ul class="ingredient-list" id="doctorPoints" style="margin-left:20px; font-size:13.5px; color:var(--ink);"></ul>
+    </section>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="panel" id="panel-progress">
+    <section class="card">
+      <h2 data-i18n="progressTitle">Exercise Tracker</h2>
+      <p class="muted" data-i18n="progressDesc">Check off each day's workout as you complete it. This tracker resets if you close or reload this page — see the note below for making it permanent.</p>
+
+      <div class="progress-stats" id="progressStats"></div>
+
+      <h3 data-i18n="progressWeekTitle">This Week</h3>
+      <div id="weekTracker"></div>
+
+      <h3 data-i18n="progressOverviewTitle">Full 90-Day Overview</h3>
+      <div class="overview-grid" id="overviewGrid"></div>
+      <div class="overview-legend">
+        <span><span class="ov-swatch ov-done"></span> <span data-i18n="legendCompleted">Completed</span></span>
+        <span><span class="ov-swatch ov-missed"></span> <span data-i18n="legendMissed">Missed</span></span>
+        <span><span class="ov-swatch ov-future"></span> <span data-i18n="legendUpcoming">Upcoming</span></span>
+      </div>
+
+      <div class="persist-note" data-i18n="persistNote" data-i18n-html>
+        <strong>Note on saving progress:</strong> this in-page tracker doesn't save between visits.
+      </div>
     </section>
   </div>
 
@@ -578,9 +672,10 @@ const UI = {
     heroTitle:'90-Day A1C Roadmap',
     heroSub:'Tonal + Kickr + Wahoo, alcohol step-down, and a rotating soup-forward meal plan — mapped to real dates from Aug 24 to Nov 21, 2026.',
     stripLabel1:'Aug 24 — Phase 1', stripLabel2:'Sep 23 — Phase 2', stripLabel3:'Oct 23 — Phase 3', stripLabel4:'Nov 21',
-    tabToday:'Today', tabCalendar:'Full Calendar', tabRecipes:'Recipes', tabSupplements:'Supplements', tabMilestones:'Milestones', tabAbout:'About',
+    tabToday:'Today', tabCalendar:'Full Calendar', tabRecipes:'Recipes', tabSupplements:'Supplements', tabMilestones:'Milestones', tabProgress:'Progress', tabAbout:'About',
     btnPrevDay:'← Prev day', btnGoDate:'Go', btnToday:'Jump to today', btnNextDay:'Next day →',
     labelWorkout:'Workout', labelAlcohol:'Alcohol Target This Week', labelBreakfast:'Breakfast', labelLunch:'Lunch', labelDinner:'Dinner', labelSnack:'Snack',
+    viewRecipe:'View recipe →',
     habitTitle:'Daily Habit Checklist',
     habitDesc:"Checks reset when you reload the page — print the checklist from the roadmap doc if you want a permanent paper copy.",
     habitProgress:(done,total)=>`${done} / ${total} habits checked for this day`,
@@ -591,7 +686,14 @@ const UI = {
     recipesTitle:'Recipe Rotation',
     recipesDesc:"These pools rotate through the 90-day calendar so meals don't repeat too often. Swap freely within a category as long as you stay within the Plate Method proportions (½ non-starchy veg, ¼ lean protein, ¼ fiber-rich carb, healthy fat). Tap any recipe to expand ingredients and steps.",
     catBreakfasts:'Breakfasts', catLunches:'Lunches', catDinners:'Dinners', catSnacks:'Snacks',
-    ingredientsLabel:'Ingredients', stepsLabel:'Steps',
+    ingredientsLabel:'Ingredients', stepsLabel:'Instructions',
+    progressTitle:'Exercise Tracker',
+    progressDesc:"Check off each day's workout as you complete it. This tracker resets if you close or reload this page — see the note below for making it permanent.",
+    progressWeekTitle:'This Week', progressOverviewTitle:'Full 90-Day Overview',
+    legendCompleted:'Completed', legendMissed:'Missed', legendUpcoming:'Upcoming',
+    persistNote:"<strong>Note on saving progress:</strong> this in-page tracker doesn't save between visits — it's here for a quick daily/weekly check-in. For real day-to-day tracking that survives across your whole 90 days, the most reliable options are printing the Weekly Habit Checklist from the roadmap document, or asking to have this tracker wired up to a small database (Firestore) since this site is already on Firebase.",
+    statWorkouts:'Workouts Logged', statAdherence:'Adherence So Far', statStreak:'Day Streak',
+    weekSummary:(done,total,week)=>`${done} of ${total} days logged this week (Week ${week})`,
     soupTitle:'🍜 Soup Rotation — Reference',
     soupDesc:"Soups are one of the best blood-sugar management tools available: high volume, high protein, high fiber, and easy to batch-cook. Batch-cook 2 soups on Sunday — they refrigerate 4–5 days and form the backbone of the week's lunches and dinners.",
     soupSubtitle:'Top-rated for A1C impact',
@@ -630,9 +732,10 @@ const UI = {
     heroTitle:'Plan de 90 Días para el A1C',
     heroSub:'Tonal + Kickr + Wahoo, reducción gradual de alcohol y un plan de comidas rotativo basado en sopas — organizado con fechas reales del 24 de agosto al 21 de noviembre de 2026.',
     stripLabel1:'24 ago — Fase 1', stripLabel2:'23 sep — Fase 2', stripLabel3:'23 oct — Fase 3', stripLabel4:'21 nov',
-    tabToday:'Hoy', tabCalendar:'Calendario', tabRecipes:'Recetas', tabSupplements:'Suplementos', tabMilestones:'Hitos', tabAbout:'Acerca de',
+    tabToday:'Hoy', tabCalendar:'Calendario', tabRecipes:'Recetas', tabSupplements:'Suplementos', tabMilestones:'Hitos', tabProgress:'Progreso', tabAbout:'Acerca de',
     btnPrevDay:'← Día anterior', btnGoDate:'Ir', btnToday:'Hoy', btnNextDay:'Día siguiente →',
     labelWorkout:'Entrenamiento', labelAlcohol:'Meta de Alcohol Esta Semana', labelBreakfast:'Desayuno', labelLunch:'Almuerzo', labelDinner:'Cena', labelSnack:'Colación',
+    viewRecipe:'Ver receta →',
     habitTitle:'Lista Diaria de Hábitos',
     habitDesc:'Las casillas se reinician al recargar la página — imprime la lista del documento del plan si quieres una copia permanente en papel.',
     habitProgress:(done,total)=>`${done} / ${total} hábitos marcados hoy`,
@@ -643,7 +746,14 @@ const UI = {
     recipesTitle:'Rotación de Recetas',
     recipesDesc:'Estas listas rotan a lo largo del calendario de 90 días para que las comidas no se repitan demasiado. Cambia libremente dentro de cada categoría siempre que mantengas las proporciones del Método del Plato (½ verduras sin almidón, ¼ proteína magra, ¼ carbohidrato rico en fibra, grasa saludable). Toca cualquier receta para ver ingredientes y pasos.',
     catBreakfasts:'Desayunos', catLunches:'Almuerzos', catDinners:'Cenas', catSnacks:'Colaciones',
-    ingredientsLabel:'Ingredientes', stepsLabel:'Pasos',
+    ingredientsLabel:'Ingredientes', stepsLabel:'Instrucciones',
+    progressTitle:'Registro de Ejercicio',
+    progressDesc:'Marca el entrenamiento de cada día conforme lo completes. Este registro se reinicia si cierras o recargas la página — ve la nota de abajo para hacerlo permanente.',
+    progressWeekTitle:'Esta Semana', progressOverviewTitle:'Panorama Completo de 90 Días',
+    legendCompleted:'Completado', legendMissed:'No completado', legendUpcoming:'Próximo',
+    persistNote:'<strong>Nota sobre guardar el progreso:</strong> este registro dentro de la página no se guarda entre visitas — es para un chequeo rápido diario o semanal. Para un seguimiento real día a día que se mantenga durante tus 90 días, las opciones más confiables son imprimir la Lista Semanal de Hábitos del documento del plan, o pedir que este registro se conecte a una pequeña base de datos (Firestore), ya que este sitio ya está en Firebase.',
+    statWorkouts:'Entrenamientos Registrados', statAdherence:'Adherencia hasta Ahora', statStreak:'Racha de Días',
+    weekSummary:(done,total,week)=>`${done} de ${total} días registrados esta semana (Semana ${week})`,
     soupTitle:'🍜 Rotación de Sopas — Referencia',
     soupDesc:'Las sopas son una de las mejores herramientas para controlar el azúcar en la sangre: gran volumen, alta en proteína, alta en fibra y fáciles de preparar en lote. Prepara 2 sopas el domingo — se conservan 4–5 días en el refrigerador y son la base de los almuerzos y cenas de la semana.',
     soupSubtitle:'Las mejor calificadas por su impacto en el A1C',
@@ -748,14 +858,14 @@ const ALCOHOL_WEEK = {
 const MEAL_NAMES = {
   en: {
     breakfast:['Greek yogurt + berries + chia seeds','2-egg veggie scramble + 1 slice whole grain toast','Protein smoothie (spinach, protein powder, frozen berries, flaxseed, almond milk)','Overnight oats (rolled oats, chia, almond milk, cinnamon, berries)','Veggie omelette (3 eggs, peppers, onion, spinach)','Cottage cheese + sliced peaches + walnuts','Chia pudding (almond milk, vanilla) + mixed berries','Smoked salmon + avocado on whole grain toast','Make-ahead egg muffins (spinach & feta) + fruit','Greek yogurt parfait with low-sugar granola & pumpkin seeds','Protein pancakes (oat flour, egg whites, banana) + almond butter','Turkey sausage + sautéed spinach + ½ avocado','Cottage cheese bowl + walnuts + cinnamon + berries','Veggie & black bean breakfast tacos (corn tortilla, eggs)'],
-    lunch:['Leftover lentil & turmeric soup + side salad','Black bean soup + sliced avocado','White bean & chicken soup','Turkey & veggie wrap in lettuce leaves','Chicken vegetable minestrone (modified, chickpea pasta)','Big salad with grilled salmon, chickpeas, olive oil','Tom Kha coconut chicken soup','Grilled chicken Caesar (light dressing) over greens','Quinoa bowl with roasted vegetables + grilled chicken','Turkey chili (bean-forward, no added sugar)','Greek-yogurt tuna salad over mixed greens','Caldo de Pollo + side of steamed veggies','Chicken shoyu ramen bowl (shirataki noodles)','Mediterranean bowl: grilled chicken, cucumber, tomato, feta, olive oil'],
-    dinner:['Grilled chicken + roasted vegetables + ½ cup brown rice','Caldo de Pollo + 1–2 corn tortillas','Sopa de Lima (Yucatán lime chicken soup)','Bone broth egg drop soup + hard-boiled eggs','Chicken shoyu ramen bowl','Pozole rojo (modified — chicken, ½ cup hominy)','Miso vegetable ramen (noodle-light, extra veggies)','Baked salmon + asparagus + quinoa','Turkey meatballs + zucchini noodles + marinara','Sheet-pan shrimp fajitas (peppers, onion, lime, corn tortillas)','Stuffed bell peppers (ground turkey, cauliflower rice)','Grilled tilapia + black bean & corn salsa + side salad','Lentil & turmeric soup + side salad','White bean & chicken soup + roasted broccoli'],
+    lunch:['Leftover lentil & turmeric soup + side salad','Black bean soup + sliced avocado','Turkey & veggie wrap in lettuce leaves','Chicken vegetable minestrone (modified, chickpea pasta)','Big salad with grilled salmon, chickpeas, olive oil','Grilled chicken Caesar (light dressing) over greens','Quinoa bowl with roasted vegetables + grilled chicken','Turkey chili (bean-forward, no added sugar)','Greek-yogurt tuna salad over mixed greens','Caldo de Pollo + side of steamed veggies','Mediterranean bowl: grilled chicken, cucumber, tomato, feta, olive oil','Ground beef taco salad (lettuce, black beans, avocado, salsa)','Pulled pork lettuce wraps with cabbage slaw'],
+    dinner:['Grilled chicken + roasted vegetables + brown rice','Caldo de Pollo + corn tortillas','Sopa de Lima (Yucatán lime chicken soup)','Baked salmon + asparagus + quinoa','Turkey meatballs + zucchini noodles + marinara','Sheet-pan shrimp fajitas (peppers, onion, lime, corn tortillas)','Stuffed bell peppers (ground turkey, cauliflower rice)','Grilled tilapia + black bean & corn salsa + side salad','Lentil & turmeric soup + side salad','Beef & broccoli stir-fry','Grilled flank steak with chimichurri + roasted vegetables','Slow-cooker beef & vegetable stew','Pork tenderloin with roasted Brussels sprouts & apples','Baked pork carnitas with cabbage slaw','Pork chops with sautéed greens','Chicken fajita bowl','Lemon herb baked chicken thighs + roasted vegetables','Greek chicken skewers with tzatziki','Chickpea & spinach curry','Veggie stir-fry with tofu','Stuffed portobello mushrooms (quinoa, spinach, feta)','Cauliflower fried "rice" with egg'],
     snack:['String cheese + almonds','Apple + almond butter','Celery + hummus','Walnuts + 1 square dark chocolate (85%+)','Edamame','Mixed nuts (unsalted)','Berries + cottage cheese','Hard-boiled egg + cucumber slices','Roasted chickpeas','Greek yogurt + cinnamon']
   },
   es: {
     breakfast:['Yogur griego + moras + semillas de chía','Huevos revueltos con verduras + 1 rebanada de pan integral tostado','Licuado de proteína (espinaca, proteína en polvo, moras congeladas, linaza, leche de almendra)','Avena remojada toda la noche (avena, chía, leche de almendra, canela, moras)','Omelette de verduras (3 huevos, pimientos, cebolla, espinaca)','Queso cottage + durazno en rebanadas + nueces','Pudín de chía (leche de almendra, vainilla) + moras mixtas','Salmón ahumado + aguacate en pan integral tostado','Muffins de huevo preparados con anticipación (espinaca y feta) + fruta','Parfait de yogur griego con granola baja en azúcar y semillas de calabaza','Hot cakes de proteína (harina de avena, claras de huevo, plátano) + crema de almendra','Salchicha de pavo + espinaca salteada + ½ aguacate','Queso cottage con nueces, canela y moras','Tacos de desayuno de frijol negro y verduras (tortilla de maíz, huevo)'],
-    lunch:['Sopa de lentejas y cúrcuma del día anterior + ensalada','Sopa de frijol negro + aguacate en rebanadas','Sopa de alubias blancas y pollo','Tacos de lechuga con pavo y verduras','Minestrone de pollo y verduras (modificado, con pasta de garbanzo)','Ensalada grande con salmón a la parrilla, garbanzos y aceite de oliva','Sopa thai de coco y pollo (Tom Kha)','Ensalada César ligera con pollo a la parrilla','Bowl de quinoa con verduras rostizadas y pollo a la parrilla','Chili de pavo (con muchos frijoles, sin azúcar añadida)','Ensalada de atún con yogur griego sobre lechugas mixtas','Caldo de pollo + verduras al vapor','Ramen de pollo shoyu (con fideos shirataki)','Bowl mediterráneo: pollo a la parrilla, pepino, jitomate, queso feta, aceite de oliva'],
-    dinner:['Pollo a la parrilla + verduras rostizadas + ½ taza de arroz integral','Caldo de pollo + 1–2 tortillas de maíz','Sopa de lima (estilo yucateco, con pollo)','Sopa de huevo en caldo de hueso + huevo cocido','Ramen de pollo shoyu','Pozole rojo (modificado — con pollo, ½ taza de maíz pozolero)','Ramen de verduras con miso (con pocos fideos, más verduras)','Salmón al horno + espárragos + quinoa','Albóndigas de pavo + fideos de calabacita + salsa marinara','Fajitas de camarón al horno (pimientos, cebolla, limón, tortillas de maíz)','Pimientos rellenos (pavo molido, arroz de coliflor)','Tilapia a la parrilla + salsa de frijol negro y elote + ensalada','Sopa de lentejas y cúrcuma + ensalada','Sopa de alubias blancas y pollo + brócoli rostizado'],
+    lunch:['Sopa de lentejas y cúrcuma del día anterior + ensalada','Sopa de frijol negro + aguacate en rebanadas','Tacos de lechuga con pavo y verduras','Minestrone de pollo y verduras (modificado, con pasta de garbanzo)','Ensalada grande con salmón a la parrilla, garbanzos y aceite de oliva','Ensalada César ligera con pollo a la parrilla','Bowl de quinoa con verduras rostizadas y pollo a la parrilla','Chili de pavo (con muchos frijoles, sin azúcar añadida)','Ensalada de atún con yogur griego sobre lechugas mixtas','Caldo de pollo + verduras al vapor','Bowl mediterráneo: pollo a la parrilla, pepino, jitomate, queso feta, aceite de oliva','Ensalada de taco con carne molida de res (lechuga, frijol negro, aguacate, salsa)','Tacos de lechuga con carnitas de cerdo deshebrada y ensalada de col'],
+    dinner:['Pollo a la parrilla + verduras rostizadas + arroz integral','Caldo de pollo + tortillas de maíz','Sopa de lima (estilo yucateco, con pollo)','Salmón al horno + espárragos + quinoa','Albóndigas de pavo + fideos de calabacita + salsa marinara','Fajitas de camarón al horno (pimientos, cebolla, limón, tortillas de maíz)','Pimientos rellenos (pavo molido, arroz de coliflor)','Tilapia a la parrilla + salsa de frijol negro y elote + ensalada','Sopa de lentejas y cúrcuma + ensalada','Salteado de res y brócoli','Bistec de arrachera a la parrilla con chimichurri + verduras rostizadas','Estofado de res y verduras en olla de cocción lenta','Lomo de cerdo con coles de Bruselas y manzana rostizadas','Carnitas de cerdo al horno con ensalada de col','Chuletas de cerdo con verduras de hoja salteadas','Bowl de fajitas de pollo','Muslos de pollo al horno con limón y hierbas + verduras rostizadas','Brochetas de pollo estilo griego con tzatziki','Curry de garbanzo y espinaca','Salteado de verduras con tofu','Champiñones portobello rellenos (quinoa, espinaca, queso feta)','Arroz de coliflor frito con huevo'],
     snack:['Queso en hebras + almendras','Manzana + crema de almendra','Apio + hummus','Nueces + 1 cuadro de chocolate oscuro (85%+)','Edamame','Frutos secos mixtos (sin sal)','Moras + queso cottage','Huevo cocido + pepino en rebanadas','Garbanzos rostizados','Yogur griego + canela']
   }
 };
@@ -763,211 +873,239 @@ const MEAL_NAMES = {
 /* Ingredients + steps, index-matched to MEAL_NAMES above */
 const RECIPE_DETAILS = { en: {
   breakfast: [
-    {ingredients:['2 cups plain Greek yogurt','1 cup mixed berries (fresh or frozen)','2 tbsp chia seeds','splash of vanilla extract','drizzle of honey (optional, small amount)'],
-     steps:['Spoon yogurt into two bowls.','Top each with berries and a sprinkle of chia seeds.','Add a splash of vanilla; let sit 5 minutes if using frozen berries so they thaw slightly.','Serve as-is, or with a light drizzle of honey.']},
-    {ingredients:['4 large eggs','1/2 cup diced bell pepper','1/4 cup diced onion','1 cup fresh spinach','1 tsp olive oil','salt and pepper','2 slices whole grain bread'],
-     steps:['Heat olive oil in a skillet over medium heat.','Sauté onion and bell pepper 3–4 minutes until softened.','Add spinach and cook 1 minute until wilted.','Whisk eggs with salt and pepper, pour into the pan, and scramble until just set.','Toast the bread and serve alongside.']},
-    {ingredients:['1 cup unsweetened almond milk','1 scoop protein powder (vanilla or unflavored)','1 cup fresh spinach','3/4 cup frozen mixed berries','1 tbsp ground flaxseed','ice as needed'],
-     steps:['Add all ingredients to a blender.','Blend until smooth, adding water or ice to reach your preferred thickness.','Pour and drink right away for best texture.']},
-    {ingredients:['1 cup rolled oats','1 1/2 cups almond milk','2 tbsp chia seeds','1 tsp cinnamon','1 cup berries (for topping)'],
-     steps:['Combine oats, almond milk, chia seeds, and cinnamon in two jars or containers.','Stir well, cover, and refrigerate overnight (at least 4 hours).','In the morning, top with fresh berries before eating.','Tip: prep both jars the night before for both of you.']},
-    {ingredients:['6 large eggs','1/2 cup diced peppers','1/4 cup diced onion','1 cup fresh spinach','1 tsp olive oil','salt and pepper','optional: 1/4 cup shredded cheese'],
-     steps:['Sauté onion and pepper in olive oil for 3 minutes, then add spinach until just wilted; remove from pan.','Whisk eggs with salt and pepper. Pour into the same pan over medium-low heat.','Once eggs are mostly set, add the vegetables (and cheese, if using) to one half.','Fold the omelette over, cook 1 more minute, and serve.']},
-    {ingredients:['1 1/2 cups cottage cheese','1 fresh peach, sliced (or 1 cup canned peaches in juice, drained)','1/4 cup chopped walnuts','cinnamon to taste'],
-     steps:['Divide cottage cheese between two bowls.','Top with sliced peaches and chopped walnuts.','Finish with a light dusting of cinnamon.']},
-    {ingredients:['1/3 cup chia seeds','1 1/2 cups almond milk','1 tsp vanilla extract','1 cup mixed berries'],
-     steps:['Whisk chia seeds, almond milk, and vanilla together in a container.','Refrigerate at least 4 hours or overnight, stirring once after 30 minutes to prevent clumping.','Top with mixed berries just before serving.']},
-    {ingredients:['4 slices whole grain bread','4 oz smoked salmon','1 ripe avocado','squeeze of lemon juice','capers (optional)','black pepper'],
-     steps:['Toast the bread.','Mash the avocado with a squeeze of lemon juice; spread onto the toast.','Top with smoked salmon, capers if using, and a crack of black pepper.']},
-    {ingredients:['8 large eggs','1 cup chopped spinach','1/2 cup crumbled feta','salt and pepper','cooking spray','fruit of choice, for serving'],
-     steps:['Preheat oven to 350°F and lightly grease a muffin tin.','Whisk eggs with salt and pepper.','Divide spinach and feta among the muffin cups, then pour egg mixture over each.','Bake 18–20 minutes until set. Makes about 12 muffins — refrigerate leftovers up to 4 days.','Serve 2–3 muffins per person with a piece of fruit.']},
-    {ingredients:['2 cups plain Greek yogurt','1/2 cup low-sugar granola','1/4 cup pumpkin seeds','1/2 cup berries'],
-     steps:['Layer yogurt, berries, and granola in glasses or bowls.','Top with pumpkin seeds and serve.']},
-    {ingredients:['1 cup oat flour','4 egg whites','1 ripe banana, mashed','1/2 tsp baking powder','splash of almond milk if batter is thick','2 tbsp almond butter, for topping'],
-     steps:['Mix oat flour, egg whites, mashed banana, and baking powder into a smooth batter, thinning with almond milk if needed.','Cook pancakes on a lightly greased nonstick skillet, 2–3 minutes per side until golden.','Top with almond butter to serve.']},
-    {ingredients:['4–6 turkey breakfast sausage links','2 cups fresh spinach','1 tsp olive oil','1 avocado','salt and pepper'],
+    {ingredients:['4 cups plain Greek yogurt','2 cups mixed berries (fresh or frozen)','4 tbsp chia seeds','splash of vanilla extract','drizzle of honey (optional, small amount)'],
+     steps:['Spoon yogurt into four bowls.','Top each with berries and a sprinkle of chia seeds.','Add a splash of vanilla; let sit 5 minutes if using frozen berries so they thaw slightly.','Serve as-is, or with a light drizzle of honey.']},
+    {ingredients:['8 large eggs','1 cup diced bell pepper','1/2 cup diced onion','2 cups fresh spinach','2 tsp olive oil','salt and pepper','4 slices whole grain bread'],
+     steps:['Heat olive oil in a large skillet over medium heat.','Sauté onion and bell pepper 3–4 minutes until softened.','Add spinach and cook 1 minute until wilted.','Whisk eggs with salt and pepper, pour into the pan, and scramble until just set.','Toast the bread and serve alongside.']},
+    {ingredients:['2 cups unsweetened almond milk','2 scoops protein powder (vanilla or unflavored)','2 cups fresh spinach','1 1/2 cups frozen mixed berries','2 tbsp ground flaxseed','ice as needed'],
+     steps:['Add all ingredients to a blender (work in two batches if needed).','Blend until smooth, adding water or ice to reach your preferred thickness.','Pour and drink right away for best texture.']},
+    {ingredients:['2 cups rolled oats','3 cups almond milk','4 tbsp chia seeds','2 tsp cinnamon','2 cups berries (for topping)'],
+     steps:['Combine oats, almond milk, chia seeds, and cinnamon in four jars or containers.','Stir well, cover, and refrigerate overnight (at least 4 hours).','In the morning, top with fresh berries before eating.','Tip: prep all four jars the night before.']},
+    {ingredients:['12 large eggs','1 cup diced peppers','1/2 cup diced onion','2 cups fresh spinach','2 tsp olive oil','salt and pepper','optional: 1/2 cup shredded cheese'],
+     steps:['Sauté onion and pepper in olive oil for 3 minutes, then add spinach until just wilted; remove from pan.','Whisk eggs with salt and pepper in batches of 3 per omelette. Pour into the same pan over medium-low heat.','Once eggs are mostly set, add the vegetables (and cheese, if using) to one half.','Fold the omelette over, cook 1 more minute, and serve. Repeat for all four omelettes.']},
+    {ingredients:['3 cups cottage cheese','2 fresh peaches, sliced (or 2 cups canned peaches in juice, drained)','1/2 cup chopped walnuts','cinnamon to taste'],
+     steps:['Divide cottage cheese among four bowls.','Top with sliced peaches and chopped walnuts.','Finish with a light dusting of cinnamon.']},
+    {ingredients:['2/3 cup chia seeds','3 cups almond milk','2 tsp vanilla extract','2 cups mixed berries'],
+     steps:['Whisk chia seeds, almond milk, and vanilla together in a container.','Refrigerate at least 4 hours or overnight, stirring once after 30 minutes to prevent clumping.','Divide into four bowls; top with mixed berries just before serving.']},
+    {ingredients:['8 slices whole grain bread','8 oz smoked salmon','2 ripe avocados','squeeze of lemon juice','capers (optional)','black pepper'],
+     steps:['Toast the bread.','Mash the avocados with a squeeze of lemon juice; spread onto the toast.','Top with smoked salmon, capers if using, and a crack of black pepper.']},
+    {ingredients:['12 large eggs','1 1/2 cups chopped spinach','3/4 cup crumbled feta','salt and pepper','cooking spray','fruit of choice, for serving'],
+     steps:['Preheat oven to 350°F and lightly grease two muffin tins (or bake in batches).','Whisk eggs with salt and pepper.','Divide spinach and feta among the muffin cups, then pour egg mixture over each.','Bake 18–20 minutes until set. Makes about 18 muffins — refrigerate leftovers up to 4 days.','Serve 2–3 muffins per person with a piece of fruit.']},
+    {ingredients:['4 cups plain Greek yogurt','1 cup low-sugar granola','1/2 cup pumpkin seeds','1 cup berries'],
+     steps:['Layer yogurt, berries, and granola in four glasses or bowls.','Top with pumpkin seeds and serve.']},
+    {ingredients:['2 cups oat flour','8 egg whites','2 ripe bananas, mashed','1 tsp baking powder','splash of almond milk if batter is thick','4 tbsp almond butter, for topping'],
+     steps:['Mix oat flour, egg whites, mashed banana, and baking powder into a smooth batter, thinning with almond milk if needed.','Cook pancakes in batches on a lightly greased nonstick skillet, 2–3 minutes per side until golden.','Top with almond butter to serve.']},
+    {ingredients:['12 turkey breakfast sausage links','4 cups fresh spinach','2 tsp olive oil','2 avocados','salt and pepper'],
      steps:['Cook sausage links according to package directions.','Sauté spinach in olive oil for 2 minutes until wilted; season.','Serve sausage and spinach with half an avocado per plate.']},
-    {ingredients:['1 1/2 cups cottage cheese','1/4 cup walnuts','cinnamon to taste','1 cup berries'],
-     steps:['Divide cottage cheese between two bowls.','Top with walnuts and berries.','Finish with a dusting of cinnamon.']},
-    {ingredients:['4 corn tortillas','4 large eggs','1/2 cup black beans, rinsed','1/4 cup diced onion','1/4 cup diced bell pepper','salsa and cilantro, for topping'],
+    {ingredients:['3 cups cottage cheese','1/2 cup walnuts','cinnamon to taste','2 cups berries'],
+     steps:['Divide cottage cheese among four bowls.','Top with walnuts and berries.','Finish with a dusting of cinnamon.']},
+    {ingredients:['8 corn tortillas','8 large eggs','1 cup black beans, rinsed','1/2 cup diced onion','1/2 cup diced bell pepper','salsa and cilantro, for topping'],
      steps:['Warm the tortillas in a dry skillet or the oven.','Sauté onion and pepper 3 minutes, then add black beans just to warm through.','In a separate pan, scramble the eggs and season.','Assemble tacos with eggs, bean mixture, salsa, and cilantro.']}
   ],
   lunch: [
-    {ingredients:['1.5 cups leftover Lentil & Turmeric Soup (see Dinner recipes)','2 cups mixed greens','olive oil and lemon juice, for dressing'],
+    {ingredients:['3 cups leftover Lentil & Turmeric Soup (see Dinner)','4 cups mixed greens','olive oil and lemon juice, for dressing'],
      steps:['Reheat the soup on the stovetop or in the microwave until hot.','Toss greens with a small drizzle of olive oil and a squeeze of lemon for a simple side salad.']},
-    {ingredients:['2 cans black beans, rinsed','4 cups low-sodium broth','1 onion, diced','2 cloves garlic','1 tsp cumin','1 tsp smoked paprika','juice of 1 lime','1 avocado, sliced','plain Greek yogurt, for topping'],
-     steps:['Sauté onion and garlic 4–5 minutes until soft.','Add black beans, broth, cumin, and paprika; simmer 15 minutes.','Blend half the soup (with an immersion blender or in batches) for a creamier texture, then stir back in.','Finish with lime juice.','Top with sliced avocado and a dollop of Greek yogurt.']},
-    {ingredients:['2 cans cannellini beans, rinsed','2 chicken breasts, cooked and shredded','6 cups low-sodium chicken broth','2 cloves garlic, minced','1 tsp fresh rosemary','2 cups chopped kale','zest of 1 lemon'],
-     steps:['Sauté garlic in a pot for 1 minute.','Add broth, beans, shredded chicken, and rosemary; simmer 15–20 minutes.','Stir in kale until wilted.','Finish with lemon zest and serve.']},
-    {ingredients:['8 large lettuce leaves (butter or romaine)','8 oz sliced deli turkey, low-sodium','1 avocado, sliced','1 cucumber, sliced','1 carrot, shredded','mustard or hummus'],
+    {ingredients:['4 cans black beans, rinsed','8 cups low-sodium broth','2 onions, diced','4 cloves garlic','2 tsp cumin','2 tsp smoked paprika','juice of 2 limes','2 avocados, sliced','plain Greek yogurt, for topping'],
+     steps:['Sauté onion and garlic 4–5 minutes until soft.','Add black beans, broth, cumin, and paprika; simmer 15 minutes.','Blend half the soup for a creamier texture, then stir back in.','Finish with lime juice.','Top with sliced avocado and a dollop of Greek yogurt.']},
+    {ingredients:['16 large lettuce leaves (butter or romaine)','1 lb sliced deli turkey, low-sodium','2 avocados, sliced','2 cucumbers, sliced','2 carrots, shredded','mustard or hummus'],
      steps:['Lay lettuce leaves flat on a plate.','Layer turkey, avocado, cucumber, and carrot onto each leaf.','Add a smear of mustard or hummus.','Roll tightly like a burrito, securing with a toothpick if needed.']},
-    {ingredients:['2 chicken breasts, diced','1 zucchini, diced','1 can diced tomatoes','2 celery stalks, diced','1 can white beans, rinsed','1/2 cup chickpea pasta','4 cups low-sodium chicken broth','Italian seasoning'],
-     steps:['Brown chicken in a pot 5 minutes.','Add zucchini and celery, cook 3 minutes.','Add tomatoes, beans, broth, and seasoning; simmer 15 minutes.','Add chickpea pasta and cook per package time (usually 6–8 minutes) until tender.']},
-    {ingredients:['2 salmon fillets (4–5 oz each)','4 cups mixed greens','1 cup chickpeas, rinsed','cherry tomatoes, halved','1 cucumber, sliced','olive oil and lemon juice, for dressing','salt and pepper'],
+    {ingredients:['4 chicken breasts, diced','2 zucchini, diced','2 cans diced tomatoes','4 celery stalks, diced','2 cans white beans, rinsed','1 cup chickpea pasta','8 cups low-sodium chicken broth','Italian seasoning'],
+     steps:['Brown chicken in a large pot 5 minutes.','Add zucchini and celery, cook 3 minutes.','Add tomatoes, beans, broth, and seasoning; simmer 15 minutes.','Add chickpea pasta and cook per package time (usually 6–8 minutes) until tender.']},
+    {ingredients:['4 salmon fillets (4–5 oz each)','8 cups mixed greens','2 cups chickpeas, rinsed','cherry tomatoes, halved','2 cucumbers, sliced','olive oil and lemon juice, for dressing','salt and pepper'],
      steps:['Season salmon with salt and pepper; grill or pan-sear 4–5 minutes per side until cooked through.','Toss greens, chickpeas, tomatoes, and cucumber with olive oil and lemon juice.','Top the salad with flaked salmon.']},
-    {ingredients:['2 chicken breasts, sliced thin','1 can light coconut milk','3 cups low-sodium chicken broth','1 cup mushrooms, sliced','2 tbsp fish sauce','juice of 1–2 limes','galangal or ginger, fresh cilantro'],
-     steps:['Simmer broth and coconut milk together over medium heat.','Add ginger/galangal and mushrooms; simmer 5 minutes.','Add chicken and cook until just done, about 5–6 minutes.','Stir in fish sauce and lime juice off the heat.','Garnish with fresh cilantro.']},
-    {ingredients:['2 chicken breasts','romaine lettuce, chopped','light Caesar dressing','shaved parmesan','small amount of whole grain croutons'],
+    {ingredients:['4 chicken breasts','2 heads romaine lettuce, chopped','light Caesar dressing','shaved parmesan','small amount of whole grain croutons'],
      steps:['Season and grill chicken 5–6 minutes per side until cooked through; slice.','Toss romaine with a light amount of dressing (go easy — it concentrates quickly).','Top with sliced chicken, parmesan, and a few croutons.']},
-    {ingredients:['1 cup quinoa (dry)','2 chicken breasts','2 cups mixed vegetables (zucchini, bell pepper, broccoli)','olive oil','salt and pepper','lemon'],
+    {ingredients:['2 cups quinoa (dry)','4 chicken breasts','4 cups mixed vegetables (zucchini, bell pepper, broccoli)','olive oil','salt and pepper','lemon'],
      steps:['Cook quinoa according to package directions.','Toss vegetables in olive oil and seasoning; roast at 425°F for 20 minutes.','Grill or bake chicken until cooked through; slice.','Assemble bowls with quinoa, roasted vegetables, and chicken. Finish with a squeeze of lemon.']},
-    {ingredients:['1 lb ground turkey','1 can black beans, rinsed','1 can kidney beans, rinsed','1 can diced tomatoes','1 onion, diced','2 cloves garlic','chili powder, cumin','low-sodium broth as needed'],
-     steps:['Brown turkey with onion and garlic in a large pot.','Add both beans, tomatoes, and spices, plus a splash of broth if it looks thick.','Simmer 25–30 minutes, stirring occasionally.','Makes several servings — freezes well for future lunches.']},
-    {ingredients:['2 cans tuna in water, drained','1/2 cup plain Greek yogurt','1 celery stalk, diced','1/4 red onion, diced','juice of 1 lemon','salt and pepper','mixed greens'],
+    {ingredients:['2 lbs ground turkey','2 cans black beans, rinsed','2 cans kidney beans, rinsed','2 cans diced tomatoes','2 onions, diced','4 cloves garlic','chili powder, cumin','low-sodium broth as needed'],
+     steps:['Brown turkey with onion and garlic in a large pot.','Add both beans, tomatoes, and spices, plus a splash of broth if it looks thick.','Simmer 25–30 minutes, stirring occasionally.','Makes a big batch — freezes well for future lunches.']},
+    {ingredients:['4 cans tuna in water, drained','1 cup plain Greek yogurt','2 celery stalks, diced','1/2 red onion, diced','juice of 2 lemons','salt and pepper','mixed greens'],
      steps:['Mix tuna, yogurt, celery, onion, and lemon juice in a bowl.','Season to taste with salt and pepper.','Serve over a bed of mixed greens.']},
-    {ingredients:['1.5 cups leftover Caldo de Pollo (see Dinner recipes)','1 cup green beans or broccoli'],
+    {ingredients:['3 cups leftover Caldo de Pollo (see Dinner)','2 cups green beans or broccoli'],
      steps:['Reheat the caldo on the stovetop or microwave.','Steam green beans or broccoli 5–6 minutes until tender-crisp, and serve alongside.']},
-    {ingredients:['See the full recipe under Dinner — Chicken Shoyu Ramen Bowl'],
-     steps:['Prepare as a double batch at dinner and reheat gently for lunch the next day; shirataki noodles hold up well.']},
-    {ingredients:['2 chicken breasts','1 cucumber, diced','1 cup cherry tomatoes, halved','1/2 cup crumbled feta','kalamata olives','olive oil, lemon, oregano'],
-     steps:['Season chicken with oregano; grill until cooked through, then slice.','Combine cucumber, tomatoes, feta, and olives in a bowl.','Drizzle with olive oil and lemon juice.','Top with sliced chicken.']}
+    {ingredients:['4 chicken breasts','2 cucumbers, diced','2 cups cherry tomatoes, halved','1 cup crumbled feta','kalamata olives','olive oil, lemon, oregano'],
+     steps:['Season chicken with oregano; grill until cooked through, then slice.','Combine cucumber, tomatoes, feta, and olives in a bowl.','Drizzle with olive oil and lemon juice.','Top with sliced chicken.']},
+    {ingredients:['1.5 lbs lean ground beef (90/10 or leaner)','2 tbsp taco seasoning (chili powder, cumin, paprika, garlic powder)','1 can black beans, rinsed','8 cups chopped romaine lettuce','2 cups cherry tomatoes, halved','1 avocado, diced','salsa and lime, for serving','optional: shredded cheese'],
+     steps:['Brown ground beef in a skillet, draining excess fat.','Stir in taco seasoning and black beans; heat through, 3–4 minutes.','Divide lettuce among four bowls; top with the beef mixture, tomatoes, and avocado.','Finish with salsa, a squeeze of lime, and cheese if using.']},
+    {ingredients:['3 cups leftover Baked Pork Carnitas (see Dinner), shredded','16 large lettuce leaves','2 cups shredded cabbage','salsa or no-sugar-added barbecue sauce','lime'],
+     steps:['Reheat shredded pork if using leftovers.','Lay out lettuce leaves; fill with pulled pork and shredded cabbage.','Top with a little salsa or barbecue sauce and a squeeze of lime; roll or fold to eat.']}
   ],
   dinner: [
-    {ingredients:['2 chicken breasts','3 cups mixed vegetables (broccoli, carrots, zucchini)','1 cup brown rice (dry)','olive oil, salt, pepper, garlic powder'],
+    {ingredients:['4 chicken breasts','6 cups mixed vegetables (broccoli, carrots, zucchini)','2 cups brown rice (dry)','olive oil, salt, pepper, garlic powder'],
      steps:['Cook brown rice according to package directions.','Toss vegetables in olive oil and seasoning; roast at 425°F for 20–25 minutes.','Season and grill chicken 5–6 minutes per side until cooked through.','Plate chicken and vegetables with about 1/2 cup rice per person.']},
-    {ingredients:['1 whole chicken or 2 lbs bone-in thighs','8 cups water or low-sodium broth','2 carrots, chopped','2 chayote or zucchini, chopped','1 onion','3 cloves garlic','cilantro, lime, corn tortillas'],
+    {ingredients:['1 whole chicken (about 4 lbs) or 3 lbs bone-in thighs','10 cups water or low-sodium broth','4 carrots, chopped','3 chayote or zucchini, chopped','1 onion','4 cloves garlic','cilantro, lime, corn tortillas'],
      steps:['Simmer chicken in broth with onion and garlic 45–60 minutes until fully cooked, skimming foam as needed.','Remove chicken, shred the meat, and discard bones.','Return shredded chicken to the pot; add carrots and chayote/zucchini. Simmer 15–20 minutes until tender.','Finish with fresh cilantro and a squeeze of lime.','Serve with warmed corn tortillas.']},
-    {ingredients:['2 chicken breasts or 1 rotisserie chicken, shredded','6 cups low-sodium chicken broth','2 tomatoes, diced','1 onion, diced','1 jalapeño, sliced','juice of 3 limes','cilantro, avocado, baked (not fried) tortilla strips'],
-     steps:['If using raw chicken, poach in broth until cooked through, then shred; if using rotisserie chicken, skip ahead.','Sauté onion, tomato, and jalapeño in a pot for 5 minutes.','Add broth and shredded chicken; simmer 15 minutes.','Stir in lime juice off the heat.','Serve topped with cilantro, avocado, and baked tortilla strips.']},
-    {ingredients:['6 cups low-sodium bone broth','3 eggs, whisked','1 tbsp fresh ginger, minced','2 cloves garlic, minced','green onion','soy sauce to taste','2 hard-boiled eggs, for serving'],
-     steps:['Simmer broth with ginger and garlic for 10 minutes.','Slowly drizzle whisked eggs into the simmering broth while gently stirring to form ribbons.','Season with a splash of soy sauce.','Top with sliced green onion; serve with a hard-boiled egg on the side.']},
-    {ingredients:['6 cups low-sodium chicken broth','2 tbsp soy sauce','1 tbsp miso paste','2 chicken breasts, grilled and sliced','2 soft-boiled eggs','2 packs shirataki noodles, rinsed well','bok choy, mushrooms, green onion, nori'],
-     steps:['Simmer broth with soy sauce and miso for 10 minutes.','Add bok choy and mushrooms; simmer 5 minutes.','Divide rinsed shirataki noodles into bowls; ladle hot broth over.','Top with sliced chicken, a soft-boiled egg, green onion, and nori.']},
-    {ingredients:['2 lbs bone-in chicken thighs','1 can hominy, drained','4 dried guajillo chiles, seeded and soaked','2 cloves garlic','1 onion','oregano','cabbage, radish, and lime, for topping'],
-     steps:['Simmer chicken in water with onion and garlic until cooked through; shred the meat and reserve the broth.','Blend soaked chiles with a bit of broth, then strain into a smooth sauce.','Combine the chile sauce, reserved broth, shredded chicken, and hominy in the pot; simmer 20 minutes with oregano.','Serve topped with shredded cabbage, sliced radish, and lime.']},
-    {ingredients:['6 cups vegetable or low-sodium chicken broth','3 tbsp white miso paste','1 block firm tofu, cubed','1 cup edamame','spinach, mushrooms','small portion shirataki or soba noodles','sesame oil'],
-     steps:['Warm the broth; once hot but not boiling, whisk in miso off direct heat to preserve its flavor and probiotics.','Add tofu, edamame, and mushrooms; simmer 5 minutes.','Wilt spinach in at the end.','Serve over a light portion of noodles with a drizzle of sesame oil.']},
-    {ingredients:['2 salmon fillets','1 bunch asparagus, trimmed','1 cup quinoa (dry)','olive oil, lemon, garlic, salt, pepper'],
+    {ingredients:['4 chicken breasts or 1 large rotisserie chicken, shredded','10 cups low-sodium chicken broth','3 tomatoes, diced','1 onion, diced','1–2 jalapeños, sliced','juice of 4 limes','cilantro, avocado, baked tortilla strips'],
+     steps:['If using raw chicken, poach in broth until cooked through, then shred; if using rotisserie chicken, skip ahead.','Sauté onion, tomato, and jalapeño in a large pot for 5 minutes.','Add broth and shredded chicken; simmer 15 minutes.','Stir in lime juice off the heat.','Serve topped with cilantro, avocado, and baked tortilla strips.']},
+    {ingredients:['4 salmon fillets','2 bunches asparagus, trimmed','2 cups quinoa (dry)','olive oil, lemon, garlic, salt, pepper'],
      steps:['Cook quinoa according to package directions.','Preheat oven to 400°F. Arrange salmon and asparagus on a sheet pan; drizzle with olive oil, garlic, salt, pepper, and lemon slices.','Bake 12–15 minutes until salmon flakes easily.','Serve over quinoa.']},
-    {ingredients:['1 lb ground turkey','1 egg','1/4 cup almond flour or breadcrumbs','garlic powder, Italian seasoning','3 medium zucchini, spiralized','2 cups low-sugar marinara sauce'],
-     steps:['Mix turkey, egg, almond flour, and seasoning; form into meatballs.','Bake at 400°F for 18–20 minutes, or pan-sear until cooked through.','Warm marinara sauce; add meatballs and simmer 5 minutes.','Sauté zucchini noodles 2–3 minutes just to soften; top with meatballs and sauce.']},
-    {ingredients:['1.5 lbs shrimp, peeled and deveined','2 bell peppers, sliced','1 onion, sliced','olive oil','fajita seasoning (cumin, chili powder, paprika, garlic powder)','lime, corn tortillas'],
-     steps:['Preheat oven to 425°F. Toss shrimp, peppers, and onion with olive oil and seasoning on a sheet pan.','Roast 10–12 minutes until shrimp is pink and cooked through.','Squeeze lime over the top.','Serve with warmed corn tortillas.']},
-    {ingredients:['4 bell peppers, tops cut and seeded','1 lb ground turkey','2 cups cauliflower rice','1 can diced tomatoes','onion, garlic, cumin','shredded cheese (optional)'],
+    {ingredients:['2 lbs ground turkey','2 eggs','1/2 cup almond flour or breadcrumbs','garlic powder, Italian seasoning','6 medium zucchini, spiralized','4 cups low-sugar marinara sauce'],
+     steps:['Mix turkey, eggs, almond flour, and seasoning; form into meatballs.','Bake at 400°F for 18–20 minutes, or pan-sear in batches until cooked through.','Warm marinara sauce; add meatballs and simmer 5 minutes.','Sauté zucchini noodles 2–3 minutes just to soften; top with meatballs and sauce.']},
+    {ingredients:['3 lbs shrimp, peeled and deveined','4 bell peppers, sliced','2 onions, sliced','olive oil','fajita seasoning (cumin, chili powder, paprika, garlic powder)','lime, corn tortillas'],
+     steps:["Preheat oven to 425°F. Toss shrimp, peppers, and onion with olive oil and seasoning on two sheet pans (don't overcrowd).",'Roast 10–12 minutes until shrimp is pink and cooked through.','Squeeze lime over the top.','Serve with warmed corn tortillas.']},
+    {ingredients:['4 large bell peppers, tops cut and seeded','1.5 lbs ground turkey','3 cups cauliflower rice','1 can diced tomatoes','onion, garlic, cumin','shredded cheese (optional)'],
      steps:['Brown turkey with onion and garlic.','Stir in cauliflower rice, diced tomatoes, and cumin; cook 5 minutes.','Stuff the mixture into the bell peppers; place in a baking dish with a little water in the bottom.','Cover and bake at 375°F for 30 minutes. Top with cheese and bake uncovered 5 more minutes, if using.']},
-    {ingredients:['4 tilapia fillets','1 can black beans, rinsed','1 cup corn, fresh or frozen','1 tomato, diced','cilantro, lime, olive oil','mixed greens, for a side salad'],
+    {ingredients:['4 large tilapia fillets','2 cans black beans, rinsed','2 cups corn, fresh or frozen','2 tomatoes, diced','cilantro, lime, olive oil','mixed greens, for a side salad'],
      steps:['Season tilapia with salt, pepper, and a little cumin; grill or pan-sear 3–4 minutes per side.','Combine black beans, corn, tomato, cilantro, and lime juice for the salsa.','Serve tilapia topped with salsa, with a side salad.']},
-    {ingredients:['1.5 cups dried green or red lentils','6 cups low-sodium broth','1 onion, diced','2 carrots, diced','2 cloves garlic','1 tbsp turmeric','1 tsp cumin','fresh ginger, spinach, lemon'],
-     steps:['Sauté onion, carrot, and garlic 5 minutes.','Add turmeric, cumin, and grated ginger; toast 30 seconds.','Add lentils and broth; simmer 25–30 minutes until lentils are tender.','Stir in spinach until wilted; finish with a squeeze of lemon.']},
-    {ingredients:['2 cans cannellini beans, rinsed','2 chicken breasts, cooked and shredded','6 cups low-sodium chicken broth','2 cloves garlic','rosemary','kale','lemon zest','1 head broccoli, for roasting'],
-     steps:['Sauté garlic in a pot; add broth, beans, shredded chicken, and rosemary.','Simmer 15–20 minutes.','Stir in kale until wilted; finish with lemon zest.','Meanwhile, toss broccoli florets in olive oil and roast at 425°F for 15 minutes; serve alongside.']}
+    {ingredients:['3 cups dried green or red lentils','10 cups low-sodium broth','2 onions, diced','4 carrots, diced','4 cloves garlic','2 tbsp turmeric','2 tsp cumin','fresh ginger, spinach, lemon'],
+     steps:['Sauté onion, carrot, and garlic 5 minutes in a large pot.','Add turmeric, cumin, and grated ginger; toast 30 seconds.','Add lentils and broth; simmer 25–30 minutes until lentils are tender.','Stir in spinach until wilted; finish with a squeeze of lemon.']},
+    {ingredients:['1.5 lbs flank steak, thinly sliced against the grain','6 cups broccoli florets','4 cloves garlic, minced','2 tbsp fresh ginger, minced','1/4 cup low-sodium soy sauce','2 tbsp rice vinegar','1 tbsp sesame oil','2 tbsp cornstarch','2 tbsp cooking oil'],
+     steps:['Toss sliced beef with 1 tbsp soy sauce and the cornstarch; let sit 10 minutes.','Heat oil in a wok or large skillet over high heat; sear beef in batches 1–2 minutes per side until browned, then remove.','Add broccoli with a splash of water; cover and steam 3–4 minutes until crisp-tender.','Add garlic and ginger; cook 30 seconds.','Return beef to the pan with the remaining soy sauce, rice vinegar, and sesame oil. Toss to coat and heat through, about 2 minutes.']},
+    {ingredients:['2 lbs flank steak','salt and pepper','1 cup fresh parsley, finely chopped','1/4 cup fresh cilantro, chopped','4 cloves garlic, minced','1/3 cup olive oil','3 tbsp red wine vinegar','1/2 tsp red pepper flakes','6 cups mixed vegetables for roasting (zucchini, bell pepper, red onion)'],
+     steps:['Season steak generously with salt and pepper; let sit at room temperature 20 minutes.','Whisk parsley, cilantro, garlic, olive oil, vinegar, and red pepper flakes together for the chimichurri.','Toss vegetables in a little olive oil and roast at 425°F for 20 minutes, or grill alongside the steak.','Grill steak over high heat 4–5 minutes per side for medium-rare (adjust to preference); let rest 5–10 minutes before slicing against the grain.','Serve sliced steak topped with chimichurri, alongside the roasted vegetables.']},
+    {ingredients:['1.5 lbs lean beef stew meat, trimmed','4 carrots, chopped','3 celery stalks, chopped','1 onion, diced','3 cloves garlic','1 can diced tomatoes','4 cups low-sodium beef broth','2 cups green beans','1 tbsp tomato paste','bay leaf, thyme, salt and pepper'],
+     steps:['Brown beef in a skillet, then transfer to a slow cooker (or brown directly in a Dutch oven).','Add carrots, celery, onion, garlic, tomatoes, broth, tomato paste, and seasonings.','Cook on low 7–8 hours (or simmer on the stovetop 1.5–2 hours) until beef is tender.','Stir in green beans in the last 20–30 minutes of cooking.','Remove bay leaf and serve.']},
+    {ingredients:['2 lbs pork tenderloin','salt, pepper, garlic powder','1 tbsp olive oil','1.5 lbs Brussels sprouts, halved','2 apples, sliced','1 tbsp olive oil for vegetables','fresh thyme'],
+     steps:['Preheat oven to 400°F. Season pork with salt, pepper, and garlic powder.','Sear pork in an oven-safe skillet 2–3 minutes per side until browned.','Toss Brussels sprouts and apple slices with olive oil, salt, and thyme; arrange around the pork in the skillet or on a separate sheet pan.','Roast 20–25 minutes until pork reaches 145°F internally.','Let rest 5 minutes, slice, and serve with the roasted vegetables and apples.']},
+    {ingredients:['2 lbs pork shoulder, trimmed of excess fat, cut into large chunks','1 onion, quartered','4 cloves garlic','1 orange, juiced','2 limes, juiced','1 tbsp cumin','1 tbsp oregano','salt and pepper','4 cups shredded cabbage for slaw','corn tortillas'],
+     steps:['Preheat oven to 300°F. Place pork, onion, and garlic in a baking dish; add orange and lime juice, cumin, oregano, salt, and pepper.','Cover tightly with foil and bake 3 hours until very tender.','Shred pork with two forks; discard excess fat.','For a crisp finish, spread shredded pork on a sheet pan and broil 5–7 minutes until edges crisp.','Toss shredded cabbage with a squeeze of lime for a quick slaw.','Serve pork in warmed corn tortillas topped with slaw.']},
+    {ingredients:['4 boneless pork chops','salt, pepper, garlic powder','1 tbsp olive oil','8 cups mixed greens (kale, chard, or collards)','2 cloves garlic, sliced','splash of apple cider vinegar'],
+     steps:['Season pork chops with salt, pepper, and garlic powder.','Sear in olive oil over medium-high heat, 4–5 minutes per side until cooked through (145°F internal). Remove and let rest.','In the same pan, sauté garlic 30 seconds, then add greens in batches, cooking until wilted, 5–7 minutes.','Finish greens with a splash of apple cider vinegar.','Serve pork chops over the sautéed greens.']},
+    {ingredients:['1.5 lbs chicken breast, sliced','3 bell peppers, sliced','1 onion, sliced','2 tbsp olive oil','fajita seasoning (cumin, chili powder, paprika, garlic powder)','2 cups cooked brown rice or cauliflower rice','toppings: salsa, avocado, lime'],
+     steps:['Toss chicken and vegetables with olive oil and fajita seasoning.','Cook in a large skillet over medium-high heat, 8–10 minutes, until chicken is cooked through and vegetables are tender-crisp.','Serve over rice or cauliflower rice with salsa, avocado, and a squeeze of lime.']},
+    {ingredients:['8 bone-in, skin-on chicken thighs (or boneless)','2 lemons (juiced and zested)','3 cloves garlic, minced','2 tbsp olive oil','fresh rosemary and thyme','salt and pepper','6 cups mixed vegetables for roasting (carrots, zucchini, red onion)'],
+     steps:['Preheat oven to 425°F. Whisk lemon juice, zest, garlic, olive oil, and herbs together; toss chicken thighs in the marinade (30 minutes if time allows, or straight to roasting).','Arrange chicken and vegetables on a sheet pan.','Roast 30–35 minutes until chicken reaches 165°F internally and skin is golden.','Serve chicken with roasted vegetables and pan juices spooned over.']},
+    {ingredients:['1.5 lbs chicken breast, cubed','1/4 cup olive oil','juice of 2 lemons','3 cloves garlic','oregano','salt and pepper','1 cucumber, diced','1 cup plain Greek yogurt','fresh dill and mint, for tzatziki'],
+     steps:['Marinate chicken in olive oil, lemon juice, garlic, oregano, salt, and pepper for at least 20 minutes (or overnight).','Thread chicken onto skewers.','Grill or broil 10–12 minutes, turning occasionally, until cooked through.','Mix Greek yogurt, diced cucumber, dill, and mint for a quick tzatziki.','Serve skewers with tzatziki and a simple cucumber-tomato salad.']},
+    {ingredients:['2 cans chickpeas, rinsed','1 can light coconut milk','1 can diced tomatoes','1 onion, diced','3 cloves garlic','1 tbsp fresh ginger','2 tsp curry powder','1 tsp turmeric','4 cups fresh spinach','cilantro'],
+     steps:['Sauté onion, garlic, and ginger 5 minutes.','Add curry powder and turmeric; toast 30 seconds.','Add chickpeas, tomatoes, and coconut milk; simmer 15–20 minutes.','Stir in spinach until wilted.','Garnish with cilantro; serve with a small portion of rice if desired.']},
+    {ingredients:['1 block firm tofu, pressed and cubed','6 cups mixed vegetables (broccoli, snap peas, carrots, bell pepper)','3 cloves garlic','1 tbsp fresh ginger','1/4 cup low-sodium soy sauce','1 tbsp sesame oil','2 tbsp cornstarch','2 tbsp cooking oil'],
+     steps:['Toss tofu cubes in cornstarch; pan-fry in a little oil until golden on most sides, about 8 minutes, then remove.','In the same pan, stir-fry vegetables 4–5 minutes until crisp-tender.','Add garlic and ginger; cook 30 seconds.','Return tofu to the pan; add soy sauce and sesame oil, toss to coat.','Serve as-is or over a small portion of rice.']},
+    {ingredients:['8 large portobello mushroom caps, stems removed','2 cups cooked quinoa','4 cups fresh spinach, chopped','1 cup crumbled feta','4 cloves garlic','olive oil','salt and pepper'],
+     steps:['Preheat oven to 400°F. Brush mushroom caps with olive oil; place gill-side up on a baking sheet.','Sauté garlic and spinach until wilted; mix with cooked quinoa and feta.','Divide filling among the mushroom caps.','Bake 15–20 minutes until mushrooms are tender and filling is heated through.']},
+    {ingredients:['2 large heads cauliflower, riced (or 10–12 cups pre-riced cauliflower)','6 eggs','2 cups frozen peas and carrots','4 green onions, sliced','4 cloves garlic','3 tbsp low-sodium soy sauce','1 1/2 tbsp sesame oil','3 tbsp cooking oil'],
+     steps:['Heat oil in a large skillet or wok; scramble the eggs and set aside.','Add a bit more oil; sauté garlic, peas, and carrots 3–4 minutes.','Add riced cauliflower; cook 5–6 minutes until tender, stirring often (work in batches if your pan is small).','Stir in scrambled eggs, soy sauce, sesame oil, and green onions. Toss to combine and serve.']}
   ],
   snack: [
-    {ingredients:['1 string cheese','small handful (~12) almonds'], steps:['Grab and go — no prep needed.']},
-    {ingredients:['1 apple, sliced','1–2 tbsp almond butter'], steps:['Slice the apple and serve with almond butter for dipping.']},
-    {ingredients:['3–4 celery stalks','2–3 tbsp hummus'], steps:['Cut celery into sticks and serve with hummus.']},
-    {ingredients:['small handful (~10 halves) walnuts','1 square 85%+ dark chocolate'], steps:['Portion out and enjoy together.']},
-    {ingredients:['1 cup frozen edamame, in the pod','sea salt'], steps:['Steam or microwave edamame per package directions.','Sprinkle with a little sea salt and serve warm.']},
-    {ingredients:['1/4 cup unsalted mixed nuts'], steps:['Portion into a small bowl or bag — great for on the go.']},
-    {ingredients:['1/2 cup cottage cheese','1/2 cup berries'], steps:['Top cottage cheese with berries and serve.']},
-    {ingredients:['1 hard-boiled egg (prep ahead)','sliced cucumber','pinch of salt'], steps:['Boil eggs in advance and refrigerate (they keep about a week).','Peel and serve with sliced cucumber and a pinch of salt.']},
-    {ingredients:['1 can chickpeas, rinsed and dried well','1 tbsp olive oil','cumin, paprika, salt'],
+    {ingredients:['4 string cheese','small handful (~12) almonds per person'], steps:['Grab and go — no prep needed.']},
+    {ingredients:['4 apples, sliced','4–6 tbsp almond butter'], steps:['Slice the apples and serve with almond butter for dipping.']},
+    {ingredients:['1 bunch celery, cut into sticks','1 cup hummus'], steps:['Cut celery into sticks and serve with hummus for dipping.']},
+    {ingredients:['1 cup walnuts (about 40 halves)','4 squares 85%+ dark chocolate'], steps:['Portion out and enjoy together.']},
+    {ingredients:['4 cups frozen edamame, in the pod','sea salt'], steps:['Steam or microwave edamame per package directions.','Sprinkle with a little sea salt and serve warm.']},
+    {ingredients:['1 cup unsalted mixed nuts'], steps:['Portion into small bowls or bags — great for on the go.']},
+    {ingredients:['2 cups cottage cheese','2 cups berries'], steps:['Top cottage cheese with berries and serve.']},
+    {ingredients:['4 hard-boiled eggs (prep ahead)','1 cucumber, sliced','pinch of salt'], steps:['Boil eggs in advance and refrigerate (they keep about a week).','Peel and serve with sliced cucumber and a pinch of salt.']},
+    {ingredients:['2 cans chickpeas, rinsed and dried well','2 tbsp olive oil','cumin, paprika, salt'],
      steps:['Preheat oven to 400°F.','Toss chickpeas with olive oil and spices.','Roast 25–30 minutes, shaking the pan halfway, until crispy.','Store in an airtight container for snacking through the week.']},
-    {ingredients:['1/2 cup plain Greek yogurt','cinnamon','optional: a few drops vanilla or a small drizzle of honey'], steps:['Dust yogurt with cinnamon and serve.']}
+    {ingredients:['2 cups plain Greek yogurt','cinnamon','optional: a few drops vanilla or a small drizzle of honey'], steps:['Divide yogurt into bowls, dust with cinnamon, and serve.']}
   ]
 }, es: {
   breakfast: [
-    {ingredients:['2 tazas de yogur griego natural','1 taza de moras mixtas (frescas o congeladas)','2 cdas de semillas de chía','un chorrito de extracto de vainilla','un poco de miel (opcional)'],
-     steps:['Sirve el yogur en dos tazones.','Cubre cada uno con las moras y una pizca de semillas de chía.','Agrega un chorrito de vainilla; si usas moras congeladas, deja reposar 5 minutos para que se descongelen un poco.','Sirve así, o con un poco de miel encima.']},
-    {ingredients:['4 huevos grandes','1/2 taza de pimiento morrón picado','1/4 de taza de cebolla picada','1 taza de espinaca fresca','1 cdta de aceite de oliva','sal y pimienta','2 rebanadas de pan integral'],
-     steps:['Calienta el aceite de oliva en un sartén a fuego medio.','Saltea la cebolla y el pimiento 3–4 minutos hasta que se suavicen.','Agrega la espinaca y cocina 1 minuto hasta que se marchite.','Bate los huevos con sal y pimienta, viértelos en el sartén y revuelve hasta que cuajen.','Tuesta el pan y sirve junto con los huevos.']},
-    {ingredients:['1 taza de leche de almendra sin azúcar','1 medida de proteína en polvo (vainilla o natural)','1 taza de espinaca fresca','3/4 de taza de moras mixtas congeladas','1 cda de linaza molida','hielo al gusto'],
-     steps:['Coloca todos los ingredientes en una licuadora.','Licúa hasta que quede suave, agregando agua o hielo hasta la consistencia que prefieras.','Sirve y bebe de inmediato para la mejor textura.']},
-    {ingredients:['1 taza de avena en hojuelas','1 1/2 tazas de leche de almendra','2 cdas de semillas de chía','1 cdta de canela','1 taza de moras (para decorar)'],
-     steps:['Combina la avena, la leche de almendra, la chía y la canela en dos frascos o recipientes.','Mezcla bien, tapa y refrigera toda la noche (mínimo 4 horas).','Por la mañana, agrega las moras frescas antes de comer.','Tip: prepara ambos frascos la noche anterior para los dos.']},
-    {ingredients:['6 huevos grandes','1/2 taza de pimientos picados','1/4 de taza de cebolla picada','1 taza de espinaca fresca','1 cdta de aceite de oliva','sal y pimienta','opcional: 1/4 de taza de queso rallado'],
-     steps:['Saltea la cebolla y el pimiento en aceite de oliva 3 minutos, agrega la espinaca hasta que se marchite; retira del sartén.','Bate los huevos con sal y pimienta. Vierte en el mismo sartén a fuego medio-bajo.','Cuando los huevos estén casi cuajados, agrega las verduras (y el queso, si usas) en una mitad.','Dobla el omelette, cocina 1 minuto más y sirve.']},
-    {ingredients:['1 1/2 tazas de queso cottage','1 durazno fresco en rebanadas (o 1 taza de durazno en almíbar, escurrido)','1/4 de taza de nueces picadas','canela al gusto'],
-     steps:['Divide el queso cottage en dos tazones.','Cubre con el durazno en rebanadas y las nueces picadas.','Termina con una pizca de canela.']},
-    {ingredients:['1/3 de taza de semillas de chía','1 1/2 tazas de leche de almendra','1 cdta de extracto de vainilla','1 taza de moras mixtas'],
-     steps:['Bate las semillas de chía, la leche de almendra y la vainilla en un recipiente.','Refrigera mínimo 4 horas o toda la noche, revolviendo una vez a los 30 minutos para evitar grumos.','Cubre con las moras justo antes de servir.']},
-    {ingredients:['4 rebanadas de pan integral','4 oz de salmón ahumado','1 aguacate maduro','un chorrito de jugo de limón','alcaparras (opcional)','pimienta negra'],
-     steps:['Tuesta el pan.','Machaca el aguacate con un chorrito de limón; unta sobre el pan.','Cubre con el salmón ahumado, alcaparras si usas, y pimienta negra recién molida.']},
-    {ingredients:['8 huevos grandes','1 taza de espinaca picada','1/2 taza de queso feta desmoronado','sal y pimienta','aceite en spray','fruta al gusto, para servir'],
-     steps:['Precalienta el horno a 175°C (350°F) y engrasa ligeramente un molde para muffins.','Bate los huevos con sal y pimienta.','Reparte la espinaca y el queso feta en los moldes, luego vierte la mezcla de huevo sobre cada uno.','Hornea 18–20 minutos hasta que cuajen. Rinde unos 12 muffins — refrigera lo que sobre hasta 4 días.','Sirve 2–3 muffins por persona con una pieza de fruta.']},
-    {ingredients:['2 tazas de yogur griego natural','1/2 taza de granola baja en azúcar','1/4 de taza de semillas de calabaza','1/2 taza de moras'],
-     steps:['Coloca capas de yogur, moras y granola en vasos o tazones.','Cubre con las semillas de calabaza y sirve.']},
-    {ingredients:['1 taza de harina de avena','4 claras de huevo','1 plátano maduro, machacado','1/2 cdta de polvo para hornear','un chorrito de leche de almendra si la mezcla está muy espesa','2 cdas de crema de almendra, para decorar'],
-     steps:['Mezcla la harina de avena, las claras, el plátano machacado y el polvo para hornear hasta obtener una mezcla tersa; agrega leche de almendra si hace falta.','Cocina los hot cakes en un sartén antiadherente ligeramente engrasado, 2–3 minutos por lado hasta dorar.','Sirve con crema de almendra encima.']},
-    {ingredients:['4–6 salchichas de pavo para desayuno','2 tazas de espinaca fresca','1 cdta de aceite de oliva','1 aguacate','sal y pimienta'],
+    {ingredients:['4 tazas de yogur griego natural','2 tazas de moras mixtas (frescas o congeladas)','4 cdas de semillas de chía','un chorrito de extracto de vainilla','un poco de miel (opcional)'],
+     steps:['Sirve el yogur en cuatro tazones.','Cubre cada uno con las moras y una pizca de semillas de chía.','Agrega un chorrito de vainilla; si usas moras congeladas, deja reposar 5 minutos para que se descongelen un poco.','Sirve así, o con un poco de miel encima.']},
+    {ingredients:['8 huevos grandes','1 taza de pimiento morrón picado','1/2 taza de cebolla picada','2 tazas de espinaca fresca','2 cdta de aceite de oliva','sal y pimienta','4 rebanadas de pan integral'],
+     steps:['Calienta el aceite de oliva en un sartén grande a fuego medio.','Saltea la cebolla y el pimiento 3–4 minutos hasta que se suavicen.','Agrega la espinaca y cocina 1 minuto hasta que se marchite.','Bate los huevos con sal y pimienta, viértelos en el sartén y revuelve hasta que cuajen.','Tuesta el pan y sirve junto con los huevos.']},
+    {ingredients:['2 tazas de leche de almendra sin azúcar','2 medidas de proteína en polvo (vainilla o natural)','2 tazas de espinaca fresca','1 1/2 tazas de moras mixtas congeladas','2 cdas de linaza molida','hielo al gusto'],
+     steps:['Coloca todos los ingredientes en una licuadora (trabaja en dos tandas si es necesario).','Licúa hasta que quede suave, agregando agua o hielo hasta la consistencia que prefieras.','Sirve y bebe de inmediato para la mejor textura.']},
+    {ingredients:['2 tazas de avena en hojuelas','3 tazas de leche de almendra','4 cdas de semillas de chía','2 cdta de canela','2 tazas de moras (para decorar)'],
+     steps:['Combina la avena, la leche de almendra, la chía y la canela en cuatro frascos o recipientes.','Mezcla bien, tapa y refrigera toda la noche (mínimo 4 horas).','Por la mañana, agrega las moras frescas antes de comer.','Tip: prepara los cuatro frascos la noche anterior.']},
+    {ingredients:['12 huevos grandes','1 taza de pimientos picados','1/2 taza de cebolla picada','2 tazas de espinaca fresca','2 cdta de aceite de oliva','sal y pimienta','opcional: 1/2 taza de queso rallado'],
+     steps:['Saltea la cebolla y el pimiento en aceite de oliva 3 minutos, agrega la espinaca hasta que se marchite; retira del sartén.','Bate los huevos con sal y pimienta, en tandas de 3 huevos por omelette. Vierte en el mismo sartén a fuego medio-bajo.','Cuando los huevos estén casi cuajados, agrega las verduras (y el queso, si usas) en una mitad.','Dobla el omelette, cocina 1 minuto más y sirve. Repite para los cuatro omelettes.']},
+    {ingredients:['3 tazas de queso cottage','2 duraznos frescos en rebanadas (o 2 tazas de durazno en almíbar, escurrido)','1/2 taza de nueces picadas','canela al gusto'],
+     steps:['Divide el queso cottage entre cuatro tazones.','Cubre con el durazno en rebanadas y las nueces picadas.','Termina con una pizca de canela.']},
+    {ingredients:['2/3 de taza de semillas de chía','3 tazas de leche de almendra','2 cdta de extracto de vainilla','2 tazas de moras mixtas'],
+     steps:['Bate las semillas de chía, la leche de almendra y la vainilla en un recipiente.','Refrigera mínimo 4 horas o toda la noche, revolviendo una vez a los 30 minutos para evitar grumos.','Divide en cuatro tazones; cubre con las moras justo antes de servir.']},
+    {ingredients:['8 rebanadas de pan integral','8 oz de salmón ahumado','2 aguacates maduros','un chorrito de jugo de limón','alcaparras (opcional)','pimienta negra'],
+     steps:['Tuesta el pan.','Machaca los aguacates con un chorrito de limón; unta sobre el pan.','Cubre con el salmón ahumado, alcaparras si usas, y pimienta negra recién molida.']},
+    {ingredients:['12 huevos grandes','1 1/2 tazas de espinaca picada','3/4 de taza de queso feta desmoronado','sal y pimienta','aceite en spray','fruta al gusto, para servir'],
+     steps:['Precalienta el horno a 175°C (350°F) y engrasa ligeramente dos moldes para muffins (o hornea en tandas).','Bate los huevos con sal y pimienta.','Reparte la espinaca y el queso feta en los moldes, luego vierte la mezcla de huevo sobre cada uno.','Hornea 18–20 minutos hasta que cuajen. Rinde unos 18 muffins — refrigera lo que sobre hasta 4 días.','Sirve 2–3 muffins por persona con una pieza de fruta.']},
+    {ingredients:['4 tazas de yogur griego natural','1 taza de granola baja en azúcar','1/2 taza de semillas de calabaza','1 taza de moras'],
+     steps:['Coloca capas de yogur, moras y granola en cuatro vasos o tazones.','Cubre con las semillas de calabaza y sirve.']},
+    {ingredients:['2 tazas de harina de avena','8 claras de huevo','2 plátanos maduros, machacados','1 cdta de polvo para hornear','un chorrito de leche de almendra si la mezcla está muy espesa','4 cdas de crema de almendra, para decorar'],
+     steps:['Mezcla la harina de avena, las claras, el plátano machacado y el polvo para hornear hasta obtener una mezcla tersa; agrega leche de almendra si hace falta.','Cocina los hot cakes en tandas en un sartén antiadherente ligeramente engrasado, 2–3 minutos por lado hasta dorar.','Sirve con crema de almendra encima.']},
+    {ingredients:['12 salchichas de pavo para desayuno','4 tazas de espinaca fresca','2 cdta de aceite de oliva','2 aguacates','sal y pimienta'],
      steps:['Cocina las salchichas según las instrucciones del paquete.','Saltea la espinaca en aceite de oliva 2 minutos hasta que se marchite; sazona.','Sirve las salchichas y la espinaca con medio aguacate por plato.']},
-    {ingredients:['1 1/2 tazas de queso cottage','1/4 de taza de nueces','canela al gusto','1 taza de moras'],
-     steps:['Divide el queso cottage en dos tazones.','Cubre con las nueces y las moras.','Termina con una pizca de canela.']},
-    {ingredients:['4 tortillas de maíz','4 huevos grandes','1/2 taza de frijol negro, enjuagado','1/4 de taza de cebolla picada','1/4 de taza de pimiento picado','salsa y cilantro, para servir'],
+    {ingredients:['3 tazas de queso cottage','1/2 taza de nueces','canela al gusto','2 tazas de moras'],
+     steps:['Divide el queso cottage entre cuatro tazones.','Cubre con las nueces y las moras.','Termina con una pizca de canela.']},
+    {ingredients:['8 tortillas de maíz','8 huevos grandes','1 taza de frijol negro, enjuagado','1/2 taza de cebolla picada','1/2 taza de pimiento picado','salsa y cilantro, para servir'],
      steps:['Calienta las tortillas en un sartén seco o en el horno.','Saltea la cebolla y el pimiento 3 minutos, agrega el frijol negro solo para calentar.','En otro sartén, revuelve los huevos y sazona.','Arma los tacos con huevo, frijoles, salsa y cilantro.']}
   ],
   lunch: [
-    {ingredients:['1.5 tazas de sopa de lentejas y cúrcuma del día anterior (ver recetas de cena)','2 tazas de lechugas mixtas','aceite de oliva y jugo de limón, para aderezar'],
+    {ingredients:['3 tazas de sopa de lentejas y cúrcuma del día anterior (ver Cenas)','4 tazas de lechugas mixtas','aceite de oliva y jugo de limón, para aderezar'],
      steps:['Recalienta la sopa en la estufa o el microondas hasta que esté caliente.','Mezcla las lechugas con un poco de aceite de oliva y limón para una ensalada sencilla.']},
-    {ingredients:['2 latas de frijol negro, enjuagado','4 tazas de caldo bajo en sodio','1 cebolla picada','2 dientes de ajo','1 cdta de comino','1 cdta de paprika ahumada','jugo de 1 limón','1 aguacate en rebanadas','yogur griego natural, para decorar'],
-     steps:['Saltea la cebolla y el ajo 4–5 minutos hasta que se suavicen.','Agrega el frijol negro, el caldo, el comino y la paprika; deja hervir a fuego lento 15 minutos.','Licúa la mitad de la sopa (con licuadora de inmersión o por tandas) para una textura más cremosa, y regrésala a la olla.','Termina con el jugo de limón.','Sirve con el aguacate en rebanadas y una cucharada de yogur griego.']},
-    {ingredients:['2 latas de alubias blancas, enjuagadas','2 pechugas de pollo, cocidas y deshebradas','6 tazas de caldo de pollo bajo en sodio','2 dientes de ajo, picados','1 cdta de romero fresco','2 tazas de kale picado','ralladura de 1 limón'],
-     steps:['Saltea el ajo en una olla 1 minuto.','Agrega el caldo, las alubias, el pollo deshebrado y el romero; deja hervir a fuego lento 15–20 minutos.','Incorpora el kale hasta que se marchite.','Termina con la ralladura de limón y sirve.']},
-    {ingredients:['8 hojas grandes de lechuga (mantequilla o romana)','8 oz de pechuga de pavo en rebanadas, baja en sodio','1 aguacate en rebanadas','1 pepino en rebanadas','1 zanahoria rallada','mostaza o hummus'],
+    {ingredients:['4 latas de frijol negro, enjuagado','8 tazas de caldo bajo en sodio','2 cebollas picadas','4 dientes de ajo','2 cdta de comino','2 cdta de paprika ahumada','jugo de 2 limones','2 aguacates en rebanadas','yogur griego natural, para decorar'],
+     steps:['Saltea la cebolla y el ajo 4–5 minutos hasta que se suavicen.','Agrega el frijol negro, el caldo, el comino y la paprika; deja hervir a fuego lento 15 minutos.','Licúa la mitad de la sopa para una textura más cremosa, y regrésala a la olla.','Termina con el jugo de limón.','Sirve con el aguacate en rebanadas y una cucharada de yogur griego.']},
+    {ingredients:['16 hojas grandes de lechuga (mantequilla o romana)','1 lb de pechuga de pavo en rebanadas, baja en sodio','2 aguacates en rebanadas','2 pepinos en rebanadas','2 zanahorias ralladas','mostaza o hummus'],
      steps:['Extiende las hojas de lechuga en un plato.','Coloca el pavo, el aguacate, el pepino y la zanahoria sobre cada hoja.','Añade un poco de mostaza o hummus.','Enrolla firmemente como un burrito, asegurando con un palillo si es necesario.']},
-    {ingredients:['2 pechugas de pollo, en cubos','1 calabacita, en cubos','1 lata de jitomate picado','2 tallos de apio, en cubos','1 lata de alubias blancas, enjuagadas','1/2 taza de pasta de garbanzo','4 tazas de caldo de pollo bajo en sodio','sazonador italiano'],
-     steps:['Dora el pollo en una olla 5 minutos.','Agrega la calabacita y el apio, cocina 3 minutos.','Agrega el jitomate, las alubias, el caldo y el sazonador; deja hervir a fuego lento 15 minutos.','Agrega la pasta de garbanzo y cocina según el tiempo del paquete (usualmente 6–8 minutos) hasta que esté al dente.']},
-    {ingredients:['2 filetes de salmón (4–5 oz cada uno)','4 tazas de lechugas mixtas','1 taza de garbanzos, enjuagados','jitomates cherry, partidos a la mitad','1 pepino, en rebanadas','aceite de oliva y jugo de limón, para aderezar','sal y pimienta'],
+    {ingredients:['4 pechugas de pollo, en cubos','2 calabacitas, en cubos','2 latas de jitomate picado','4 tallos de apio, en cubos','2 latas de alubias blancas, enjuagadas','1 taza de pasta de garbanzo','8 tazas de caldo de pollo bajo en sodio','sazonador italiano'],
+     steps:['Dora el pollo en una olla grande 5 minutos.','Agrega la calabacita y el apio, cocina 3 minutos.','Agrega el jitomate, las alubias, el caldo y el sazonador; deja hervir a fuego lento 15 minutos.','Agrega la pasta de garbanzo y cocina según el tiempo del paquete (usualmente 6–8 minutos) hasta que esté al dente.']},
+    {ingredients:['4 filetes de salmón (4–5 oz cada uno)','8 tazas de lechugas mixtas','2 tazas de garbanzos, enjuagados','jitomates cherry, partidos a la mitad','2 pepinos, en rebanadas','aceite de oliva y jugo de limón, para aderezar','sal y pimienta'],
      steps:['Sazona el salmón con sal y pimienta; ásalo o dóralo en sartén 4–5 minutos por lado hasta que esté cocido.','Mezcla las lechugas, los garbanzos, los jitomates y el pepino con aceite de oliva y limón.','Corona la ensalada con el salmón desmenuzado.']},
-    {ingredients:['2 pechugas de pollo, en rebanadas delgadas','1 lata de leche de coco light','3 tazas de caldo de pollo bajo en sodio','1 taza de champiñones en rebanadas','2 cdas de salsa de pescado','jugo de 1–2 limones','galanga o jengibre, cilantro fresco'],
-     steps:['Hierve el caldo y la leche de coco juntos a fuego medio.','Agrega el jengibre o galanga y los champiñones; deja hervir a fuego lento 5 minutos.','Agrega el pollo y cocina hasta que esté listo, unos 5–6 minutos.','Incorpora la salsa de pescado y el jugo de limón fuera del fuego.','Decora con cilantro fresco.']},
-    {ingredients:['2 pechugas de pollo','lechuga romana, picada','aderezo César ligero','queso parmesano en láminas','un poco de crutones de grano entero'],
+    {ingredients:['4 pechugas de pollo','2 lechugas romanas, picadas','aderezo César ligero','queso parmesano en láminas','un poco de crutones de grano entero'],
      steps:['Sazona y asa el pollo 5–6 minutos por lado hasta que esté cocido; córtalo en rebanadas.','Mezcla la lechuga romana con poco aderezo (con cuidado — se concentra rápido).','Corona con el pollo en rebanadas, el parmesano y unos crutones.']},
-    {ingredients:['1 taza de quinoa (cruda)','2 pechugas de pollo','2 tazas de verduras mixtas (calabacita, pimiento, brócoli)','aceite de oliva','sal y pimienta','limón'],
+    {ingredients:['2 tazas de quinoa (cruda)','4 pechugas de pollo','4 tazas de verduras mixtas (calabacita, pimiento, brócoli)','aceite de oliva','sal y pimienta','limón'],
      steps:['Cocina la quinoa según las instrucciones del paquete.','Mezcla las verduras con aceite de oliva y sazonador; rostiza a 220°C (425°F) por 20 minutos.','Asa o hornea el pollo hasta que esté cocido; córtalo en rebanadas.','Arma los bowls con la quinoa, las verduras rostizadas y el pollo. Termina con un chorrito de limón.']},
-    {ingredients:['1 lb de pavo molido','1 lata de frijol negro, enjuagado','1 lata de frijol rojo, enjuagado','1 lata de jitomate picado','1 cebolla picada','2 dientes de ajo','chile en polvo, comino','caldo bajo en sodio, si es necesario'],
-     steps:['Dora el pavo con la cebolla y el ajo en una olla grande.','Agrega ambos frijoles, el jitomate y las especias, más un poco de caldo si queda muy espeso.','Deja hervir a fuego lento 25–30 minutos, moviendo de vez en cuando.','Rinde varias porciones — se congela bien para futuros almuerzos.']},
-    {ingredients:['2 latas de atún en agua, escurrido','1/2 taza de yogur griego natural','1 tallo de apio, picado','1/4 de cebolla morada, picada','jugo de 1 limón','sal y pimienta','lechugas mixtas'],
+    {ingredients:['2 lbs de pavo molido','2 latas de frijol negro, enjuagado','2 latas de frijol rojo, enjuagado','2 latas de jitomate picado','2 cebollas picadas','4 dientes de ajo','chile en polvo, comino','caldo bajo en sodio, si es necesario'],
+     steps:['Dora el pavo con la cebolla y el ajo en una olla grande.','Agrega ambos frijoles, el jitomate y las especias, más un poco de caldo si queda muy espeso.','Deja hervir a fuego lento 25–30 minutos, moviendo de vez en cuando.','Rinde una tanda grande — se congela bien para futuros almuerzos.']},
+    {ingredients:['4 latas de atún en agua, escurrido','1 taza de yogur griego natural','2 tallos de apio, picados','1/2 cebolla morada, picada','jugo de 2 limones','sal y pimienta','lechugas mixtas'],
      steps:['Mezcla el atún, el yogur, el apio, la cebolla y el jugo de limón en un tazón.','Sazona con sal y pimienta al gusto.','Sirve sobre una cama de lechugas mixtas.']},
-    {ingredients:['1.5 tazas de caldo de pollo del día anterior (ver recetas de cena)','1 taza de ejotes o brócoli'],
+    {ingredients:['3 tazas de caldo de pollo del día anterior (ver Cenas)','2 tazas de ejotes o brócoli'],
      steps:['Recalienta el caldo en la estufa o el microondas.','Cuece al vapor los ejotes o el brócoli 5–6 minutos hasta que estén tiernos-crujientes, y sirve junto al caldo.']},
-    {ingredients:['Ver la receta completa en Cenas — Ramen de Pollo Shoyu'],
-     steps:['Prepara una porción doble en la cena y recalienta con cuidado al día siguiente para el almuerzo; los fideos shirataki se conservan bien.']},
-    {ingredients:['2 pechugas de pollo','1 pepino, en cubos','1 taza de jitomates cherry, partidos a la mitad','1/2 taza de queso feta desmoronado','aceitunas kalamata','aceite de oliva, limón, orégano'],
-     steps:['Sazona el pollo con orégano; ásalo hasta que esté cocido, luego rebánalo.','Combina el pepino, los jitomates, el queso feta y las aceitunas en un tazón.','Rocía con aceite de oliva y jugo de limón.','Corona con el pollo en rebanadas.']}
+    {ingredients:['4 pechugas de pollo','2 pepinos, en cubos','2 tazas de jitomates cherry, partidos a la mitad','1 taza de queso feta desmoronado','aceitunas kalamata','aceite de oliva, limón, orégano'],
+     steps:['Sazona el pollo con orégano; ásalo hasta que esté cocido, luego rebánalo.','Combina el pepino, los jitomates, el queso feta y las aceitunas en un tazón.','Rocía con aceite de oliva y jugo de limón.','Corona con el pollo en rebanadas.']},
+    {ingredients:['1.5 lbs de carne molida de res magra (90/10 o más magra)','2 cdas de sazonador para tacos (chile en polvo, comino, paprika, ajo en polvo)','1 lata de frijol negro, enjuagado','8 tazas de lechuga romana picada','2 tazas de jitomates cherry, partidos a la mitad','1 aguacate, en cubos','salsa y limón, para servir','opcional: queso rallado'],
+     steps:['Dora la carne molida en un sartén, escurriendo el exceso de grasa.','Incorpora el sazonador para tacos y el frijol negro; calienta 3–4 minutos.','Divide la lechuga entre cuatro tazones; corona con la mezcla de carne, los jitomates y el aguacate.','Termina con salsa, un chorrito de limón y queso si usas.']},
+    {ingredients:['3 tazas de Carnitas de Cerdo al Horno del día anterior (ver Cenas), deshebradas','16 hojas grandes de lechuga','2 tazas de col rallada','salsa o salsa barbecue sin azúcar añadida','limón'],
+     steps:['Recalienta la carne de cerdo deshebrada si usas sobras.','Extiende las hojas de lechuga; rellena con la carnitas y la col rallada.','Termina con un poco de salsa o salsa barbecue y un chorrito de limón; enrolla o dobla para comer.']}
   ],
   dinner: [
-    {ingredients:['2 pechugas de pollo','3 tazas de verduras mixtas (brócoli, zanahoria, calabacita)','1 taza de arroz integral (crudo)','aceite de oliva, sal, pimienta, ajo en polvo'],
+    {ingredients:['4 pechugas de pollo','6 tazas de verduras mixtas (brócoli, zanahoria, calabacita)','2 tazas de arroz integral (crudo)','aceite de oliva, sal, pimienta, ajo en polvo'],
      steps:['Cocina el arroz integral según las instrucciones del paquete.','Mezcla las verduras con aceite de oliva y sazonador; rostiza a 220°C (425°F) por 20–25 minutos.','Sazona y asa el pollo 5–6 minutos por lado hasta que esté cocido.','Sirve el pollo y las verduras con aproximadamente 1/2 taza de arroz por persona.']},
-    {ingredients:['1 pollo entero o 2 lbs de muslos con hueso','8 tazas de agua o caldo bajo en sodio','2 zanahorias, picadas','2 chayotes o calabacitas, picadas','1 cebolla','3 dientes de ajo','cilantro, limón, tortillas de maíz'],
+    {ingredients:['1 pollo entero (unos 4 lbs) o 3 lbs de muslos con hueso','10 tazas de agua o caldo bajo en sodio','4 zanahorias, picadas','3 chayotes o calabacitas, picadas','1 cebolla','4 dientes de ajo','cilantro, limón, tortillas de maíz'],
      steps:['Hierve el pollo en el caldo con cebolla y ajo 45–60 minutos hasta que esté bien cocido, retirando la espuma según se forme.','Retira el pollo, deshébralo y desecha los huesos.','Regresa el pollo deshebrado a la olla; agrega las zanahorias y el chayote/calabacita. Cocina 15–20 minutos hasta que estén tiernos.','Termina con cilantro fresco y un chorrito de limón.','Sirve con tortillas de maíz calientes.']},
-    {ingredients:['2 pechugas de pollo o 1 pollo rostizado, deshebrado','6 tazas de caldo de pollo bajo en sodio','2 jitomates, en cubos','1 cebolla, picada','1 jalapeño, en rebanadas','jugo de 3 limones','cilantro, aguacate, tiritas de tortilla horneadas (no fritas)'],
-     steps:['Si usas pollo crudo, cuécelo en el caldo hasta que esté listo y deshébralo; si usas pollo rostizado, puedes saltarte este paso.','Saltea la cebolla, el jitomate y el jalapeño en una olla 5 minutos.','Agrega el caldo y el pollo deshebrado; deja hervir a fuego lento 15 minutos.','Incorpora el jugo de limón fuera del fuego.','Sirve con cilantro, aguacate y tiritas de tortilla horneada.']},
-    {ingredients:['6 tazas de caldo de hueso bajo en sodio','3 huevos, batidos','1 cda de jengibre fresco, picado','2 dientes de ajo, picados','cebollín','salsa de soya al gusto','2 huevos cocidos, para servir'],
-     steps:['Hierve el caldo con el jengibre y el ajo a fuego lento por 10 minutos.','Vierte los huevos batidos poco a poco en el caldo hirviendo mientras revuelves suavemente para formar hebras.','Sazona con un poco de salsa de soya.','Decora con cebollín en rebanadas; sirve con un huevo cocido al lado.']},
-    {ingredients:['6 tazas de caldo de pollo bajo en sodio','2 cdas de salsa de soya','1 cda de pasta de miso','2 pechugas de pollo, asadas y en rebanadas','2 huevos tibios','2 paquetes de fideos shirataki, bien enjuagados','bok choy, champiñones, cebollín, alga nori'],
-     steps:['Hierve el caldo con la salsa de soya y el miso a fuego lento por 10 minutos.','Agrega el bok choy y los champiñones; cocina 5 minutos.','Reparte los fideos shirataki enjuagados en los tazones; vierte el caldo caliente encima.','Corona con el pollo en rebanadas, un huevo tibio, cebollín y alga nori.']},
-    {ingredients:['2 lbs de muslo de pollo con hueso','1 lata de maíz pozolero, escurrido','4 chiles guajillo secos, sin semillas y remojados','2 dientes de ajo','1 cebolla','orégano','col, rábano y limón, para decorar'],
-     steps:['Hierve el pollo en agua con cebolla y ajo hasta que esté bien cocido; deshébralo y reserva el caldo.','Licúa los chiles remojados con un poco de caldo, luego cuela para obtener una salsa tersa.','Combina la salsa de chile, el caldo reservado, el pollo deshebrado y el maíz pozolero en la olla; deja hervir 20 minutos con el orégano.','Sirve con col picada, rábano en rebanadas y limón.']},
-    {ingredients:['6 tazas de caldo de verduras o de pollo bajo en sodio','3 cdas de pasta de miso blanco','1 bloque de tofu firme, en cubos','1 taza de edamame','espinaca, champiñones','una porción pequeña de fideos shirataki o soba','aceite de ajonjolí'],
-     steps:['Calienta el caldo; cuando esté caliente pero sin hervir, incorpora el miso fuera del fuego directo para conservar su sabor y probióticos.','Agrega el tofu, el edamame y los champiñones; deja hervir 5 minutos.','Incorpora la espinaca al final hasta que se marchite.','Sirve sobre una porción ligera de fideos con un chorrito de aceite de ajonjolí.']},
-    {ingredients:['2 filetes de salmón','1 manojo de espárragos, sin la base dura','1 taza de quinoa (cruda)','aceite de oliva, limón, ajo, sal, pimienta'],
+    {ingredients:['4 pechugas de pollo o 1 pollo rostizado grande, deshebrado','10 tazas de caldo de pollo bajo en sodio','3 jitomates, en cubos','1 cebolla, picada','1–2 jalapeños, en rebanadas','jugo de 4 limones','cilantro, aguacate, tiritas de tortilla horneadas'],
+     steps:['Si usas pollo crudo, cuécelo en el caldo hasta que esté listo y deshébralo; si usas pollo rostizado, puedes saltarte este paso.','Saltea la cebolla, el jitomate y el jalapeño en una olla grande 5 minutos.','Agrega el caldo y el pollo deshebrado; deja hervir a fuego lento 15 minutos.','Incorpora el jugo de limón fuera del fuego.','Sirve con cilantro, aguacate y tiritas de tortilla horneada.']},
+    {ingredients:['4 filetes de salmón','2 manojos de espárragos, sin la base dura','2 tazas de quinoa (cruda)','aceite de oliva, limón, ajo, sal, pimienta'],
      steps:['Cocina la quinoa según las instrucciones del paquete.','Precalienta el horno a 200°C (400°F). Acomoda el salmón y los espárragos en una charola; rocía con aceite de oliva, ajo, sal, pimienta y rebanadas de limón.','Hornea 12–15 minutos hasta que el salmón se desmenuce fácilmente.','Sirve sobre la quinoa.']},
-    {ingredients:['1 lb de pavo molido','1 huevo','1/4 de taza de harina de almendra o pan molido','ajo en polvo, sazonador italiano','3 calabacitas medianas, en espiral','2 tazas de salsa marinara baja en azúcar'],
-     steps:['Mezcla el pavo, el huevo, la harina de almendra y el sazonador; forma las albóndigas.','Hornea a 200°C (400°F) por 18–20 minutos, o dora en sartén hasta que estén cocidas.','Calienta la salsa marinara; agrega las albóndigas y deja hervir 5 minutos.','Saltea los fideos de calabacita 2–3 minutos solo para suavizarlos; sirve con las albóndigas y la salsa encima.']},
-    {ingredients:['1.5 lbs de camarón, pelado y limpio','2 pimientos, en rebanadas','1 cebolla, en rebanadas','aceite de oliva','sazonador para fajitas (comino, chile en polvo, paprika, ajo en polvo)','limón, tortillas de maíz'],
-     steps:['Precalienta el horno a 220°C (425°F). Mezcla el camarón, los pimientos y la cebolla con aceite de oliva y el sazonador en una charola.','Hornea 10–12 minutos hasta que el camarón esté rosado y cocido.','Exprime limón por encima.','Sirve con tortillas de maíz calientes.']},
-    {ingredients:['4 pimientos, con la parte superior cortada y sin semillas','1 lb de pavo molido','2 tazas de arroz de coliflor','1 lata de jitomate picado','cebolla, ajo, comino','queso rallado (opcional)'],
+    {ingredients:['2 lbs de pavo molido','2 huevos','1/2 taza de harina de almendra o pan molido','ajo en polvo, sazonador italiano','6 calabacitas medianas, en espiral','4 tazas de salsa marinara baja en azúcar'],
+     steps:['Mezcla el pavo, los huevos, la harina de almendra y el sazonador; forma las albóndigas.','Hornea a 200°C (400°F) por 18–20 minutos, o dora en sartén por tandas hasta que estén cocidas.','Calienta la salsa marinara; agrega las albóndigas y deja hervir 5 minutos.','Saltea los fideos de calabacita 2–3 minutos solo para suavizarlos; sirve con las albóndigas y la salsa encima.']},
+    {ingredients:['3 lbs de camarón, pelado y limpio','4 pimientos, en rebanadas','2 cebollas, en rebanadas','aceite de oliva','sazonador para fajitas (comino, chile en polvo, paprika, ajo en polvo)','limón, tortillas de maíz'],
+     steps:['Precalienta el horno a 220°C (425°F). Mezcla el camarón, los pimientos y la cebolla con aceite de oliva y el sazonador en dos charolas (sin amontonar).','Hornea 10–12 minutos hasta que el camarón esté rosado y cocido.','Exprime limón por encima.','Sirve con tortillas de maíz calientes.']},
+    {ingredients:['4 pimientos grandes, con la parte superior cortada y sin semillas','1.5 lbs de pavo molido','3 tazas de arroz de coliflor','1 lata de jitomate picado','cebolla, ajo, comino','queso rallado (opcional)'],
      steps:['Dora el pavo con la cebolla y el ajo.','Incorpora el arroz de coliflor, el jitomate picado y el comino; cocina 5 minutos.','Rellena los pimientos con la mezcla; colócalos en un refractario con un poco de agua en el fondo.','Cubre y hornea a 190°C (375°F) por 30 minutos. Si usas queso, agrégalo y hornea destapado 5 minutos más.']},
-    {ingredients:['4 filetes de tilapia','1 lata de frijol negro, enjuagado','1 taza de elote, fresco o congelado','1 jitomate, en cubos','cilantro, limón, aceite de oliva','lechugas mixtas, para una ensalada'],
+    {ingredients:['4 filetes grandes de tilapia','2 latas de frijol negro, enjuagado','2 tazas de elote, fresco o congelado','2 jitomates, en cubos','cilantro, limón, aceite de oliva','lechugas mixtas, para una ensalada'],
      steps:['Sazona la tilapia con sal, pimienta y un poco de comino; ásala o dórala en sartén 3–4 minutos por lado.','Combina el frijol negro, el elote, el jitomate, el cilantro y el jugo de limón para la salsa.','Sirve la tilapia con la salsa encima y una ensalada de acompañamiento.']},
-    {ingredients:['1.5 tazas de lentejas verdes o rojas, secas','6 tazas de caldo bajo en sodio','1 cebolla, picada','2 zanahorias, picadas','2 dientes de ajo','1 cda de cúrcuma','1 cdta de comino','jengibre fresco, espinaca, limón'],
-     steps:['Saltea la cebolla, la zanahoria y el ajo 5 minutos.','Agrega la cúrcuma, el comino y el jengibre rallado; tuesta 30 segundos.','Agrega las lentejas y el caldo; deja hervir a fuego lento 25–30 minutos hasta que las lentejas estén tiernas.','Incorpora la espinaca hasta que se marchite; termina con un chorrito de limón.']},
-    {ingredients:['2 latas de alubias blancas, enjuagadas','2 pechugas de pollo, cocidas y deshebradas','6 tazas de caldo de pollo bajo en sodio','2 dientes de ajo','romero','kale','ralladura de limón','1 cabeza de brócoli, para rostizar'],
-     steps:['Saltea el ajo en una olla; agrega el caldo, las alubias, el pollo deshebrado y el romero.','Deja hervir a fuego lento 15–20 minutos.','Incorpora el kale hasta que se marchite; termina con la ralladura de limón.','Mientras tanto, mezcla los ramilletes de brócoli con aceite de oliva y rostiza a 220°C (425°F) por 15 minutos; sirve al lado.']}
+    {ingredients:['3 tazas de lentejas verdes o rojas, secas','10 tazas de caldo bajo en sodio','2 cebollas, picadas','4 zanahorias, picadas','4 dientes de ajo','2 cdas de cúrcuma','2 cdta de comino','jengibre fresco, espinaca, limón'],
+     steps:['Saltea la cebolla, la zanahoria y el ajo 5 minutos en una olla grande.','Agrega la cúrcuma, el comino y el jengibre rallado; tuesta 30 segundos.','Agrega las lentejas y el caldo; deja hervir a fuego lento 25–30 minutos hasta que las lentejas estén tiernas.','Incorpora la espinaca hasta que se marchite; termina con un chorrito de limón.']},
+    {ingredients:['1.5 lbs de bistec de arrachera, en rebanadas delgadas contra la fibra','6 tazas de floretes de brócoli','4 dientes de ajo, picados','2 cdas de jengibre fresco, picado','1/4 de taza de salsa de soya baja en sodio','2 cdas de vinagre de arroz','1 cda de aceite de ajonjolí','2 cdas de maicena','2 cdas de aceite para cocinar'],
+     steps:['Mezcla la carne en rebanadas con 1 cda de salsa de soya y la maicena; deja reposar 10 minutos.','Calienta el aceite en un wok o sartén grande a fuego alto; sella la carne por tandas 1–2 minutos por lado hasta dorar, luego retira.','Agrega el brócoli con un chorrito de agua; tapa y cuece al vapor 3–4 minutos hasta que esté tierno-crujiente.','Agrega el ajo y el jengibre; cocina 30 segundos.','Regresa la carne al sartén con el resto de la salsa de soya, el vinagre de arroz y el aceite de ajonjolí. Mezcla para cubrir y calienta, unos 2 minutos.']},
+    {ingredients:['2 lbs de bistec de arrachera','sal y pimienta','1 taza de perejil fresco, finamente picado','1/4 de taza de cilantro fresco, picado','4 dientes de ajo, picados','1/3 de taza de aceite de oliva','3 cdas de vinagre de vino tinto','1/2 cdta de hojuelas de chile de árbol','6 tazas de verduras mixtas para rostizar (calabacita, pimiento, cebolla morada)'],
+     steps:['Sazona la carne generosamente con sal y pimienta; deja reposar a temperatura ambiente 20 minutos.','Bate el perejil, el cilantro, el ajo, el aceite de oliva, el vinagre y las hojuelas de chile para el chimichurri.','Mezcla las verduras con un poco de aceite de oliva y rostiza a 220°C (425°F) por 20 minutos, o ásalas junto con la carne.','Asa la carne a fuego alto 4–5 minutos por lado para término medio-rojo (ajusta a tu gusto); deja reposar 5–10 minutos antes de rebanar contra la fibra.','Sirve la carne rebanada con el chimichurri encima, junto con las verduras rostizadas.']},
+    {ingredients:['1.5 lbs de carne de res para guisar, magra y sin exceso de grasa','4 zanahorias, picadas','3 tallos de apio, picados','1 cebolla, picada','3 dientes de ajo','1 lata de jitomate picado','4 tazas de caldo de res bajo en sodio','2 tazas de ejotes','1 cda de puré de tomate','hoja de laurel, tomillo, sal y pimienta'],
+     steps:['Dora la carne en un sartén, luego pásala a una olla de cocción lenta (o dórala directamente en una olla de fondo grueso).','Agrega las zanahorias, el apio, la cebolla, el ajo, el jitomate, el caldo, el puré de tomate y los condimentos.','Cocina a fuego bajo 7–8 horas (o a fuego lento en la estufa 1.5–2 horas) hasta que la carne esté tierna.','Incorpora los ejotes en los últimos 20–30 minutos de cocción.','Retira la hoja de laurel y sirve.']},
+    {ingredients:['2 lbs de lomo de cerdo','sal, pimienta, ajo en polvo','1 cda de aceite de oliva','1.5 lbs de coles de Bruselas, partidas a la mitad','2 manzanas, en rebanadas','1 cda de aceite de oliva para las verduras','tomillo fresco'],
+     steps:['Precalienta el horno a 200°C (400°F). Sazona el cerdo con sal, pimienta y ajo en polvo.','Sella el cerdo en un sartén apto para horno 2–3 minutos por lado hasta dorar.','Mezcla las coles de Bruselas y las manzanas en rebanadas con aceite de oliva, sal y tomillo; acomódalas alrededor del cerdo en el mismo sartén o en una charola aparte.','Rostiza 20–25 minutos hasta que el cerdo alcance 63°C (145°F) internos.','Deja reposar 5 minutos, rebana y sirve con las verduras y manzanas rostizadas.']},
+    {ingredients:['2 lbs de paleta de cerdo, sin exceso de grasa, en trozos grandes','1 cebolla, en cuartos','4 dientes de ajo','1 naranja, exprimida','2 limones, exprimidos','1 cda de comino','1 cda de orégano','sal y pimienta','4 tazas de col rallada para la ensalada','tortillas de maíz'],
+     steps:['Precalienta el horno a 150°C (300°F). Coloca el cerdo, la cebolla y el ajo en un refractario; agrega el jugo de naranja y limón, el comino, el orégano, sal y pimienta.','Cubre bien con papel aluminio y hornea 3 horas hasta que esté muy tierno.','Deshebra el cerdo con dos tenedores; descarta el exceso de grasa.','Para un acabado crujiente, extiende el cerdo deshebrado en una charola y gratina 5–7 minutos hasta que las orillas doren.','Mezcla la col rallada con un chorrito de limón para una ensalada rápida.','Sirve el cerdo en tortillas de maíz calientes, cubierto con la ensalada de col.']},
+    {ingredients:['4 chuletas de cerdo sin hueso','sal, pimienta, ajo en polvo','1 cda de aceite de oliva','8 tazas de verduras de hoja mixtas (kale, acelga o berza)','2 dientes de ajo, en rebanadas','un chorrito de vinagre de manzana'],
+     steps:['Sazona las chuletas de cerdo con sal, pimienta y ajo en polvo.','Sella en aceite de oliva a fuego medio-alto, 4–5 minutos por lado hasta que estén cocidas (63°C/145°F internos). Retira y deja reposar.','En el mismo sartén, saltea el ajo 30 segundos, luego agrega las verduras por tandas, cocinando hasta que se marchiten, 5–7 minutos.','Termina las verduras con un chorrito de vinagre de manzana.','Sirve las chuletas de cerdo sobre las verduras salteadas.']},
+    {ingredients:['1.5 lbs de pechuga de pollo, en rebanadas','3 pimientos, en rebanadas','1 cebolla, en rebanadas','2 cdas de aceite de oliva','sazonador para fajitas (comino, chile en polvo, paprika, ajo en polvo)','2 tazas de arroz integral cocido o arroz de coliflor','para servir: salsa, aguacate, limón'],
+     steps:['Mezcla el pollo y las verduras con aceite de oliva y el sazonador para fajitas.','Cocina en un sartén grande a fuego medio-alto, 8–10 minutos, hasta que el pollo esté cocido y las verduras tiernas-crujientes.','Sirve sobre arroz o arroz de coliflor con salsa, aguacate y un chorrito de limón.']},
+    {ingredients:['8 muslos de pollo con hueso y piel (o sin hueso)','2 limones (jugo y ralladura)','3 dientes de ajo, picados','2 cdas de aceite de oliva','romero y tomillo frescos','sal y pimienta','6 tazas de verduras mixtas para rostizar (zanahoria, calabacita, cebolla morada)'],
+     steps:['Precalienta el horno a 220°C (425°F). Bate el jugo y ralladura de limón, el ajo, el aceite de oliva y las hierbas; baña los muslos de pollo en la marinada (30 minutos si hay tiempo, o directo al horno).','Acomoda el pollo y las verduras en una charola.','Rostiza 30–35 minutos hasta que el pollo alcance 74°C (165°F) internos y la piel esté dorada.','Sirve el pollo con las verduras rostizadas y los jugos de la charola encima.']},
+    {ingredients:['1.5 lbs de pechuga de pollo, en cubos','1/4 de taza de aceite de oliva','jugo de 2 limones','3 dientes de ajo','orégano','sal y pimienta','1 pepino, en cubos','1 taza de yogur griego natural','eneldo y menta frescos, para el tzatziki'],
+     steps:['Marina el pollo en aceite de oliva, jugo de limón, ajo, orégano, sal y pimienta por al menos 20 minutos (o toda la noche).','Ensarta el pollo en brochetas.','Asa a la parrilla o al horno 10–12 minutos, volteando de vez en cuando, hasta que esté cocido.','Mezcla el yogur griego, el pepino en cubos, el eneldo y la menta para un tzatziki rápido.','Sirve las brochetas con el tzatziki y una ensalada sencilla de pepino y jitomate.']},
+    {ingredients:['2 latas de garbanzos, enjuagados','1 lata de leche de coco light','1 lata de jitomate picado','1 cebolla, picada','3 dientes de ajo','1 cda de jengibre fresco','2 cdta de curry en polvo','1 cdta de cúrcuma','4 tazas de espinaca fresca','cilantro'],
+     steps:['Saltea la cebolla, el ajo y el jengibre 5 minutos.','Agrega el curry en polvo y la cúrcuma; tuesta 30 segundos.','Agrega los garbanzos, el jitomate y la leche de coco; deja hervir a fuego lento 15–20 minutos.','Incorpora la espinaca hasta que se marchite.','Decora con cilantro; sirve con una pequeña porción de arroz si lo deseas.']},
+    {ingredients:['1 bloque de tofu firme, prensado y en cubos','6 tazas de verduras mixtas (brócoli, chícharo chino, zanahoria, pimiento)','3 dientes de ajo','1 cda de jengibre fresco','1/4 de taza de salsa de soya baja en sodio','1 cda de aceite de ajonjolí','2 cdas de maicena','2 cdas de aceite para cocinar'],
+     steps:['Cubre los cubos de tofu con maicena; dóralos en un poco de aceite hasta que la mayoría de los lados estén dorados, unos 8 minutos, luego retira.','En el mismo sartén, saltea las verduras 4–5 minutos hasta que estén tiernas-crujientes.','Agrega el ajo y el jengibre; cocina 30 segundos.','Regresa el tofu al sartén; agrega la salsa de soya y el aceite de ajonjolí, mezcla para cubrir.','Sirve tal cual o sobre una pequeña porción de arroz.']},
+    {ingredients:['8 champiñones portobello grandes, sin tallo','2 tazas de quinoa cocida','4 tazas de espinaca fresca, picada','1 taza de queso feta desmoronado','4 dientes de ajo','aceite de oliva','sal y pimienta'],
+     steps:['Precalienta el horno a 200°C (400°F). Barniza los champiñones con aceite de oliva; colócalos con las laminillas hacia arriba en una charola.','Saltea el ajo y la espinaca hasta que se marchite; mezcla con la quinoa cocida y el queso feta.','Reparte el relleno entre los champiñones.','Hornea 15–20 minutos hasta que los champiñones estén tiernos y el relleno esté caliente.']},
+    {ingredients:['2 coliflores grandes, ralladas (o 10–12 tazas de coliflor ya rallada)','6 huevos','2 tazas de chícharos y zanahoria congelados','4 cebollines, en rebanadas','4 dientes de ajo','3 cdas de salsa de soya baja en sodio','1 1/2 cdas de aceite de ajonjolí','3 cdas de aceite para cocinar'],
+     steps:['Calienta aceite en un sartén grande o wok; revuelve los huevos y resérvalos.','Agrega un poco más de aceite; saltea el ajo, los chícharos y la zanahoria 3–4 minutos.','Agrega la coliflor rallada; cocina 5–6 minutos hasta que esté tierna, moviendo con frecuencia (trabaja por tandas si tu sartén es pequeño).','Incorpora los huevos revueltos, la salsa de soya, el aceite de ajonjolí y el cebollín. Mezcla y sirve.']}
   ],
   snack: [
-    {ingredients:['1 queso en hebras (string cheese)','un puñito (~12) de almendras'], steps:['Listo para llevar — no requiere preparación.']},
-    {ingredients:['1 manzana, en rebanadas','1–2 cdas de crema de almendra'], steps:['Rebana la manzana y sirve con la crema de almendra para remojar.']},
-    {ingredients:['3–4 tallos de apio','2–3 cdas de hummus'], steps:['Corta el apio en bastones y sirve con hummus.']},
-    {ingredients:['un puñito (~10 mitades) de nueces','1 cuadro de chocolate oscuro 85%+'], steps:['Sirve y disfruta juntos.']},
-    {ingredients:['1 taza de edamame congelado, en vaina','sal de mar'], steps:['Cuece el edamame al vapor o en microondas según las instrucciones del paquete.','Espolvorea un poco de sal de mar y sirve caliente.']},
-    {ingredients:['1/4 de taza de frutos secos mixtos sin sal'], steps:['Sirve en un tazón pequeño o bolsa — ideal para llevar.']},
-    {ingredients:['1/2 taza de queso cottage','1/2 taza de moras'], steps:['Cubre el queso cottage con las moras y sirve.']},
-    {ingredients:['1 huevo cocido (preparado con anticipación)','pepino en rebanadas','una pizca de sal'], steps:['Cuece los huevos con anticipación y refrigéralos (se conservan alrededor de una semana).','Pela y sirve con pepino en rebanadas y una pizca de sal.']},
-    {ingredients:['1 lata de garbanzos, enjuagados y bien secos','1 cda de aceite de oliva','comino, paprika, sal'],
+    {ingredients:['4 quesos en hebras (string cheese)','un puñito (~12 almendras) por persona'], steps:['Listo para llevar — no requiere preparación.']},
+    {ingredients:['4 manzanas, en rebanadas','4–6 cdas de crema de almendra'], steps:['Rebana las manzanas y sirve con la crema de almendra para remojar.']},
+    {ingredients:['1 manojo de apio, cortado en bastones','1 taza de hummus'], steps:['Corta el apio en bastones y sirve con hummus para remojar.']},
+    {ingredients:['1 taza de nueces (unas 40 mitades)','4 cuadros de chocolate oscuro 85%+'], steps:['Sirve y disfruta juntos.']},
+    {ingredients:['4 tazas de edamame congelado, en vaina','sal de mar'], steps:['Cuece el edamame al vapor o en microondas según las instrucciones del paquete.','Espolvorea un poco de sal de mar y sirve caliente.']},
+    {ingredients:['1 taza de frutos secos mixtos sin sal'], steps:['Sirve en tazones pequeños o bolsas — ideal para llevar.']},
+    {ingredients:['2 tazas de queso cottage','2 tazas de moras'], steps:['Cubre el queso cottage con las moras y sirve.']},
+    {ingredients:['4 huevos cocidos (preparados con anticipación)','1 pepino, en rebanadas','una pizca de sal'], steps:['Cuece los huevos con anticipación y refrigéralos (se conservan alrededor de una semana).','Pela y sirve con pepino en rebanadas y una pizca de sal.']},
+    {ingredients:['2 latas de garbanzos, enjuagados y bien secos','2 cdas de aceite de oliva','comino, paprika, sal'],
      steps:['Precalienta el horno a 200°C (400°F).','Mezcla los garbanzos con el aceite de oliva y las especias.','Rostiza 25–30 minutos, agitando la charola a la mitad, hasta que estén crujientes.','Guarda en un recipiente hermético para toda la semana.']},
-    {ingredients:['1/2 taza de yogur griego natural','canela','opcional: unas gotas de vainilla o un poco de miel'], steps:['Espolvorea el yogur con canela y sirve.']}
+    {ingredients:['2 tazas de yogur griego natural','canela','opcional: unas gotas de vainilla o un poco de miel'], steps:['Divide el yogur en tazones, espolvorea con canela y sirve.']}
   ]
 } };
 
@@ -980,6 +1118,7 @@ function mealsFor(idx0){
     snack: M.snack[idx0 % M.snack.length]
   };
 }
+function slugify(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 
 const HABITS = [
   {key:'tonal', en:'🏋️ Tonal / Wahoo / Kickr session completed', es:'🏋️ Sesión de Tonal / Wahoo / Kickr completada'},
@@ -1084,6 +1223,7 @@ const EDGE_ADVANTAGES = { en: [
 
 /* ============ STATE ============ */
 let habitState = {}; // in-memory only, resets on reload
+let workoutLog = {}; // {dayNum: true/false} — in-memory only, resets on reload
 let selectedDayNum = clampDay(dayNumForDate(new Date()));
 
 function clampDay(n){ return Math.max(1, Math.min(90, n)); }
@@ -1133,8 +1273,29 @@ function renderToday(){
   document.getElementById('todayDinner').textContent = meals.dinner;
   document.getElementById('todaySnack').textContent = meals.snack;
 
+  wireRecipeLink('linkBreakfast', meals.breakfast);
+  wireRecipeLink('linkLunch', meals.lunch);
+  wireRecipeLink('linkDinner', meals.dinner);
+  wireRecipeLink('linkSnack', meals.snack);
+
   document.getElementById('dateJump').value = fmtISO(d);
   renderHabits(n);
+}
+
+function wireRecipeLink(linkId, mealName){
+  const el = document.getElementById(linkId);
+  el.onclick = (e)=>{
+    e.preventDefault();
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelector('nav.tabs button[data-tab="recipes"]').classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-recipes').classList.add('active');
+    const target = document.getElementById('recipe-' + slugify(mealName));
+    if(target){
+      target.open = true;
+      setTimeout(()=> target.scrollIntoView({behavior:'smooth', block:'start'}), 60);
+    }
+  };
 }
 
 function renderHabits(n){
@@ -1147,11 +1308,20 @@ function renderHabits(n){
     const label = document.createElement('label');
     const cb = document.createElement('input');
     cb.type='checkbox';
-    cb.checked = !!habitState[n][h.key];
-    cb.addEventListener('change', ()=>{
-      habitState[n][h.key] = cb.checked;
-      updateHabitProgress(n);
-    });
+    if(h.key === 'tonal'){
+      cb.checked = !!workoutLog[n];
+      cb.addEventListener('change', ()=>{
+        workoutLog[n] = cb.checked;
+        updateHabitProgress(n);
+        renderProgress();
+      });
+    } else {
+      cb.checked = !!habitState[n][h.key];
+      cb.addEventListener('change', ()=>{
+        habitState[n][h.key] = cb.checked;
+        updateHabitProgress(n);
+      });
+    }
     const span = document.createElement('span');
     span.textContent = h[LANG];
     label.appendChild(cb);
@@ -1163,7 +1333,8 @@ function renderHabits(n){
 }
 function updateHabitProgress(n){
   const state = habitState[n] || {};
-  const done = HABITS.filter(h=>state[h.key]).length;
+  let done = HABITS.filter(h=> h.key!=='tonal' && state[h.key]).length;
+  if(workoutLog[n]) done++;
   document.getElementById('habitProgress').textContent = UI[LANG].habitProgress(done, HABITS.length);
 }
 
@@ -1214,29 +1385,36 @@ function renderCalendar(){
 }
 
 /* ============ RENDER: RECIPES ============ */
+function buildRecipeCard(mealName, recipe, L){
+  const details = document.createElement('details');
+  details.className = 'recipe-card';
+  details.id = 'recipe-' + slugify(mealName);
+  const ingHtml = recipe.ingredients.map(i=>`<li>${i}</li>`).join('');
+  const stepHtml = recipe.steps.map(s=>`<li>${s}</li>`).join('');
+  details.innerHTML = `
+    <summary>${mealName}</summary>
+    <div class="recipe-body">
+      <div class="ing-label">${L.ingredientsLabel}</div>
+      <ul class="ing-list">${ingHtml}</ul>
+      <div class="steps-label">${L.stepsLabel}</div>
+      <ol class="step-list">${stepHtml}</ol>
+    </div>
+  `;
+  return details;
+}
 function renderRecipes(){
   const L = UI[LANG];
   const M = MEAL_NAMES[LANG];
   const D = RECIPE_DETAILS[LANG];
   const fill=(id, names, details)=>{
     const el=document.getElementById(id);
-    el.innerHTML = names.map((name,i)=>{
-      const d = details[i] || {ingredients:[], steps:[]};
-      return `<li><details>
-        <summary>${name}</summary>
-        <div class="recipe-detail">
-          <div class="detail-label">${L.ingredientsLabel}</div>
-          <ul class="ingredient-list">${d.ingredients.map(x=>`<li>${x}</li>`).join('')}</ul>
-          <div class="detail-label">${L.stepsLabel}</div>
-          <ol class="step-list">${d.steps.map(x=>`<li>${x}</li>`).join('')}</ol>
-        </div>
-      </details></li>`;
-    }).join('');
+    el.innerHTML='';
+    names.forEach((name, i)=> el.appendChild(buildRecipeCard(name, details[i] || {ingredients:[], steps:[]}, L)));
   };
-  fill('listBreakfast', M.breakfast, D.breakfast);
-  fill('listLunch', M.lunch, D.lunch);
-  fill('listDinner', M.dinner, D.dinner);
-  fill('listSnack', M.snack, D.snack);
+  fill('cardsBreakfast', M.breakfast, D.breakfast);
+  fill('cardsLunch', M.lunch, D.lunch);
+  fill('cardsDinner', M.dinner, D.dinner);
+  fill('cardsSnack', M.snack, D.snack);
 
   document.getElementById('soupRows').innerHTML = SOUP_TABLE[LANG].map(s=>`<tr>
     <td style="font-weight:600">${s.soup}</td><td>${s.ingr}</td><td>${s.benefit}</td>
@@ -1301,6 +1479,86 @@ function renderMilestones(){
   document.getElementById('doctorPoints').innerHTML = UI[LANG].doctorPoints.map(p=>`<li>${p}</li>`).join('');
 }
 
+/* ============ RENDER: PROGRESS / EXERCISE TRACKER ============ */
+function renderProgress(){
+  const L = UI[LANG];
+  const todayN = clampDay(dayNumForDate(new Date()));
+
+  // ---- stats ----
+  let completed = 0;
+  for(let d=1; d<=90; d++){ if(workoutLog[d]) completed++; }
+  let streak = 0;
+  for(let d=todayN; d>=1; d--){
+    if(workoutLog[d]) streak++;
+    else if(d===todayN) continue; // today not yet checked doesn't break an existing streak from yesterday
+    else break;
+  }
+  const adherenceBase = todayN || 1;
+  const adherencePct = Math.round((completed/adherenceBase)*100);
+
+  const statsEl = document.getElementById('progressStats');
+  statsEl.innerHTML = `
+    <div class="stat-block"><div class="stat-num">${completed}/90</div><div class="stat-label">${L.statWorkouts}</div></div>
+    <div class="stat-block"><div class="stat-num">${adherencePct}%</div><div class="stat-label">${L.statAdherence}</div></div>
+    <div class="stat-block"><div class="stat-num">${streak}</div><div class="stat-label">${L.statStreak}</div></div>
+  `;
+
+  // ---- this week ----
+  const weekNum = Math.floor((todayN-1)/7)+1;
+  const weekStartDay = (weekNum-1)*7+1;
+  const weekDays = [];
+  for(let i=0;i<7;i++){ const dn=weekStartDay+i; if(dn<=90) weekDays.push(dn); }
+  const weekContainer = document.getElementById('weekTracker');
+  const weekDone = weekDays.filter(dn=>workoutLog[dn]).length;
+  weekContainer.innerHTML = `<p class="muted" style="margin-top:0">${L.weekSummary(weekDone, weekDays.length, weekNum)}</p>`;
+  weekDays.forEach(dn=>{
+    const d = dateForDay(dn);
+    const w = workoutFor(dn);
+    const row = document.createElement('div');
+    row.className='week-row';
+    const isFuture = dn > todayN;
+    row.innerHTML = `
+      <div class="wr-label">
+        <span>${DOW_LABEL[LANG][d.getDay()].slice(0,3)} ${fmtShort(d)} — ${w.label}</span>
+        <span class="wr-date">${LANG==='es'?'Día':'Day'} ${dn}</span>
+      </div>
+    `;
+    const cb = document.createElement('input');
+    cb.type='checkbox';
+    cb.checked = !!workoutLog[dn];
+    cb.disabled = isFuture;
+    cb.addEventListener('change', ()=>{
+      workoutLog[dn] = cb.checked;
+      if(dn === selectedDayNum) updateHabitProgress(dn);
+      renderProgress();
+    });
+    row.appendChild(cb);
+    weekContainer.appendChild(row);
+  });
+
+  // ---- 90-day overview grid ----
+  const grid = document.getElementById('overviewGrid');
+  grid.innerHTML='';
+  for(let d=1; d<=90; d++){
+    const cell = document.createElement('div');
+    const ph = phaseForDay(d);
+    let cls = 'ov-cell ov-p'+ph;
+    if(d > todayN){ cls += ' ov-future'; }
+    else if(workoutLog[d]){ cls += ' ov-done'; }
+    else if(d < todayN){ cls += ' ov-missed'; }
+    cell.className = cls;
+    cell.title = (LANG==='es'?'Día ':'Day ') + d + ' — ' + fmtShort(dateForDay(d));
+    if(d <= todayN){
+      cell.addEventListener('click', ()=>{
+        workoutLog[d] = !workoutLog[d];
+        renderProgress();
+        if(d === selectedDayNum) updateHabitProgress(d);
+      });
+    }
+    grid.appendChild(cell);
+  }
+}
+
 /* ============ STATIC TEXT / LANGUAGE SWITCH ============ */
 function translateStatic(){
   const L = UI[LANG];
@@ -1323,6 +1581,7 @@ function renderAll(){
   renderSupplements();
   renderAboutTables();
   renderMilestones();
+  renderProgress();
 }
 
 function setLang(l){
