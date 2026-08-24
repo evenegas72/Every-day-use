@@ -566,6 +566,21 @@
       </div>
       <div class="callout" data-i18n="soupCallout" data-i18n-html>📦 Soup prep strategy: Keep frozen bone broth cubes on hand for 15-minute emergency meals.</div>
     </section>
+
+    <section class="card">
+      <h2 data-i18n="optionalTitle">🔄 Optional Swap-Ins</h2>
+      <p class="muted" data-i18n="optionalDesc">Not part of the daily rotation — these are extra soups you can swap in for any lunch or dinner if the schedule starts feeling repetitive.</p>
+      <div class="recipe-grid">
+        <div>
+          <h3 data-i18n="optionalLunches">Optional Lunches</h3>
+          <div id="cardsOptionalLunch"></div>
+        </div>
+        <div>
+          <h3 data-i18n="optionalDinners">Optional Dinners</h3>
+          <div id="cardsOptionalDinner"></div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <!-- SUPPLEMENTS -->
@@ -736,6 +751,9 @@ const UI = {
     soupSubtitle:'Top-rated for A1C impact',
     thSoup:'Soup', thSoupIngr:'Key Ingredients', thSoupBenefit:'A1C Benefit',
     soupCallout:'<strong>📦 Soup prep strategy:</strong> Keep frozen bone broth cubes on hand for 15-minute emergency meals. Buy a rotisserie chicken weekly — it\'s your universal protein base for Sopa de Lima, Caldo de Pollo, Ramen, and Minestrone.',
+    optionalTitle:'🔄 Optional Swap-Ins',
+    optionalDesc:'Not part of the daily rotation — these are extra soups you can swap in for any lunch or dinner if the schedule starts feeling repetitive.',
+    optionalLunches:'Optional Lunches', optionalDinners:'Optional Dinners',
     supplementsTitle:'💊 Nutrient Support Strategy',
     supplementsWarn:'<strong>⚠️ Important before starting supplements:</strong> These are adjuncts to lifestyle change — not replacements. Discuss all supplements with your doctor before starting, especially if you are on any medications. Berberine in particular can interact with certain drugs. Bring this table to your appointment.',
     thSupplement:'Supplement', thEvidence:'Evidence Level', thDose:'Dose', thTiming:'Timing', thNotes:'Key Notes',
@@ -796,6 +814,9 @@ const UI = {
     soupSubtitle:'Las mejor calificadas por su impacto en el A1C',
     thSoup:'Sopa', thSoupIngr:'Ingredientes Clave', thSoupBenefit:'Beneficio para el A1C',
     soupCallout:'<strong>📦 Estrategia de preparación:</strong> Ten cubos de caldo de hueso congelados a la mano para comidas de emergencia en 15 minutos. Compra un pollo rostizado cada semana — es tu base de proteína universal para la Sopa de Lima, el Caldo de Pollo, el Ramen y el Minestrone.',
+    optionalTitle:'🔄 Alternativas Opcionales',
+    optionalDesc:'No forman parte de la rotación diaria — son sopas extra que puedes usar en lugar de cualquier almuerzo o cena si el horario empieza a sentirse repetitivo.',
+    optionalLunches:'Almuerzos Opcionales', optionalDinners:'Cenas Opcionales',
     supplementsTitle:'💊 Estrategia de Apoyo con Suplementos',
     supplementsWarn:'<strong>⚠️ Importante antes de empezar con suplementos:</strong> Estos son un complemento al cambio de estilo de vida — no un reemplazo. Consulta todos los suplementos con tu doctor antes de empezar, especialmente si tomas algún medicamento. La berberina en particular puede interactuar con ciertos fármacos. Lleva esta tabla a tu consulta.',
     thSupplement:'Suplemento', thEvidence:'Nivel de Evidencia', thDose:'Dosis', thTiming:'Horario', thNotes:'Notas Clave',
@@ -1267,6 +1288,38 @@ const EDGE_ADVANTAGES = { en: [
   {advantage:'Duración de 90 Días', why:'El A1C mide los últimos 2–3 meses de glucosa — lo que significa que este plan corresponde exactamente a un ciclo completo de medición de A1C.'}
 ] };
 
+const OPTIONAL_RECIPES = { en: [
+  {category:'lunch', name:'White Bean & Chicken Soup', ingredients:['4 cans cannellini beans, rinsed','4 chicken breasts, cooked and shredded','12 cups low-sodium chicken broth','4 cloves garlic, minced','2 tsp fresh rosemary','4 cups chopped kale','zest of 2 lemons'],
+   steps:['Sauté garlic in a pot for 1 minute.','Add broth, beans, shredded chicken, and rosemary; simmer 15–20 minutes.','Stir in kale until wilted.','Finish with lemon zest and serve.']},
+  {category:'lunch', name:'Tom Kha Coconut Chicken Soup', ingredients:['4 chicken breasts, sliced thin','2 cans light coconut milk','6 cups low-sodium chicken broth','2 cups mushrooms, sliced','4 tbsp fish sauce','juice of 2–4 limes','galangal or ginger, fresh cilantro'],
+   steps:['Simmer broth and coconut milk together over medium heat.','Add ginger/galangal and mushrooms; simmer 5 minutes.','Add chicken and cook until just done, about 5–6 minutes.','Stir in fish sauce and lime juice off the heat.','Garnish with fresh cilantro.']},
+  {category:'lunch', name:'Chicken Shoyu Ramen Bowl', ingredients:['12 cups low-sodium chicken broth','4 tbsp soy sauce','2 tbsp miso paste','4 chicken breasts, grilled and sliced','4 soft-boiled eggs','4 packs shirataki noodles, rinsed well','bok choy, mushrooms, green onion, nori'],
+   steps:['Simmer broth with soy sauce and miso for 10 minutes.','Add bok choy and mushrooms; simmer 5 minutes.','Divide rinsed shirataki noodles into bowls; ladle hot broth over.','Top with sliced chicken, a soft-boiled egg, green onion, and nori.']},
+  {category:'dinner', name:'Bone Broth Egg Drop Soup', ingredients:['12 cups low-sodium bone broth','6 eggs, whisked','2 tbsp fresh ginger, minced','4 cloves garlic, minced','green onion','soy sauce to taste','4 hard-boiled eggs, for serving'],
+   steps:['Simmer broth with ginger and garlic for 10 minutes.','Slowly drizzle whisked eggs into the simmering broth while gently stirring to form ribbons.','Season with a splash of soy sauce.','Top with sliced green onion; serve with a hard-boiled egg on the side.']},
+  {category:'dinner', name:'Pozole Rojo (Modified)', ingredients:['4 lbs bone-in chicken thighs','2 cans hominy, drained','8 dried guajillo chiles, seeded and soaked','4 cloves garlic','2 onions','oregano','cabbage, radish, and lime, for topping'],
+   steps:['Simmer chicken in water with onion and garlic until cooked through; shred the meat and reserve the broth.','Blend soaked chiles with a bit of broth, then strain into a smooth sauce.','Combine the chile sauce, reserved broth, shredded chicken, and hominy in the pot; simmer 20 minutes with oregano.','Serve topped with shredded cabbage, sliced radish, and lime.']},
+  {category:'dinner', name:'Miso Vegetable Ramen', ingredients:['12 cups vegetable or low-sodium chicken broth','6 tbsp white miso paste','2 blocks firm tofu, cubed','2 cups edamame','spinach, mushrooms','light portion shirataki or soba noodles','sesame oil'],
+   steps:['Warm the broth; once hot but not boiling, whisk in miso off direct heat to preserve its flavor and probiotics.','Add tofu, edamame, and mushrooms; simmer 5 minutes.','Wilt spinach in at the end.','Serve over a light portion of noodles with a drizzle of sesame oil.']},
+  {category:'dinner', name:'White Bean & Chicken Soup + Roasted Broccoli', ingredients:['4 cans cannellini beans, rinsed','4 chicken breasts, cooked and shredded','12 cups low-sodium chicken broth','4 cloves garlic','rosemary','kale','lemon zest','2 heads broccoli, for roasting'],
+   steps:['Sauté garlic in a pot; add broth, beans, shredded chicken, and rosemary.','Simmer 15–20 minutes.','Stir in kale until wilted; finish with lemon zest.','Meanwhile, toss broccoli florets in olive oil and roast at 425°F for 15 minutes; serve alongside.']}
+], es: [
+  {category:'lunch', name:'Sopa de Alubias Blancas y Pollo', ingredients:['4 latas de alubias blancas, enjuagadas','4 pechugas de pollo, cocidas y deshebradas','12 tazas de caldo de pollo bajo en sodio','4 dientes de ajo, picados','2 cdta de romero fresco','4 tazas de kale picado','ralladura de 2 limones'],
+   steps:['Saltea el ajo en una olla por 1 minuto.','Agrega el caldo, las alubias, el pollo deshebrado y el romero; deja hervir a fuego lento 15–20 minutos.','Incorpora el kale hasta que se marchite.','Termina con la ralladura de limón y sirve.']},
+  {category:'lunch', name:'Sopa Thai de Coco y Pollo (Tom Kha)', ingredients:['4 pechugas de pollo, en rebanadas delgadas','2 latas de leche de coco light','6 tazas de caldo de pollo bajo en sodio','2 tazas de champiñones en rebanadas','4 cdas de salsa de pescado','jugo de 2–4 limones','galanga o jengibre, cilantro fresco'],
+   steps:['Hierve el caldo y la leche de coco juntos a fuego medio.','Agrega el jengibre o galanga y los champiñones; deja hervir a fuego lento 5 minutos.','Agrega el pollo y cocina hasta que esté listo, unos 5–6 minutos.','Incorpora la salsa de pescado y el jugo de limón fuera del fuego.','Decora con cilantro fresco.']},
+  {category:'lunch', name:'Ramen de Pollo Shoyu', ingredients:['12 tazas de caldo de pollo bajo en sodio','4 cdas de salsa de soya','2 cdas de pasta de miso','4 pechugas de pollo, asadas y en rebanadas','4 huevos tibios','4 paquetes de fideos shirataki, bien enjuagados','bok choy, champiñones, cebollín, alga nori'],
+   steps:['Hierve el caldo con la salsa de soya y el miso a fuego lento por 10 minutos.','Agrega el bok choy y los champiñones; cocina 5 minutos.','Reparte los fideos shirataki enjuagados en los tazones; vierte el caldo caliente encima.','Corona con el pollo en rebanadas, un huevo tibio, cebollín y alga nori.']},
+  {category:'dinner', name:'Sopa de Huevo en Caldo de Hueso', ingredients:['12 tazas de caldo de hueso bajo en sodio','6 huevos, batidos','2 cdas de jengibre fresco, picado','4 dientes de ajo, picados','cebollín','salsa de soya al gusto','4 huevos cocidos, para servir'],
+   steps:['Hierve el caldo con el jengibre y el ajo a fuego lento por 10 minutos.','Vierte los huevos batidos poco a poco en el caldo hirviendo mientras revuelves suavemente para formar hebras.','Sazona con un poco de salsa de soya.','Decora con cebollín en rebanadas; sirve con un huevo cocido al lado.']},
+  {category:'dinner', name:'Pozole Rojo (Modificado)', ingredients:['4 lbs de muslo de pollo con hueso','2 latas de maíz pozolero, escurrido','8 chiles guajillo secos, sin semillas y remojados','4 dientes de ajo','2 cebollas','orégano','col, rábano y limón, para decorar'],
+   steps:['Hierve el pollo en agua con cebolla y ajo hasta que esté bien cocido; deshébralo y reserva el caldo.','Licúa los chiles remojados con un poco de caldo, luego cuela para obtener una salsa tersa.','Combina la salsa de chile, el caldo reservado, el pollo deshebrado y el maíz pozolero en la olla; deja hervir 20 minutos con el orégano.','Sirve con col picada, rábano en rebanadas y limón.']},
+  {category:'dinner', name:'Ramen de Verduras con Miso', ingredients:['12 tazas de caldo de verduras o de pollo bajo en sodio','6 cdas de pasta de miso blanco','2 bloques de tofu firme, en cubos','2 tazas de edamame','espinaca, champiñones','porción ligera de fideos shirataki o soba','aceite de ajonjolí'],
+   steps:['Calienta el caldo; cuando esté caliente pero sin hervir, incorpora el miso fuera del fuego directo para conservar su sabor y probióticos.','Agrega el tofu, el edamame y los champiñones; deja hervir 5 minutos.','Incorpora la espinaca al final hasta que se marchite.','Sirve sobre una porción ligera de fideos con un chorrito de aceite de ajonjolí.']},
+  {category:'dinner', name:'Sopa de Alubias Blancas y Pollo con Brócoli Rostizado', ingredients:['4 latas de alubias blancas, enjuagadas','4 pechugas de pollo, cocidas y deshebradas','12 tazas de caldo de pollo bajo en sodio','4 dientes de ajo','romero','kale','ralladura de limón','2 cabezas de brócoli, para rostizar'],
+   steps:['Saltea el ajo en una olla; agrega el caldo, las alubias, el pollo deshebrado y el romero.','Deja hervir a fuego lento 15–20 minutos.','Incorpora el kale hasta que se marchite; termina con la ralladura de limón.','Mientras tanto, mezcla los ramilletes de brócoli con aceite de oliva y rostiza a 220°C (425°F) por 15 minutos; sirve al lado.']}
+] };
+
 /* ============ STATE ============ */
 let habitState = {}; // in-memory only, resets on reload
 let workoutLog = {}; // {dayNum: true/false} — in-memory only, resets on reload
@@ -1466,6 +1519,15 @@ function renderRecipes(){
   document.getElementById('soupRows').innerHTML = SOUP_TABLE[LANG].map(s=>`<tr>
     <td style="font-weight:600">${s.soup}</td><td>${s.ingr}</td><td>${s.benefit}</td>
   </tr>`).join('');
+
+  const optLunch = document.getElementById('cardsOptionalLunch');
+  const optDinner = document.getElementById('cardsOptionalDinner');
+  optLunch.innerHTML = '';
+  optDinner.innerHTML = '';
+  OPTIONAL_RECIPES[LANG].forEach(r=>{
+    const target = r.category === 'lunch' ? optLunch : optDinner;
+    target.appendChild(buildRecipeCard(r.name, {ingredients:r.ingredients, steps:r.steps}, L));
+  });
 }
 
 /* ============ RENDER: SUPPLEMENTS ============ */
