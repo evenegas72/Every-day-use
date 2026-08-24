@@ -460,6 +460,7 @@
   <button data-tab="supplements" data-i18n="tabSupplements">Supplements</button>
   <button data-tab="milestones" data-i18n="tabMilestones">Milestones</button>
   <button data-tab="progress" data-i18n="tabProgress">Progress</button>
+  <button data-tab="groceries" data-i18n="tabGroceries">Groceries</button>
   <button data-tab="about" data-i18n="tabAbout">About</button>
 </nav>
 
@@ -637,6 +638,26 @@
     </section>
   </div>
 
+  <!-- GROCERIES -->
+  <div class="panel" id="panel-groceries">
+    <section class="card">
+      <h2 data-i18n="groceriesTitle">🛒 Weekly Grocery List</h2>
+      <p class="muted" data-i18n="groceriesDesc">Everything needed to cook that week's actual breakfasts, lunches, dinners, and snacks — grouped by aisle so it's easy to shop from.</p>
+
+      <div class="day-jump">
+        <button class="secondary" id="btnGroceryPrevWeek" data-i18n="weekPrev">← Prev week</button>
+        <span class="tag" id="groceryWeekLabel" style="font-size:13px; padding:6px 12px;">—</span>
+        <button class="secondary" id="btnGroceryNextWeek" data-i18n="weekNext">Next week →</button>
+      </div>
+
+      <div id="groceryLists" style="margin-top:14px;"></div>
+
+      <div class="callout" data-i18n="groceryNote" data-i18n-html>
+        Quantities are added together when the same ingredient uses the same unit across recipes that week. When it shows up in different units, each amount is listed separately.
+      </div>
+    </section>
+  </div>
+
   <!-- ABOUT -->
   <div class="panel" id="panel-about">
     <section class="card">
@@ -724,7 +745,7 @@ const UI = {
     heroTitle:'90-Day A1C Roadmap',
     heroSub:'Tonal + Kickr + Wahoo, alcohol step-down, and a rotating soup-forward meal plan — mapped to real dates from Aug 24 to Nov 21, 2026.',
     stripLabel1:'Aug 24 — Phase 1', stripLabel2:'Sep 23 — Phase 2', stripLabel3:'Oct 23 — Phase 3', stripLabel4:'Nov 21',
-    tabToday:'Today', tabCalendar:'Full Calendar', tabRecipes:'Recipes', tabSupplements:'Supplements', tabMilestones:'Milestones', tabProgress:'Progress', tabAbout:'About',
+    tabToday:'Today', tabCalendar:'Full Calendar', tabRecipes:'Recipes', tabSupplements:'Supplements', tabMilestones:'Milestones', tabProgress:'Progress', tabGroceries:'Groceries', tabAbout:'About',
     btnPrevDay:'← Prev day', btnGoDate:'Go', btnToday:'Jump to today', btnNextDay:'Next day →',
     labelWorkout:'Workout', labelAlcohol:'Alcohol Target This Week', labelBreakfast:'Breakfast', labelLunch:'Lunch', labelDinner:'Dinner', labelSnack:'Snack',
     viewRecipe:'View recipe →',
@@ -746,6 +767,11 @@ const UI = {
     persistNote:"<strong>Note on saving progress:</strong> this in-page tracker doesn't save between visits — it's here for a quick daily/weekly check-in. For real day-to-day tracking that survives across your whole 90 days, the most reliable options are printing the Weekly Habit Checklist from the roadmap document, or asking to have this tracker wired up to a small database (Firestore) since this site is already on Firebase.",
     statWorkouts:'Workouts Logged', statAdherence:'Adherence So Far', statStreak:'Day Streak',
     weekSummary:(done,total,week)=>`${done} of ${total} days logged this week (Week ${week})`,
+    groceriesTitle:'🛒 Weekly Grocery List',
+    groceriesDesc:"Everything needed to cook that week's actual breakfasts, lunches, dinners, and snacks — grouped by aisle so it's easy to shop from.",
+    weekPrev:'← Prev week', weekNext:'Next week →',
+    groceryNote:"Quantities are added together when the same ingredient uses the same unit across that week's recipes (e.g. two recipes both calling for chicken breasts by count). When it shows up in genuinely different units (like a count in one recipe and a weight in another), each amount is listed on its own line instead of guessing at a combined total. Optional swap-in recipes aren't included since they're not part of the actual weekly schedule.",
+    groceryCatProtein:'Protein', groceryCatProduce:'Produce', groceryCatDairy:'Dairy & Eggs', groceryCatPantry:'Pantry', groceryCatOther:'Other',
     soupTitle:'🍜 Soup Rotation — Reference',
     soupDesc:"Soups are one of the best blood-sugar management tools available: high volume, high protein, high fiber, and easy to batch-cook. Batch-cook 2 soups on Sunday — they refrigerate 4–5 days and form the backbone of the week's lunches and dinners.",
     soupSubtitle:'Top-rated for A1C impact',
@@ -787,7 +813,7 @@ const UI = {
     heroTitle:'Plan de 90 Días para el A1C',
     heroSub:'Tonal + Kickr + Wahoo, reducción gradual de alcohol y un plan de comidas rotativo basado en sopas — organizado con fechas reales del 24 de agosto al 21 de noviembre de 2026.',
     stripLabel1:'24 ago — Fase 1', stripLabel2:'23 sep — Fase 2', stripLabel3:'23 oct — Fase 3', stripLabel4:'21 nov',
-    tabToday:'Hoy', tabCalendar:'Calendario', tabRecipes:'Recetas', tabSupplements:'Suplementos', tabMilestones:'Hitos', tabProgress:'Progreso', tabAbout:'Acerca de',
+    tabToday:'Hoy', tabCalendar:'Calendario', tabRecipes:'Recetas', tabSupplements:'Suplementos', tabMilestones:'Hitos', tabProgress:'Progreso', tabGroceries:'Súper', tabAbout:'Acerca de',
     btnPrevDay:'← Día anterior', btnGoDate:'Ir', btnToday:'Hoy', btnNextDay:'Día siguiente →',
     labelWorkout:'Entrenamiento', labelAlcohol:'Meta de Alcohol Esta Semana', labelBreakfast:'Desayuno', labelLunch:'Almuerzo', labelDinner:'Cena', labelSnack:'Colación',
     viewRecipe:'Ver receta →',
@@ -809,6 +835,11 @@ const UI = {
     persistNote:'<strong>Nota sobre guardar el progreso:</strong> este registro dentro de la página no se guarda entre visitas — es para un chequeo rápido diario o semanal. Para un seguimiento real día a día que se mantenga durante tus 90 días, las opciones más confiables son imprimir la Lista Semanal de Hábitos del documento del plan, o pedir que este registro se conecte a una pequeña base de datos (Firestore), ya que este sitio ya está en Firebase.',
     statWorkouts:'Entrenamientos Registrados', statAdherence:'Adherencia hasta Ahora', statStreak:'Racha de Días',
     weekSummary:(done,total,week)=>`${done} de ${total} días registrados esta semana (Semana ${week})`,
+    groceriesTitle:'🛒 Lista de Compras Semanal',
+    groceriesDesc:'Todo lo necesario para cocinar los desayunos, almuerzos, cenas y colaciones reales de esa semana — agrupado por pasillo para que sea fácil comprar.',
+    weekPrev:'← Semana anterior', weekNext:'Semana siguiente →',
+    groceryNote:'Las cantidades se suman cuando el mismo ingrediente usa la misma unidad en las recetas de esa semana (por ejemplo, dos recetas que piden pechugas de pollo por pieza). Cuando aparece en unidades realmente distintas (por pieza en una receta y por peso en otra), cada cantidad se muestra en su propia línea en lugar de adivinar un total combinado. Las recetas opcionales no están incluidas porque no forman parte del calendario semanal real.',
+    groceryCatProtein:'Proteína', groceryCatProduce:'Frutas y Verduras', groceryCatDairy:'Lácteos y Huevo', groceryCatPantry:'Despensa', groceryCatOther:'Otros',
     soupTitle:'🍜 Rotación de Sopas — Referencia',
     soupDesc:'Las sopas son una de las mejores herramientas para controlar el azúcar en la sangre: gran volumen, alta en proteína, alta en fibra y fáciles de preparar en lote. Prepara 2 sopas el domingo — se conservan 4–5 días en el refrigerador y son la base de los almuerzos y cenas de la semana.',
     soupSubtitle:'Las mejor calificadas por su impacto en el A1C',
@@ -1187,6 +1218,301 @@ function mealsFor(idx0){
 }
 function slugify(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 
+/* ============ GROCERY LIST: ingredient parser + canonical dictionary ============
+   Parses each recipe's free-text ingredient lines into {qty, unit, canonical item}.
+   Quantities are summed across the week only when both the ingredient AND its unit
+   match (e.g. two "cups" entries add up). When the same ingredient appears in
+   genuinely incompatible units (a count vs. a weight), each is kept as its own
+   line rather than guessed into a combined total. */
+const GROCERY_UNITS_EN = {cup:'cup',cups:'cup',tbsp:'tbsp',tsp:'tsp',lb:'lb',lbs:'lb',oz:'oz',can:'can',cans:'can',
+  clove:'clove',cloves:'clove',slice:'slice',slices:'slice',head:'head',heads:'head',bunch:'bunch',bunches:'bunch',
+  block:'block',blocks:'block',pack:'pack',packs:'pack',package:'pack',packages:'pack',scoop:'scoop',scoops:'scoop',
+  square:'square',squares:'square'};
+const GROCERY_UNITS_ES = {taza:'cup',tazas:'cup',cda:'tbsp',cdas:'tbsp',cdta:'tsp',cdtas:'tsp',lb:'lb',lbs:'lb',oz:'oz',
+  lata:'can',latas:'can',diente:'clove',dientes:'clove',rebanada:'slice',rebanadas:'slice',cabeza:'head',cabezas:'head',
+  manojo:'bunch',manojos:'bunch',bloque:'block',bloques:'block',paquete:'pack',paquetes:'pack',medida:'scoop',
+  medidas:'scoop',cuadro:'square',cuadros:'square'};
+const GROCERY_UNIT_LABELS = {
+  en: {cup:'cups', tbsp:'tbsp', tsp:'tsp', lb:'lbs', oz:'oz', can:'cans', clove:'cloves', slice:'slices', head:'heads', bunch:'bunches', block:'blocks', pack:'packs', scoop:'scoops', square:'squares'},
+  es: {cup:'tazas', tbsp:'cdas', tsp:'cdtas', lb:'lbs', oz:'oz', can:'latas', clove:'dientes', slice:'rebanadas', head:'cabezas', bunch:'manojos', block:'bloques', pack:'paquetes', scoop:'medidas', square:'cuadros'}
+};
+
+function parseLeadingQty(s){
+  s = s.trim();
+  let m;
+  if(m = s.match(/^(\d+)\s+(\d+)\/(\d+)\s*(.*)$/)) return {qty: Number(m[1]) + Number(m[2])/Number(m[3]), rest: m[4]};
+  if(m = s.match(/^(\d+)\/(\d+)\s*(.*)$/)) return {qty: Number(m[1])/Number(m[2]), rest: m[3]};
+  if(m = s.match(/^(\d+(?:\.\d+)?)(?:\s*[–-]\s*(\d+(?:\.\d+)?))?\s*(.*)$/)){
+    const a = Number(m[1]); const b = m[2]!==undefined ? Number(m[2]) : a;
+    return {qty: Math.max(a,b), rest: m[3]};
+  }
+  return null;
+}
+function groceryPreprocess(str){
+  let s = str.split(/\s+(?:or|o)\s+/i)[0];
+  s = s.replace(/\(\s*$/, '').trim();
+  return s;
+}
+function parseIngredient(str, lang){
+  const cleaned = groceryPreprocess(str);
+  const parsed = parseLeadingQty(cleaned);
+  if(!parsed) return {qty:null, unit:null, rest: cleaned.trim()};
+  let rest = parsed.rest.trim();
+  const units = lang==='es' ? GROCERY_UNITS_ES : GROCERY_UNITS_EN;
+  const firstWordMatch = rest.match(/^([a-záéíóúñ%]+)\.?\s*(.*)$/i);
+  if(firstWordMatch){
+    const w = firstWordMatch[1].toLowerCase();
+    if(units[w]){
+      let remainder = firstWordMatch[2];
+      remainder = remainder.replace(/^de\s+/i, '');
+      return {qty: parsed.qty, unit: units[w], rest: remainder.trim()};
+    }
+  }
+  return {qty: parsed.qty, unit: 'count', rest: rest};
+}
+
+const GROCERY_DICT = [
+  // Compound/blend phrases MUST be checked before their component single words below
+  // (e.g. "fajita seasoning (...garlic powder)" must match fajita_seasoning, not garlic;
+  // "mixed vegetables (zucchini, pepper, broccoli)" must match mixed_vegetables, not broccoli).
+  {key:'mixed_vegetables', en:'Mixed vegetables (see recipe for exact mix)', es:'Verduras mixtas (ver receta para la mezcla exacta)', category:'produce', matchEn:['mixed vegetables'], matchEs:['verduras mixtas']},
+  {key:'fajita_seasoning', en:'Fajita seasoning', es:'Sazonador para fajitas', category:'pantry', matchEn:['fajita seasoning'], matchEs:['sazonador para fajitas']},
+  {key:'taco_seasoning', en:'Taco seasoning', es:'Sazonador para tacos', category:'pantry', matchEn:['taco seasoning'], matchEs:['sazonador para tacos']},
+  {key:'curry_powder', en:'Curry powder', es:'Curry en polvo', category:'other', matchEn:['curry powder'], matchEs:['curry en polvo']},
+  {key:'italian_seasoning', en:'Italian seasoning', es:'Sazonador italiano', category:'other', matchEn:['italian seasoning'], matchEs:['sazonador italiano']},
+  {key:'garlic_powder', en:'Garlic powder', es:'Ajo en polvo', category:'other', matchEn:['garlic powder'], matchEs:['ajo en polvo']},
+  {key:'chili_powder', en:'Chili powder', es:'Chile en polvo', category:'other', matchEn:['chili powder'], matchEs:['chile en polvo']},
+  {key:'pepper_flakes', en:'Red pepper flakes', es:'Hojuelas de chile', category:'other', matchEn:['pepper flakes'], matchEs:['hojuelas de chile']},
+  {key:'smoked_paprika', en:'Smoked paprika', es:'Paprika ahumada', category:'other', matchEn:['smoked paprika'], matchEs:['paprika ahumada']},
+
+  {key:'chicken_breast', en:'Chicken breast', es:'Pechuga de pollo', category:'protein', matchEn:['chicken breast'], matchEs:['pechuga']},
+  {key:'chicken_thigh', en:'Chicken thighs', es:'Muslos de pollo', category:'protein', matchEn:['chicken thigh'], matchEs:['muslo']},
+  {key:'whole_chicken', en:'Whole/rotisserie chicken', es:'Pollo entero / rostizado', category:'protein', matchEn:['whole chicken','rotisserie chicken'], matchEs:['pollo entero','pollo rostizado']},
+  {key:'ground_turkey', en:'Ground turkey', es:'Pavo molido', category:'protein', matchEn:['ground turkey'], matchEs:['pavo molido']},
+  {key:'turkey_sausage', en:'Turkey breakfast sausage', es:'Salchicha de pavo', category:'protein', matchEn:['turkey breakfast sausage','turkey sausage'], matchEs:['salchicha de pavo']},
+  {key:'deli_turkey', en:'Deli turkey', es:'Pechuga de pavo en rebanadas', category:'protein', matchEn:['deli turkey'], matchEs:['pavo en rebanadas','pechuga de pavo en rebanadas']},
+  {key:'ground_beef', en:'Ground beef', es:'Carne molida de res', category:'protein', matchEn:['ground beef'], matchEs:['carne molida de res']},
+  {key:'flank_steak', en:'Flank steak', es:'Bistec de arrachera', category:'protein', matchEn:['flank steak'], matchEs:['arrachera']},
+  {key:'beef_stew_meat', en:'Beef stew meat', es:'Carne de res para guisar', category:'protein', matchEn:['beef stew meat'], matchEs:['carne de res para guisar']},
+  {key:'pork_tenderloin', en:'Pork tenderloin', es:'Lomo de cerdo', category:'protein', matchEn:['pork tenderloin'], matchEs:['lomo de cerdo']},
+  {key:'pork_shoulder', en:'Pork shoulder / carnitas', es:'Paleta de cerdo / carnitas', category:'protein', matchEn:['pork shoulder','pork carnitas'], matchEs:['paleta de cerdo','carnitas de cerdo']},
+  {key:'pork_chops', en:'Pork chops', es:'Chuletas de cerdo', category:'protein', matchEn:['pork chop'], matchEs:['chuleta']},
+  {key:'shrimp', en:'Shrimp', es:'Camarón', category:'protein', matchEn:['shrimp'], matchEs:['camarón','camarones']},
+  {key:'salmon', en:'Salmon fillets', es:'Filetes de salmón', category:'protein', matchEn:['salmon fillet'], matchEs:['filete de salmón','filetes de salmón']},
+  {key:'smoked_salmon', en:'Smoked salmon', es:'Salmón ahumado', category:'protein', matchEn:['smoked salmon'], matchEs:['salmón ahumado']},
+  {key:'tilapia', en:'Tilapia fillets', es:'Filetes de tilapia', category:'protein', matchEn:['tilapia'], matchEs:['tilapia']},
+  {key:'tuna', en:'Canned tuna', es:'Atún enlatado', category:'protein', matchEn:['tuna'], matchEs:['atún']},
+  {key:'eggs', en:'Eggs', es:'Huevos', category:'protein', matchEn:['egg'], matchEs:['huevo']},
+  {key:'egg_whites', en:'Egg whites', es:'Claras de huevo', category:'protein', matchEn:['egg white'], matchEs:['clara de huevo']},
+  {key:'tofu', en:'Firm tofu', es:'Tofu firme', category:'protein', matchEn:['tofu'], matchEs:['tofu']},
+
+  {key:'greek_yogurt', en:'Greek yogurt', es:'Yogur griego', category:'dairy', matchEn:['greek yogurt'], matchEs:['yogur griego']},
+  {key:'cottage_cheese', en:'Cottage cheese', es:'Queso cottage', category:'dairy', matchEn:['cottage cheese'], matchEs:['queso cottage']},
+  {key:'feta', en:'Feta cheese', es:'Queso feta', category:'dairy', matchEn:['feta'], matchEs:['queso feta']},
+  {key:'parmesan', en:'Parmesan cheese', es:'Queso parmesano', category:'dairy', matchEn:['parmesan'], matchEs:['parmesano']},
+  {key:'string_cheese', en:'String cheese', es:'Queso en hebras', category:'dairy', matchEn:['string cheese'], matchEs:['en hebras']},
+  {key:'shredded_cheese', en:'Shredded cheese', es:'Queso rallado', category:'dairy', matchEn:['shredded cheese'], matchEs:['queso rallado']},
+  {key:'almond_milk', en:'Almond milk', es:'Leche de almendra', category:'dairy', matchEn:['almond milk'], matchEs:['leche de almendra']},
+  {key:'coconut_milk', en:'Coconut milk', es:'Leche de coco', category:'dairy', matchEn:['coconut milk'], matchEs:['leche de coco']},
+
+  {key:'spinach', en:'Spinach', es:'Espinaca', category:'produce', matchEn:['spinach'], matchEs:['espinaca']},
+  {key:'kale', en:'Kale', es:'Kale', category:'produce', matchEn:['kale'], matchEs:['kale']},
+  {key:'romaine', en:'Romaine lettuce', es:'Lechuga romana', category:'produce', matchEn:['romaine'], matchEs:['romana']},
+  {key:'mixed_greens', en:'Mixed greens', es:'Lechugas / verduras mixtas', category:'produce', matchEn:['mixed greens'], matchEs:['lechugas mixtas','verduras de hoja mixtas']},
+  {key:'lettuce', en:'Lettuce leaves', es:'Hojas de lechuga', category:'produce', matchEn:['lettuce'], matchEs:['lechuga']},
+  {key:'avocado', en:'Avocado', es:'Aguacate', category:'produce', matchEn:['avocado'], matchEs:['aguacate']},
+  {key:'cherry_tomato', en:'Cherry tomatoes', es:'Jitomates cherry', category:'produce', matchEn:['cherry tomato'], matchEs:['cherry']},
+  {key:'tomato', en:'Tomatoes', es:'Jitomate', category:'produce', matchEn:['tomato'], matchEs:['jitomate','tomate']},
+  {key:'red_onion', en:'Red onion', es:'Cebolla morada', category:'produce', matchEn:['red onion'], matchEs:['cebolla morada']},
+  {key:'onion', en:'Onion', es:'Cebolla', category:'produce', matchEn:['onion'], matchEs:['cebolla']},
+  {key:'garlic', en:'Garlic', es:'Ajo', category:'produce', matchEn:['garlic'], matchEs:['ajo']},
+  {key:'ginger', en:'Fresh ginger', es:'Jengibre fresco', category:'produce', matchEn:['ginger','galangal'], matchEs:['jengibre','galanga']},
+  {key:'bell_pepper', en:'Bell peppers', es:'Pimientos', category:'produce', matchEn:['bell pepper','peppers'], matchEs:['pimiento']},
+  {key:'zucchini', en:'Zucchini', es:'Calabacita', category:'produce', matchEn:['zucchini'], matchEs:['calabacita']},
+  {key:'broccoli', en:'Broccoli', es:'Brócoli', category:'produce', matchEn:['broccoli'], matchEs:['brócoli']},
+  {key:'cauliflower', en:'Cauliflower', es:'Coliflor', category:'produce', matchEn:['cauliflower'], matchEs:['coliflor']},
+  {key:'carrot', en:'Carrots', es:'Zanahoria', category:'produce', matchEn:['carrot'], matchEs:['zanahoria']},
+  {key:'celery', en:'Celery', es:'Apio', category:'produce', matchEn:['celery'], matchEs:['apio']},
+  {key:'cucumber', en:'Cucumber', es:'Pepino', category:'produce', matchEn:['cucumber'], matchEs:['pepino']},
+  {key:'brussels', en:'Brussels sprouts', es:'Coles de Bruselas', category:'produce', matchEn:['brussels sprout'], matchEs:['coles de bruselas']},
+  {key:'cabbage', en:'Cabbage', es:'Col', category:'produce', matchEn:['cabbage'], matchEs:['col rallada','de col','col']},
+  {key:'mushroom', en:'Mushrooms', es:'Champiñones', category:'produce', matchEn:['mushroom'], matchEs:['champiñ']},
+  {key:'asparagus', en:'Asparagus', es:'Espárragos', category:'produce', matchEn:['asparagus'], matchEs:['espárrago']},
+  {key:'green_beans', en:'Green beans', es:'Ejotes', category:'produce', matchEn:['green bean'], matchEs:['ejote']},
+  {key:'corn', en:'Corn (fresh/frozen)', es:'Elote', category:'produce', matchEn:['corn, fresh','corn (fresh'], matchEs:['elote']},
+  {key:'lime', en:'Limes', es:'Limón (lima)', category:'produce', matchEn:['lime'], matchEs:['limón','limones']},
+  {key:'lemon', en:'Lemon', es:'Limón amarillo', category:'produce', matchEn:['lemon'], matchEs:['limón amarillo']},
+  {key:'orange', en:'Orange', es:'Naranja', category:'produce', matchEn:['orange'], matchEs:['naranja']},
+  {key:'cilantro', en:'Cilantro', es:'Cilantro', category:'produce', matchEn:['cilantro'], matchEs:['cilantro']},
+  {key:'parsley', en:'Parsley', es:'Perejil', category:'produce', matchEn:['parsley'], matchEs:['perejil']},
+  {key:'apple', en:'Apples', es:'Manzanas', category:'produce', matchEn:['apple'], matchEs:['manzana']},
+  {key:'banana', en:'Bananas', es:'Plátanos', category:'produce', matchEn:['banana'], matchEs:['plátano']},
+  {key:'peach', en:'Peaches', es:'Duraznos', category:'produce', matchEn:['peach'], matchEs:['durazno']},
+  {key:'berries', en:'Mixed berries', es:'Moras mixtas', category:'produce', matchEn:['berries','berry'], matchEs:['mora']},
+  {key:'jalapeno', en:'Jalapeños', es:'Jalapeños', category:'produce', matchEn:['jalapeno','jalapeño'], matchEs:['jalapeño']},
+  {key:'portobello', en:'Portobello mushroom caps', es:'Champiñones portobello', category:'produce', matchEn:['portobello'], matchEs:['portobello']},
+  {key:'edamame', en:'Edamame', es:'Edamame', category:'produce', matchEn:['edamame'], matchEs:['edamame']},
+  {key:'snap_peas', en:'Snap peas', es:'Chícharo chino', category:'produce', matchEn:['snap pea'], matchEs:['chícharo chino']},
+  {key:'peas_carrots', en:'Frozen peas & carrots', es:'Chícharos y zanahoria congelados', category:'produce', matchEn:['peas and carrot'], matchEs:['chícharos y zanahoria']},
+  {key:'guajillo', en:'Guajillo chiles', es:'Chiles guajillo', category:'produce', matchEn:['guajillo'], matchEs:['guajillo']},
+  {key:'chayote', en:'Chayote', es:'Chayote', category:'produce', matchEn:['chayote'], matchEs:['chayote']},
+  {key:'radish', en:'Radish', es:'Rábano', category:'produce', matchEn:['radish'], matchEs:['rábano']},
+  {key:'green_onion', en:'Green onion', es:'Cebollín', category:'produce', matchEn:['green onion'], matchEs:['cebollin','cebollín']},
+  {key:'fruit_choice', en:'Fruit (your choice)', es:'Fruta (a tu gusto)', category:'produce', matchEn:['fruit of choice'], matchEs:['fruta al gusto']},
+  {key:'bok_choy', en:'Bok choy', es:'Bok choy', category:'produce', matchEn:['bok choy'], matchEs:['bok choy']},
+
+  {key:'black_beans', en:'Black beans (canned)', es:'Frijol negro (lata)', category:'pantry', matchEn:['black bean'], matchEs:['frijol negro']},
+  {key:'kidney_beans', en:'Kidney beans (canned)', es:'Frijol rojo (lata)', category:'pantry', matchEn:['kidney bean'], matchEs:['frijol rojo']},
+  {key:'white_beans', en:'White/cannellini beans (canned)', es:'Alubias blancas (lata)', category:'pantry', matchEn:['white bean','cannellini'], matchEs:['alubias blancas']},
+  {key:'chickpeas', en:'Chickpeas (canned)', es:'Garbanzos (lata)', category:'pantry', matchEn:['chickpea'], matchEs:['garbanzo']},
+  {key:'hominy', en:'Hominy (canned)', es:'Maíz pozolero (lata)', category:'pantry', matchEn:['hominy'], matchEs:['maíz pozolero']},
+  {key:'lentils', en:'Lentils (dried)', es:'Lentejas (secas)', category:'pantry', matchEn:['lentil','dried green'], matchEs:['lentejas']},
+  {key:'quinoa', en:'Quinoa', es:'Quinoa', category:'pantry', matchEn:['quinoa'], matchEs:['quinoa']},
+  {key:'brown_rice', en:'Brown rice', es:'Arroz integral', category:'pantry', matchEn:['brown rice'], matchEs:['arroz integral']},
+  {key:'cauliflower_rice', en:'Cauliflower rice', es:'Arroz de coliflor', category:'pantry', matchEn:['cauliflower rice'], matchEs:['arroz de coliflor']},
+  {key:'chickpea_pasta', en:'Chickpea pasta', es:'Pasta de garbanzo', category:'pantry', matchEn:['chickpea pasta'], matchEs:['pasta de garbanzo']},
+  {key:'oat_flour', en:'Oat flour', es:'Harina de avena', category:'pantry', matchEn:['oat flour'], matchEs:['harina de avena']},
+  {key:'rolled_oats', en:'Rolled oats', es:'Avena en hojuelas', category:'pantry', matchEn:['rolled oats'], matchEs:['avena en hojuelas']},
+  {key:'corn_tortillas', en:'Corn tortillas', es:'Tortillas de maíz', category:'pantry', matchEn:['corn tortilla','tortilla strip'], matchEs:['tortilla']},
+  {key:'bread', en:'Whole grain bread', es:'Pan integral', category:'pantry', matchEn:['whole grain bread'], matchEs:['pan integral']},
+  {key:'breadcrumbs', en:'Breadcrumbs', es:'Pan molido', category:'pantry', matchEn:['breadcrumb'], matchEs:['pan molido']},
+  {key:'shirataki', en:'Shirataki/soba noodles', es:'Fideos shirataki/soba', category:'pantry', matchEn:['shirataki','soba'], matchEs:['shirataki','soba']},
+  {key:'granola', en:'Low-sugar granola', es:'Granola baja en azúcar', category:'pantry', matchEn:['granola'], matchEs:['granola']},
+  {key:'chia', en:'Chia seeds', es:'Semillas de chía', category:'pantry', matchEn:['chia'], matchEs:['chía']},
+  {key:'flaxseed', en:'Ground flaxseed', es:'Linaza molida', category:'pantry', matchEn:['flaxseed'], matchEs:['linaza']},
+  {key:'almond_butter', en:'Almond butter', es:'Crema de almendra', category:'pantry', matchEn:['almond butter'], matchEs:['crema de almendra']},
+  {key:'almond_flour', en:'Almond flour', es:'Harina de almendra', category:'pantry', matchEn:['almond flour'], matchEs:['harina de almendra']},
+  {key:'walnuts', en:'Walnuts', es:'Nueces', category:'pantry', matchEn:['walnut'], matchEs:['nuez','nueces']},
+  {key:'almonds', en:'Almonds', es:'Almendras', category:'pantry', matchEn:['almond'], matchEs:['almendra']},
+  {key:'mixed_nuts', en:'Mixed nuts', es:'Frutos secos mixtos', category:'pantry', matchEn:['mixed nuts'], matchEs:['frutos secos mixtos']},
+  {key:'dark_chocolate', en:'Dark chocolate (85%+)', es:'Chocolate oscuro (85%+)', category:'pantry', matchEn:['dark chocolate'], matchEs:['chocolate oscuro']},
+  {key:'pumpkin_seeds', en:'Pumpkin seeds', es:'Semillas de calabaza', category:'pantry', matchEn:['pumpkin seed'], matchEs:['semillas de calabaza']},
+  {key:'protein_powder', en:'Protein powder', es:'Proteína en polvo', category:'pantry', matchEn:['protein powder'], matchEs:['proteína en polvo']},
+  {key:'baking_powder', en:'Baking powder', es:'Polvo para hornear', category:'pantry', matchEn:['baking powder'], matchEs:['polvo para hornear']},
+  {key:'marinara', en:'Low-sugar marinara sauce', es:'Salsa marinara baja en azúcar', category:'pantry', matchEn:['marinara'], matchEs:['marinara']},
+  {key:'hummus', en:'Hummus', es:'Hummus', category:'pantry', matchEn:['hummus'], matchEs:['hummus']},
+  {key:'olive_oil', en:'Olive oil', es:'Aceite de oliva', category:'pantry', matchEn:['olive oil'], matchEs:['aceite de oliva']},
+  {key:'sesame_oil', en:'Sesame oil', es:'Aceite de ajonjolí', category:'pantry', matchEn:['sesame oil'], matchEs:['aceite de ajonjolí']},
+  {key:'cooking_oil', en:'Cooking oil', es:'Aceite para cocinar', category:'pantry', matchEn:['cooking oil'], matchEs:['aceite para cocinar']},
+  {key:'soy_sauce', en:'Soy sauce', es:'Salsa de soya', category:'pantry', matchEn:['soy sauce'], matchEs:['salsa de soya']},
+  {key:'fish_sauce', en:'Fish sauce', es:'Salsa de pescado', category:'pantry', matchEn:['fish sauce'], matchEs:['salsa de pescado']},
+  {key:'rice_vinegar', en:'Rice vinegar', es:'Vinagre de arroz', category:'pantry', matchEn:['rice vinegar'], matchEs:['vinagre de arroz']},
+  {key:'cider_vinegar', en:'Apple cider vinegar', es:'Vinagre de manzana', category:'pantry', matchEn:['apple cider vinegar'], matchEs:['vinagre de manzana']},
+  {key:'wine_vinegar', en:'Red wine vinegar', es:'Vinagre de vino tinto', category:'pantry', matchEn:['red wine vinegar'], matchEs:['vinagre de vino tinto']},
+  {key:'cornstarch', en:'Cornstarch', es:'Maicena', category:'pantry', matchEn:['cornstarch'], matchEs:['maicena']},
+  {key:'honey', en:'Honey', es:'Miel', category:'pantry', matchEn:['honey'], matchEs:['miel']},
+  {key:'vanilla', en:'Vanilla extract', es:'Extracto de vainilla', category:'pantry', matchEn:['vanilla'], matchEs:['vainilla']},
+  {key:'miso', en:'Miso paste', es:'Pasta de miso', category:'pantry', matchEn:['miso'], matchEs:['miso']},
+  {key:'broth_chicken', en:'Chicken broth', es:'Caldo de pollo', category:'pantry', matchEn:['chicken broth','caldo de pollo'], matchEs:['caldo de pollo']},
+  {key:'broth_beef', en:'Beef broth', es:'Caldo de res', category:'pantry', matchEn:['beef broth'], matchEs:['caldo de res']},
+  {key:'broth_veg', en:'Vegetable broth', es:'Caldo de verduras', category:'pantry', matchEn:['vegetable broth','vegetable'], matchEs:['caldo de verduras']},
+  {key:'broth_bone', en:'Bone broth', es:'Caldo de hueso', category:'pantry', matchEn:['bone broth'], matchEs:['caldo de hueso']},
+  {key:'broth_generic', en:'Low-sodium broth', es:'Caldo bajo en sodio', category:'pantry', matchEn:['broth','water'], matchEs:['caldo bajo en sodio','agua o caldo','agua']},
+  {key:'lentil_soup_leftover', en:'Leftover Lentil & Turmeric Soup', es:'Sopa de lentejas y cúrcuma del día anterior', category:'pantry', matchEn:['leftover lentil'], matchEs:['sopa de lentejas']},
+  {key:'tomato_paste', en:'Tomato paste', es:'Puré de tomate', category:'pantry', matchEn:['tomato paste'], matchEs:['puré de tomate']},
+  {key:'croutons', en:'Croutons', es:'Crutones', category:'pantry', matchEn:['crouton'], matchEs:['crutones']},
+  {key:'caesar_dressing', en:'Caesar dressing', es:'Aderezo César', category:'pantry', matchEn:['caesar dressing'], matchEs:['aderezo césar']},
+  {key:'barbecue_sauce', en:'Barbecue sauce', es:'Salsa barbecue', category:'pantry', matchEn:['barbecue sauce'], matchEs:['barbecue']},
+  {key:'salsa', en:'Salsa', es:'Salsa', category:'pantry', matchEn:['salsa'], matchEs:['salsa']},
+  {key:'kalamata', en:'Kalamata olives', es:'Aceitunas kalamata', category:'pantry', matchEn:['kalamata'], matchEs:['kalamata']},
+  {key:'nori', en:'Nori', es:'Alga nori', category:'pantry', matchEn:['nori'], matchEs:['nori']},
+
+  {key:'salt_pepper', en:'Salt & pepper', es:'Sal y pimienta', category:'other', matchEn:['salt and pepper','salt, pepper','pinch of salt','black pepper','sea salt','salt','pepper'], matchEs:['sal y pimienta','sal, pimienta','pizca de sal','pimienta negra','sal de mar','sal','pimienta']},
+  {key:'cumin', en:'Cumin', es:'Comino', category:'other', matchEn:['cumin'], matchEs:['comino']},
+  {key:'paprika', en:'Paprika', es:'Paprika', category:'other', matchEn:['paprika'], matchEs:['paprika']},
+  {key:'cinnamon', en:'Cinnamon', es:'Canela', category:'other', matchEn:['cinnamon'], matchEs:['canela']},
+  {key:'turmeric', en:'Turmeric', es:'Cúrcuma', category:'other', matchEn:['turmeric'], matchEs:['cúrcuma']},
+  {key:'oregano', en:'Oregano', es:'Orégano', category:'other', matchEn:['oregano'], matchEs:['orégano']},
+  {key:'rosemary', en:'Rosemary', es:'Romero', category:'other', matchEn:['rosemary'], matchEs:['romero']},
+  {key:'thyme', en:'Thyme', es:'Tomillo', category:'other', matchEn:['thyme'], matchEs:['tomillo']},
+  {key:'bay_leaf', en:'Bay leaf', es:'Hoja de laurel', category:'other', matchEn:['bay leaf'], matchEs:['hoja de laurel']},
+  {key:'cooking_spray', en:'Cooking spray', es:'Aceite en spray', category:'other', matchEn:['cooking spray'], matchEs:['aceite en spray']},
+  {key:'capers', en:'Capers', es:'Alcaparras', category:'other', matchEn:['caper'], matchEs:['alcaparra']},
+  {key:'dill_mint', en:'Fresh dill & mint', es:'Eneldo y menta frescos', category:'other', matchEn:['dill and mint'], matchEs:['eneldo y menta']},
+  {key:'mustard', en:'Mustard', es:'Mostaza', category:'other', matchEn:['mustard'], matchEs:['mostaza']},
+  {key:'ice', en:'Ice', es:'Hielo', category:'other', matchEn:['ice as needed'], matchEs:['hielo al gusto']},
+];
+
+function groceryCanonicalize(text, lang){
+  const t = text.toLowerCase();
+  const field = lang==='es' ? 'matchEs' : 'matchEn';
+  for(const entry of GROCERY_DICT){
+    for(const kw of entry[field]){
+      if(t.includes(kw.toLowerCase())) return entry;
+    }
+  }
+  return null;
+}
+
+const GROCERY_NOISE_RE = /^(for|para)\b|^(to taste|al gusto|optional\)?|opcional\)?|if needed|si es necesario|halved|sliced|diced|chopped|minced|drained|rinsed|trimmed|shredded|cubed|quartered|small amount\)?|partidos? a la mitad|en cubos|en rebanadas|picado|picada|rallado|rallada|deshebrado|deshebrada)$/i;
+const GROCERY_PREP_WORD_RE = /^(and|y)\s+(.*)$/i;
+
+// Resolves one raw ingredient line into 1+ {entry, qty, unit} results — usually 1,
+// but multiple for comma-separated garnish/staple lines with no leading quantity
+// (e.g. "cilantro, avocado, baked tortilla strips" -> 3 separate items).
+function resolveIngredientLine(str, lang){
+  const p = parseIngredient(str, lang);
+  if(p.qty !== null){
+    const c = groceryCanonicalize(p.rest, lang);
+    return [{entry:c, qty:p.qty, unit:p.unit, raw:p.rest}];
+  }
+  const segments = p.rest.split(',').map(s=>s.trim()).filter(Boolean);
+  const out = [];
+  segments.forEach(seg=>{
+    if(GROCERY_NOISE_RE.test(seg)) return;
+    const m = seg.match(GROCERY_PREP_WORD_RE);
+    if(m) seg = m[2];
+    out.push({entry: groceryCanonicalize(seg, lang), qty:null, unit:null, raw:seg});
+  });
+  return out;
+}
+
+function formatGroceryQty(q){
+  if(Math.abs(q - Math.round(q)) < 0.01) return String(Math.round(q));
+  const whole = Math.floor(q);
+  const frac = q - whole;
+  const fracMap = [[0.25,'¼'],[0.333,'⅓'],[0.5,'½'],[0.667,'⅔'],[0.75,'¾']];
+  for(const [v,sym] of fracMap){
+    if(Math.abs(frac-v)<0.06) return (whole>0 ? whole+' ' : '') + sym;
+  }
+  return String(Math.round(q*100)/100);
+}
+
+// Aggregates every ingredient across the 7 days of the given week (1-13) into
+// canonical items grouped by grocery-aisle category, summing quantities that
+// share the same unit and keeping mismatched units as separate lines.
+function groceryListForWeek(weekNum){
+  const M = MEAL_NAMES[LANG];
+  const D = RECIPE_DETAILS[LANG];
+  const totals = new Map(); // canonicalKey -> {entry, units: Map(unit->qty)}
+  const otherRaw = new Set();
+  const startDay = (weekNum-1)*7+1;
+  for(let i=0;i<7;i++){
+    const dn = startDay+i;
+    if(dn>90) break;
+    const idx = mealIndices(dn-1, M);
+    ['breakfast','lunch','dinner','snack'].forEach(cat=>{
+      const recipe = D[cat][idx[cat]];
+      recipe.ingredients.forEach(line=>{
+        resolveIngredientLine(line, LANG).forEach(r=>{
+          if(!r.entry){ otherRaw.add(r.raw); return; }
+          if(!totals.has(r.entry.key)) totals.set(r.entry.key, {entry:r.entry, units:new Map()});
+          const rec = totals.get(r.entry.key);
+          const unitKey = r.qty===null ? '__none__' : r.unit;
+          rec.units.set(unitKey, (rec.units.get(unitKey)||0) + (r.qty||0));
+        });
+      });
+    });
+  }
+  const byCategory = {protein:[], produce:[], dairy:[], pantry:[], other:[]};
+  totals.forEach(rec=>{
+    if(rec.units.size>1 && rec.units.has('__none__')) rec.units.delete('__none__');
+    byCategory[rec.entry.category].push(rec);
+  });
+  Object.keys(byCategory).forEach(c=> byCategory[c].sort((a,b)=> a.entry[LANG].localeCompare(b.entry[LANG])));
+  return {byCategory, otherRaw:[...otherRaw].sort()};
+}
+
 const HABITS = [
   {key:'tonal', en:'🏋️ Tonal / Wahoo / Kickr session completed', es:'🏋️ Sesión de Tonal / Wahoo / Kickr completada'},
   {key:'alcohol', en:'🍺 Alcohol within weekly target', es:'🍺 Alcohol dentro de la meta semanal'},
@@ -1324,8 +1650,11 @@ const OPTIONAL_RECIPES = { en: [
 let habitState = {}; // in-memory only, resets on reload
 let workoutLog = {}; // {dayNum: true/false} — in-memory only, resets on reload
 let selectedDayNum = clampDay(dayNumForDate(new Date()));
+let groceryChecked = {}; // in-memory only, resets on reload
 
 function clampDay(n){ return Math.max(1, Math.min(90, n)); }
+function clampWeek(n){ return Math.max(1, Math.min(13, n)); }
+let groceryWeekNum = clampWeek(Math.floor((clampDay(dayNumForDate(new Date()))-1)/7)+1);
 
 /* ============ RENDER: HERO ============ */
 function renderHero(){
@@ -1668,6 +1997,80 @@ function renderProgress(){
   }
 }
 
+/* ============ RENDER: GROCERY LIST ============ */
+function renderGroceries(){
+  const L = UI[LANG];
+  groceryWeekNum = clampWeek(groceryWeekNum);
+  const startDay = (groceryWeekNum-1)*7+1;
+  const endDay = Math.min(startDay+6, 90);
+  document.getElementById('groceryWeekLabel').textContent =
+    `${L.weekLabel} ${groceryWeekNum} · ${fmtShort(dateForDay(startDay))} – ${fmtShort(dateForDay(endDay))}`;
+  document.getElementById('btnGroceryPrevWeek').disabled = groceryWeekNum<=1;
+  document.getElementById('btnGroceryNextWeek').disabled = groceryWeekNum>=13;
+
+  const {byCategory, otherRaw} = groceryListForWeek(groceryWeekNum);
+  const catOrder = ['protein','produce','dairy','pantry','other'];
+  const catLabelKey = {protein:'groceryCatProtein', produce:'groceryCatProduce', dairy:'groceryCatDairy', pantry:'groceryCatPantry', other:'groceryCatOther'};
+
+  const container = document.getElementById('groceryLists');
+  container.innerHTML = '';
+  const addRow = (labelText, lineId, disabled)=>{
+    const row = document.createElement('div');
+    row.className = 'habit-row';
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    if(disabled){
+      cb.disabled = true;
+    } else {
+      cb.checked = !!groceryChecked[lineId];
+      cb.addEventListener('change', ()=>{ groceryChecked[lineId] = cb.checked; });
+    }
+    const span = document.createElement('span');
+    span.textContent = labelText;
+    label.appendChild(cb);
+    label.appendChild(span);
+    row.appendChild(label);
+    container.appendChild(row);
+  };
+
+  let any = false;
+  catOrder.forEach(cat=>{
+    const items = byCategory[cat];
+    if(!items.length) return;
+    any = true;
+    const h3 = document.createElement('h3');
+    h3.textContent = L[catLabelKey[cat]];
+    container.appendChild(h3);
+    items.forEach(rec=>{
+      rec.units.forEach((qty, unit)=>{
+        const lineId = groceryWeekNum+'|'+rec.entry.key+'|'+unit;
+        if(unit==='__none__'){
+          addRow(rec.entry[LANG], lineId, false);
+        } else {
+          const unitLabel = unit==='count' ? '' : (GROCERY_UNIT_LABELS[LANG][unit] || unit) + ' ';
+          addRow(`${formatGroceryQty(qty)} ${unitLabel}${rec.entry[LANG]}`, lineId, false);
+        }
+      });
+    });
+  });
+
+  if(otherRaw.length){
+    any = true;
+    const h3 = document.createElement('h3');
+    h3.textContent = L.groceryCatOther;
+    container.appendChild(h3);
+    otherRaw.forEach(raw=> addRow(raw, null, true));
+  }
+
+  if(!any){
+    const p = document.createElement('p');
+    p.className = 'muted';
+    p.textContent = '—';
+    container.appendChild(p);
+  }
+}
+
 /* ============ STATIC TEXT / LANGUAGE SWITCH ============ */
 function translateStatic(){
   const L = UI[LANG];
@@ -1691,6 +2094,7 @@ function renderAll(){
   renderAboutTables();
   renderMilestones();
   renderProgress();
+  renderGroceries();
 }
 
 function setLang(l){
@@ -1763,6 +2167,14 @@ document.getElementById('btnGoDate').addEventListener('click', ()=>{
   const d = new Date(parts[0], parts[1]-1, parts[2]);
   selectedDayNum = clampDay(dayNumForDate(d));
   renderToday();
+});
+
+/* ============ GROCERY WEEK NAV ============ */
+document.getElementById('btnGroceryPrevWeek').addEventListener('click', ()=>{
+  groceryWeekNum = clampWeek(groceryWeekNum-1); renderGroceries();
+});
+document.getElementById('btnGroceryNextWeek').addEventListener('click', ()=>{
+  groceryWeekNum = clampWeek(groceryWeekNum+1); renderGroceries();
 });
 
 /* ============ INIT ============ */
