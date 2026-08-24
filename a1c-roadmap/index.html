@@ -596,6 +596,17 @@
       </table>
       </div>
     </section>
+
+    <section class="card">
+      <h2 data-i18n="dosingTitle">🕐 Your Daily Dosing Schedule</h2>
+      <p class="muted" data-i18n="dosingDesc">Your actual medication/supplement stack, spaced through the day. You don't have everything yet — add each one here as you pick it up, and follow the label and your doctor's exact dosing instructions.</p>
+      <div class="wrap">
+      <table class="cal">
+        <thead><tr><th data-i18n="thDoseNum">Dose</th><th data-i18n="thTime">Time</th><th data-i18n="thWhatToTake">What to Take</th><th data-i18n="thNotes">Key Notes</th></tr></thead>
+        <tbody id="dosingRows"></tbody>
+      </table>
+      </div>
+    </section>
   </div>
 
   <!-- MILESTONES -->
@@ -783,6 +794,9 @@ const UI = {
     supplementsTitle:'💊 Nutrient Support Strategy',
     supplementsWarn:'<strong>⚠️ Important before starting supplements:</strong> These are adjuncts to lifestyle change — not replacements. Discuss all supplements with your doctor before starting, especially if you are on any medications. Berberine in particular can interact with certain drugs. Bring this table to your appointment.',
     thSupplement:'Supplement', thEvidence:'Evidence Level', thDose:'Dose', thTiming:'Timing', thNotes:'Key Notes',
+    dosingTitle:'🕐 Your Daily Dosing Schedule',
+    dosingDesc:"Your actual medication/supplement stack, spaced through the day. You don't have everything yet — add each one here as you pick it up, and follow the label and your doctor's exact dosing instructions.",
+    thDoseNum:'Dose', thTime:'Time', thWhatToTake:'What to Take',
     milestonesTitle:'90-Day Milestones',
     milestonesDesc:'Target dates for the alcohol step-down and workout goals, plus the lab-draw date to bring to your doctor.',
     doctorTitle:'What to Tell Your Doctor',
@@ -851,6 +865,9 @@ const UI = {
     supplementsTitle:'💊 Estrategia de Apoyo con Suplementos',
     supplementsWarn:'<strong>⚠️ Importante antes de empezar con suplementos:</strong> Estos son un complemento al cambio de estilo de vida — no un reemplazo. Consulta todos los suplementos con tu doctor antes de empezar, especialmente si tomas algún medicamento. La berberina en particular puede interactuar con ciertos fármacos. Lleva esta tabla a tu consulta.',
     thSupplement:'Suplemento', thEvidence:'Nivel de Evidencia', thDose:'Dosis', thTiming:'Horario', thNotes:'Notas Clave',
+    dosingTitle:'🕐 Tu Horario Diario de Dosis',
+    dosingDesc:'Tu combinación real de medicamentos y suplementos, distribuida a lo largo del día. Todavía no tienes todo — agrega cada uno aquí conforme lo consigas, y sigue siempre la etiqueta y las indicaciones exactas de tu doctor.',
+    thDoseNum:'Dosis', thTime:'Horario', thWhatToTake:'Qué Tomar',
     milestonesTitle:'Hitos de 90 Días',
     milestonesDesc:'Fechas meta para la reducción de alcohol y los objetivos de entrenamiento, además de la fecha de laboratorios para llevar a tu doctor.',
     doctorTitle:'Qué Decirle a tu Doctor',
@@ -1548,6 +1565,18 @@ const SUPPLEMENTS = { en: [
   {name:'Ácido Alfa-Lipoico (R-ALA)', evidence:'Moderada — la más fuerte para neuropatía; efecto glucémico modesto', dose:'300–600 mg R-ALA', timing:'Por la mañana, alejado de las comidas', notes:'El R-ALA es más biodisponible que el ALA estándar. Ideal para la protección de nervios periféricos.'}
 ] };
 
+const DOSING = { en: [
+  {dose:'1 — Morning', time:'~7:00 AM (breakfast)', items:'Rosuvastatin, Vitamin D3+K2, Vitamin B12', notes:'No known timing conflicts between these three.'},
+  {dose:'2 — Midday', time:'~12:00–12:30 PM (lunch)', items:'Psyllium husk fiber + full glass of water', notes:'Kept 5+ hrs from morning Rosuvastatin — fiber can bind and blunt absorption of oral meds (2 hr minimum is the usual rule).'},
+  {dose:'3 — Pre-Workout (optional)', time:'~3:30–4:00 PM', items:'L-Arginine', notes:'Optional — may support blood flow before exercise. Add once you have it.'},
+  {dose:'4 — Evening / Post-Workout', time:'~8:30–9:00 PM', items:'Magnesium, Creatine, HMB', notes:"Magnesium kept 5+ hrs from morning Rosuvastatin. Creatine + HMB grouped here with your after-work training days for consistency — their timing doesn't affect how well they work."}
+], es: [
+  {dose:'1 — Mañana', time:'~7:00 AM (desayuno)', items:'Rosuvastatina, Vitamina D3+K2, Vitamina B12', notes:'No hay conflictos de horario conocidos entre estos tres.'},
+  {dose:'2 — Mediodía', time:'~12:00–12:30 PM (comida)', items:'Fibra de psyllium + un vaso lleno de agua', notes:'Separada 5+ horas de la Rosuvastatina matutina — la fibra puede unirse a medicamentos orales y reducir su absorción (la regla general es un mínimo de 2 horas).'},
+  {dose:'3 — Pre-Entrenamiento (opcional)', time:'~3:30–4:00 PM', items:'L-Arginina', notes:'Opcional — puede favorecer el flujo sanguíneo antes de ejercitarte. Agrégala cuando la consigas.'},
+  {dose:'4 — Noche / Post-Entrenamiento', time:'~8:30–9:00 PM', items:'Magnesio, Creatina, HMB', notes:'El magnesio se mantiene separado 5+ horas de la Rosuvastatina matutina. La creatina y el HMB se agrupan aquí junto con tus días de entrenamiento después del trabajo, por consistencia — su horario no afecta qué tan bien funcionan.'}
+] };
+
 const SCIENCE = { en: [
   {intervention:'Combined aerobic + resistance exercise', reduction:'0.89–0.97% reduction (meta-analyses)', timeframe:'8–12 weeks'},
   {intervention:'Low-glycemic nutrition', reduction:'0.5–0.8% reduction', timeframe:'8–12 weeks'},
@@ -1871,6 +1900,16 @@ function renderSupplements(){
   </tr>`).join('');
 }
 
+function renderDosing(){
+  const tbody = document.getElementById('dosingRows');
+  tbody.innerHTML = DOSING[LANG].map(d=>`<tr>
+    <td style="font-weight:600">${d.dose}</td>
+    <td>${d.time}</td>
+    <td>${d.items}</td>
+    <td>${d.notes}</td>
+  </tr>`).join('');
+}
+
 /* ============ RENDER: ABOUT REFERENCE TABLES ============ */
 function renderAboutTables(){
   const L = UI[LANG];
@@ -2091,6 +2130,7 @@ function renderAll(){
   renderCalendar();
   renderRecipes();
   renderSupplements();
+  renderDosing();
   renderAboutTables();
   renderMilestones();
   renderProgress();
