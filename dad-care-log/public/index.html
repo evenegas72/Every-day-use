@@ -52,7 +52,7 @@
   h2{font-size:20px; margin:0 0 12px;}
   label{display:block; font-weight:600; margin:14px 0 4px;}
   .hint{display:block; font-weight:400; font-size:14px; color:var(--ink-soft); margin-top:2px;}
-  input[type=datetime-local], select, textarea{
+  input[type=datetime-local], input[type=text], select, textarea{
     width:100%;
     font:inherit;
     padding:10px 12px;
@@ -147,6 +147,9 @@
   .who-line strong{color:var(--teal-dark);}
   .bullet-tip{margin:-4px 0 4px;}
   .entry .field ul{margin:4px 0 0; padding-left:22px;}
+  .entry .patient{margin:2px 0 0; font-weight:700; color:var(--navy-2);}
+  #patient-filter-row{margin:0 0 12px;}
+  #patient-filter-row label{margin-top:0;}
   .correcting-banner{
     background:#FBEBDD;
     border:2px solid var(--amber);
@@ -231,6 +234,12 @@
           <span class="hint">El nombre sale de tu cuenta de Google; no se puede cambiar.</span>
         </p>
 
+        <label for="f-patient">Paciente
+          <span class="hint">Nombre de la persona que estamos cuidando. Este teléfono lo recuerda para la próxima vez.</span>
+        </label>
+        <input type="text" id="f-patient" maxlength="100" autocomplete="off" list="patient-names" placeholder="Nombre del paciente" required>
+        <datalist id="patient-names"></datalist>
+
         <label for="f-doctor">Lo que dijo el doctor
           <span class="hint">Diagnóstico, indicaciones, cambios de tratamiento.</span>
         </label>
@@ -295,6 +304,10 @@
 
     <section>
       <h2>Entradas</h2>
+      <div id="patient-filter-row" class="hidden">
+        <label for="patient-filter">Mostrar entradas de</label>
+        <select id="patient-filter"></select>
+      </div>
       <p class="status" id="list-status">Cargando entradas…</p>
       <div id="entries"></div>
     </section>
@@ -582,7 +595,26 @@ function readingLabel(entry) {
     : `Lectura de la foto (${kind}), escrita por ${entry.who}`;
 }
 
+let lastSnap = null;
+const ALL_PATIENTS = "__all__";
+
+// Fills the name suggestions and, when the log has more than one patient,
+// shows a filter above the entries.
+function updatePatients(snap) {
+  const names = [...new Set(snap.docs.map((d) => (d.data().patient || "").trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "es"));
+  $("patient-names").replaceChildren(...names.map((n) => el("option", { value: n })));
+  const select = $("patient-filter");
+  const current = select.value || ALL_PATIENTS;
+  select.replaceChildren(el("option", { value: ALL_PATIENTS }, "Todos los pacientes"),
+    ...names.map((n) => el("option", { value: n }, n)));
+  select.value = names.includes(current) ? current : ALL_PATIENTS;
+  $("patient-filter-row").classList.toggle("hidden", names.length < 2);
+}
+
 function renderEntries(snap) {
+  lastSnap = snap;
+  updatePatients(snap);
   const container = $("entries");
   container.replaceChildren();
   if (snap.empty) {
@@ -605,12 +637,15 @@ function renderEntries(snap) {
   const createdMs = (d) => d.data({ serverTimestamps: "estimate" }).createdAt?.toMillis() ?? 0;
   const docs = [...snap.docs].sort((a, b) =>
     (b.data().when?.toMillis() ?? 0) - (a.data().when?.toMillis() ?? 0) || createdMs(b) - createdMs(a));
+  const filter = $("patient-filter").value;
   for (const docSnap of docs) {
+    if (filter && filter !== ALL_PATIENTS && (docSnap.data().patient || "").trim() !== filter) continue;
     container.appendChild(renderEntry(docSnap, {
       original: byId.get(docSnap.data().correctsId) || null,
       corrections: correctionsOf.get(docSnap.id) || [],
     }));
   }
+  if (!container.children.length) setStatus($("list-status"), "No hay entradas de este paciente.");
 }
 
 function describeEntry(entry) {
@@ -638,6 +673,7 @@ function renderEntry(docSnap, context) {
     title.appendChild(el("span", { class: "pending" }, "Pendiente de enviar"));
   }
   card.appendChild(title);
+  if (entry.patient) card.appendChild(el("p", { class: "patient" }, `Paciente: ${entry.patient}`));
   let meta = `Escribió: ${entry.who}`;
   if (entry.correctsId && entry.createdAt) meta += ` · corrección guardada el ${formatWhen(entry.createdAt.toDate())}`;
   card.appendChild(el("p", { class: "meta" }, meta));
@@ -737,6 +773,7 @@ function buildWhatsAppText(entry, context = { original: null, corrections: [] })
       ? `*Corrección* de ${describeEntry(context.original)}`
       : "*Corrección* de una entrada anterior");
   }
+  if (entry.patient) lines.push(`*Paciente:* ${entry.patient}`);
   if (entry.when) lines.push(`*Fecha:* ${formatWhen(entry.when.toDate())}`);
   lines.push(`*Escribió:* ${entry.who}`);
 
@@ -772,11 +809,17 @@ function shareToWhatsApp(entry, context) {
 let formReady = false;
 const TEXT_FIELDS = ["f-doctor", "f-meds", "f-next", "f-notes"];
 
+const PATIENT_KEY = "dad-care-log:patient";
+
 function initForm() {
   $("f-when").value = dateToZonedInput(new Date());
+  if (!$("f-patient").value) {
+    try { $("f-patient").value = localStorage.getItem(PATIENT_KEY) || ""; } catch { /* ignore */ }
+  }
   if (formReady) return;
   formReady = true;
   $("entry-form").addEventListener("submit", onSave);
+  $("patient-filter").addEventListener("change", () => { if (lastSnap) renderEntries(lastSnap); });
   for (const id of TEXT_FIELDS) setUpBullets($(id));
 }
 
@@ -832,6 +875,8 @@ async function onSave(event) {
 
   if (!when) return setStatus(status, "Falta la fecha y hora.", "error");
   if (!who) return setStatus(status, "No se pudo confirmar tu nombre. Recarga la página e intenta de nuevo.", "error");
+  const patient = $("f-patient").value.trim().replace(/\s+/g, " ");
+  if (!patient) return setStatus(status, "Escribe el nombre del paciente.", "error");
 
   const reading = $("f-reading").value.trim();
   const readingOpen = !$("reading-box").classList.contains("hidden");
@@ -861,6 +906,7 @@ async function onSave(event) {
     const data = {
       when: Timestamp.fromDate(when),
       who,
+      patient,
       authorEmail: currentUser.email.toLowerCase(),
       authorUid: currentUser.uid,
       createdAt: serverTimestamp(),
@@ -879,6 +925,7 @@ async function onSave(event) {
     }
 
     await addDoc(collection(db, "entries"), data);
+    try { localStorage.setItem(PATIENT_KEY, patient); } catch { /* ignore */ }
     clearTimeout(slowTimer);
     const wasCorrection = Boolean(correcting);
     clearForm();
@@ -930,6 +977,7 @@ function startCorrection(id, entry) {
   setCorrecting({ id, entry });
   if (entry.when) $("f-when").value = dateToZonedInput(entry.when.toDate());
   for (const field of ["doctor", "meds", "next", "notes"]) $("f-" + field).value = entry[field] || "";
+  if (entry.patient) $("f-patient").value = entry.patient;
   if (entry.photoPath) useExistingPhoto(entry);
   setStatus($("save-status"), "");
   $("form-title").scrollIntoView({ behavior: "smooth", block: "start" });

@@ -109,7 +109,7 @@ To change the family list later: edit both rules files, run the tests, then
 ## Local testing
 
 ```bash
-cd dad-care-log/tests && npm install && npm test   # 50 rule tests on the emulators
+cd dad-care-log/tests && npm install && npm test   # 51 rule tests on the emulators
 cd ../functions && npm test                        # prompt / response parsing
 ```
 

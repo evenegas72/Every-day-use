@@ -45,6 +45,7 @@ function goodEntry(user, overrides = {}) {
   return {
     when: Timestamp.fromDate(new Date("2026-09-27T20:30:00Z")),
     who: user.name,
+    patient: "Paciente de prueba",
     doctor: "Todo bien",
     authorEmail: user.email.toLowerCase(),
     authorUid: user.uid,
@@ -127,6 +128,13 @@ describe("firestore: creating entries", () => {
   });
   test("who must be one of the eight family names", async () => {
     await assertFails(addDoc(collection(as(ALICE).firestore(), "entries"), goodEntry(ALICE, { who: "Pedro" })));
+  });
+  test("the patient's name is required", async () => {
+    const { patient, ...noPatient } = goodEntry(ALICE);
+    const db = as(ALICE).firestore();
+    await assertFails(addDoc(collection(db, "entries"), noPatient));
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { patient: "" })));
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { patient: "x".repeat(101) })));
   });
   test("who must be the signed-in person's own name", async () => {
     await assertFails(addDoc(collection(as(ALICE).firestore(), "entries"), goodEntry(ALICE, { who: BOB.name })));
