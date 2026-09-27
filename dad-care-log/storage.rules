@@ -1,0 +1,50 @@
+rules_version = '2';
+
+// Rules for the project's default Cloud Storage bucket. Dad's Care Log keeps
+// its photos under dad-care-log/photos/; nothing else in the bucket is
+// readable or writable from a browser.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ---------------------------------------------------------------
+    // FAMILY ALLOW-LIST: must stay identical to the list in
+    // firestore.rules (`npm test` in dad-care-log/tests checks this).
+    // Lowercase emails only.
+    // ---------------------------------------------------------------
+    function isFamily() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in [
+          'adriana@replace-me.invalid',    // Adriana
+          'alejandro@replace-me.invalid',  // Alejandro
+          'chavita@replace-me.invalid',    // Chavita
+          'daniel@replace-me.invalid',     // Daniel
+          'enrique@replace-me.invalid',    // Enrique
+          'lorena@replace-me.invalid',     // Lorena
+          'salvador@replace-me.invalid',   // Salvador
+          'teresa@replace-me.invalid'      // Teresa
+        ];
+    }
+
+    // Each person uploads only into their own folder. Photos are
+    // append-only, like entries: once uploaded they can't be replaced or
+    // deleted from the app, so a saved entry never points at a changed
+    // picture. In Storage rules, overwriting a file's contents counts as
+    // `create`, hence the `resource == null` check.
+    match /dad-care-log/photos/{uid}/{fileName} {
+      allow read: if isFamily();
+      allow create: if isFamily()
+        && resource == null
+        && request.auth.uid == uid
+        && fileName.matches('[A-Za-z0-9_.-]{1,100}')
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+      allow update, delete: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

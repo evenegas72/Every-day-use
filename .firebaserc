@@ -13,6 +13,9 @@
         ],
         "hub": [
           "rks-hub"
+        ],
+        "care-log": [
+          "dad-care-log"
         ]
       }
     }

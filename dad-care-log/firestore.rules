@@ -1,0 +1,108 @@
+rules_version = '2';
+
+// Rules for the `dad-care-log` Firestore database only. firebase.json binds
+// this file to that database id, so the (default) database used by the other
+// rks apps is never touched by a deploy of these rules.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------
+    // FAMILY ALLOW-LIST: one Google account email per person, written in
+    // lowercase. This list is the real security boundary: everyone
+    // else is refused, even with the link.
+    //
+    // The same list is in storage.rules; keep the two identical
+    // (`npm test` in dad-care-log/tests checks that they match).
+    // ---------------------------------------------------------------
+    function isFamily() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower() in [
+          'adriana@replace-me.invalid',    // Adriana
+          'alejandro@replace-me.invalid',  // Alejandro
+          'chavita@replace-me.invalid',    // Chavita
+          'daniel@replace-me.invalid',     // Daniel
+          'enrique@replace-me.invalid',    // Enrique
+          'lorena@replace-me.invalid',     // Lorena
+          'salvador@replace-me.invalid',   // Salvador
+          'teresa@replace-me.invalid'      // Teresa
+        ];
+    }
+
+    function optionalString(data, field, maxLen) {
+      return !(field in data)
+        || (data[field] is string && data[field].size() <= maxLen);
+    }
+
+    // A new entry must be well-formed and honestly attributed: the author
+    // fields and createdAt come from the request itself, so nobody can
+    // backdate an entry's save time or post under someone else's account.
+    function isValidNewEntry() {
+      let d = request.resource.data;
+      return d.keys().hasAll(['when', 'who', 'authorEmail', 'authorUid', 'createdAt'])
+        && d.keys().hasOnly([
+          'when', 'who', 'doctor', 'meds', 'next', 'notes',
+          'authorEmail', 'authorUid', 'createdAt',
+          'photoPath', 'photoKind', 'photoReading', 'photoReadingSource',
+          'photoReadingConfirmed'
+        ])
+        && d.when is timestamp
+        && d.who in ['Adriana', 'Alejandro', 'Chavita', 'Daniel',
+                     'Enrique', 'Lorena', 'Salvador', 'Teresa']
+        && d.authorEmail == request.auth.token.email.lower()
+        && d.authorUid == request.auth.uid
+        && d.createdAt == request.time
+        && optionalString(d, 'doctor', 5000)
+        && optionalString(d, 'meds', 5000)
+        && optionalString(d, 'next', 5000)
+        && optionalString(d, 'notes', 5000)
+        && isValidPhoto(d)
+        && hasSomeContent(d);
+    }
+
+    // Photo fields are all-or-nothing. A photo may only point at the
+    // author's own upload folder. A reading of the photo can only be
+    // saved with photoReadingConfirmed == true: the app sets that only
+    // after the person has reviewed (and possibly edited) the text,
+    // whether it started as an AI suggestion or was typed by hand.
+    function isValidPhoto(d) {
+      return (!('photoPath' in d) && !('photoKind' in d) && !('photoReading' in d)
+              && !('photoReadingSource' in d) && !('photoReadingConfirmed' in d))
+        || ('photoPath' in d
+            && d.photoPath is string
+            && d.photoPath.matches('dad-care-log/photos/' + request.auth.uid + '/[A-Za-z0-9_.-]{1,100}')
+            && d.photoKind in ['monitor', 'note']
+            && (
+              (!('photoReading' in d) && !('photoReadingSource' in d) && !('photoReadingConfirmed' in d))
+              || (d.photoReading is string
+                  && d.photoReading.size() > 0
+                  && d.photoReading.size() <= 3000
+                  && d.photoReadingSource in ['ai', 'person']
+                  && d.photoReadingConfirmed == true)
+            ));
+    }
+
+    function hasSomeContent(d) {
+      return ('doctor' in d && d.doctor.size() > 0)
+        || ('meds' in d && d.meds.size() > 0)
+        || ('next' in d && d.next.size() > 0)
+        || ('notes' in d && d.notes.size() > 0)
+        || ('photoPath' in d);
+    }
+
+    match /entries/{entryId} {
+      allow read: if isFamily();
+      allow create: if isFamily() && isValidNewEntry();
+      // Append-only: once saved, nobody (including the person who wrote
+      // it) can change or remove an entry. Enforced here, not just hidden
+      // in the UI.
+      allow update, delete: if false;
+    }
+
+    // Catch-all: deny anything not explicitly allowed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

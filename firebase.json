@@ -14,6 +14,47 @@
       "target": "hub",
       "public": "hub",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    },
+    {
+      "target": "care-log",
+      "public": "dad-care-log/public",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Cache-Control", "value": "no-cache" },
+            { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+            { "key": "Referrer-Policy", "value": "no-referrer" }
+          ]
+        }
+      ]
     }
-  ]
+  ],
+  "firestore": [
+    {
+      "database": "dad-care-log",
+      "rules": "dad-care-log/firestore.rules",
+      "indexes": "dad-care-log/firestore.indexes.json"
+    }
+  ],
+  "storage": {
+    "rules": "dad-care-log/storage.rules"
+  },
+  "functions": [
+    {
+      "source": "dad-care-log/functions",
+      "codebase": "dad-care-log",
+      "runtime": "nodejs22",
+      "ignore": ["node_modules", "test", ".git", "*.local", "firebase-debug.log"]
+    }
+  ],
+  "emulators": {
+    "auth": { "port": 9099 },
+    "firestore": { "port": 8080 },
+    "storage": { "port": 9199 },
+    "functions": { "port": 5001 },
+    "hosting": { "port": 5000 },
+    "ui": { "enabled": false }
+  }
 }

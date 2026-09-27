@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Bitácora de cuidados de papá</title>
+<style>
+  :root{
+    --navy:#12293F;
+    --navy-2:#1B3B57;
+    --paper:#F6F3EC;
+    --card:#FFFFFF;
+    --teal:#0E6E72;
+    --teal-dark:#0A5457;
+    --amber:#BE6A2E;
+    --ink:#1E2328;
+    --ink-soft:#4A5158;
+    --line:#D9D3C3;
+    --danger:#A3322A;
+    --ai-bg:#FFF4D6;
+    --ai-line:#E0B84F;
+    --ai-ink:#6B4A00;
+    --wa:#1F8F4E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size:17px;
+    line-height:1.45;
+  }
+  header{
+    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 100%);
+    color:#FBF9F4;
+    padding:20px 16px;
+  }
+  header .wrap{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  header h1{font-size:clamp(22px, 5vw, 30px); margin:0;}
+  header p{margin:4px 0 0; color:#C7D6DE; font-size:14px;}
+  .wrap{max-width:760px; margin:0 auto;}
+  main{padding:16px 16px 60px;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px;
+    margin:0 0 16px;
+  }
+  h2{font-size:20px; margin:0 0 12px;}
+  label{display:block; font-weight:600; margin:14px 0 4px;}
+  .hint{display:block; font-weight:400; font-size:14px; color:var(--ink-soft); margin-top:2px;}
+  input[type=datetime-local], select, textarea{
+    width:100%;
+    font:inherit;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    color:var(--ink);
+  }
+  textarea{min-height:84px; resize:vertical;}
+  button, .button{
+    font:inherit;
+    font-weight:600;
+    border:0;
+    border-radius:8px;
+    padding:11px 16px;
+    cursor:pointer;
+    background:var(--teal);
+    color:#fff;
+    text-decoration:none;
+    display:inline-block;
+  }
+  button:hover{background:var(--teal-dark);}
+  button:disabled{opacity:.55; cursor:not-allowed;}
+  button.secondary{background:#fff; color:var(--teal); border:1px solid var(--teal);}
+  button.quiet{background:transparent; color:#FBF9F4; border:1px solid #7C93A4; padding:7px 12px; font-size:15px;}
+  button.wa{background:var(--wa);}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  .status{margin:10px 0 0; font-size:15px; color:var(--ink-soft);}
+  .status.error{color:var(--danger); font-weight:600;}
+  .status.ok{color:var(--teal); font-weight:600;}
+  .warning{
+    background:#F3EFE4;
+    border-left:4px solid var(--amber);
+    padding:10px 12px;
+    border-radius:6px;
+    font-size:15px;
+    margin:16px 0 12px;
+  }
+  .hidden{display:none !important;}
+  fieldset{border:1px dashed var(--line); border-radius:10px; padding:4px 14px 14px; margin:18px 0 0;}
+  legend{font-weight:700; padding:0 6px;}
+  .radio-row{display:flex; gap:18px; flex-wrap:wrap; margin-top:6px;}
+  .radio-row label{font-weight:400; margin:0; display:flex; align-items:center; gap:6px;}
+  .photo-preview{max-width:100%; max-height:320px; border-radius:8px; border:1px solid var(--line); margin-top:10px; display:block;}
+  .ai-box{
+    background:var(--ai-bg);
+    border:2px solid var(--ai-line);
+    border-radius:10px;
+    padding:12px 14px;
+    margin-top:14px;
+  }
+  .ai-box .badge{
+    display:inline-block;
+    background:var(--ai-line);
+    color:#3D2A00;
+    font-size:13px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:999px;
+    letter-spacing:.02em;
+  }
+  .ai-box p{margin:8px 0; color:var(--ai-ink); font-size:15px;}
+  .ai-box textarea{background:#FFFCF2; border-color:var(--ai-line);}
+  .ai-box .doubts{white-space:pre-wrap;}
+  .ai-box .confirm{display:flex; gap:8px; align-items:flex-start; font-weight:600; margin-top:12px;}
+  .ai-box.person{background:#EEF4F4; border-color:var(--teal);}
+  .ai-box.person .badge{background:var(--teal); color:#fff;}
+  .ai-box.person p{color:var(--teal-dark);}
+  .ai-box.person textarea{background:#fff; border-color:var(--line);}
+  .ai-box .confirm input{margin-top:5px; width:20px; height:20px; flex:none;}
+  .entry h3{font-size:17px; margin:0;}
+  .entry .meta{color:var(--ink-soft); font-size:14px; margin:2px 0 10px;}
+  .entry .field{margin:10px 0 0;}
+  .entry .field-label{font-weight:700; font-size:15px; color:var(--navy-2);}
+  .entry .field-body{white-space:pre-wrap; overflow-wrap:anywhere;}
+  .entry ul{margin:4px 0 0; padding-left:22px;}
+  .entry .reading{
+    background:var(--ai-bg);
+    border-left:4px solid var(--ai-line);
+    border-radius:6px;
+    padding:8px 10px;
+    margin-top:10px;
+  }
+  .entry .reading.person{background:#EEF4F4; border-left-color:var(--teal);}
+  .entry .reading .field-label{color:var(--ai-ink);}
+  .entry .reading.person .field-label{color:var(--teal-dark);}
+  .entry .actions{margin-top:14px;}
+  .entry img{max-width:100%; border-radius:8px; margin-top:8px; display:block;}
+  .pending{display:inline-block; font-size:13px; background:#F3EFE4; color:var(--amber); font-weight:700; padding:1px 8px; border-radius:999px; margin-left:6px;}
+  #who-am-i{font-size:14px; color:#C7D6DE;}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div>
+      <h1>Bitácora de cuidados de papá</h1>
+      <p>Registro compartido de la familia. Las entradas no se pueden editar ni borrar.</p>
+    </div>
+    <div id="account" class="row hidden">
+      <span id="who-am-i"></span>
+      <button id="sign-out" class="quiet" type="button">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="view-setup" class="card hidden">
+    <h2>Falta configurar la aplicación</h2>
+    <p>Esta página todavía no tiene los datos de conexión de Firebase. Quien administra la bitácora debe completarlos antes de usarla.</p>
+  </section>
+
+  <section id="view-loading" class="card">
+    <p>Cargando…</p>
+  </section>
+
+  <section id="view-signed-out" class="card hidden">
+    <h2>Iniciar sesión</h2>
+    <p>Solo los familiares autorizados pueden abrir la bitácora. Entra con tu cuenta de Google.</p>
+    <button id="sign-in" type="button">Iniciar sesión con Google</button>
+    <p class="status" id="sign-in-status"></p>
+    <p class="hint">Si el inicio de sesión no funciona desde WhatsApp u otra aplicación, abre este enlace en Chrome o Safari.</p>
+  </section>
+
+  <section id="view-denied" class="card hidden">
+    <h2>Tu cuenta no tiene acceso</h2>
+    <p>Entraste como <strong id="denied-email"></strong>, pero ese correo no está en la lista de la familia.</p>
+    <p>Si eres de la familia, pide a quien administra la bitácora que agregue tu correo, o cierra sesión y entra con otra cuenta de Google.</p>
+    <button id="denied-sign-out" class="secondary" type="button">Cerrar sesión</button>
+  </section>
+
+  <div id="view-app" class="hidden">
+
+    <section class="card">
+      <h2>Nueva entrada</h2>
+      <form id="entry-form" novalidate>
+        <label for="f-when">Fecha y hora
+          <span class="hint">Hora del centro de México.</span>
+        </label>
+        <input type="datetime-local" id="f-when" required>
+
+        <label for="f-who">¿Quién escribe?</label>
+        <select id="f-who" required>
+          <option value="">Elige tu nombre</option>
+          <option>Adriana</option>
+          <option>Alejandro</option>
+          <option>Chavita</option>
+          <option>Daniel</option>
+          <option>Enrique</option>
+          <option>Lorena</option>
+          <option>Salvador</option>
+          <option>Teresa</option>
+        </select>
+
+        <label for="f-doctor">Lo que dijo el doctor
+          <span class="hint">Diagnóstico, indicaciones, cambios de tratamiento.</span>
+        </label>
+        <textarea id="f-doctor" maxlength="5000" placeholder="Ej.: El Dr. Ramírez dice que la presión va mejor; bajar la dosis de losartán a media pastilla."></textarea>
+
+        <label for="f-meds">Medicamentos y síntomas
+          <span class="hint">Qué tomó y a qué hora, cómo se sintió, qué notaste.</span>
+        </label>
+        <textarea id="f-meds" maxlength="5000" placeholder="Ej.: 8:00 metformina 850 mg. Durmió bien, algo de tos en la tarde."></textarea>
+
+        <label for="f-next">Próximos pasos para quien sigue
+          <span class="hint">Uno por línea: pendientes, citas, preguntas para el doctor.</span>
+        </label>
+        <textarea id="f-next" maxlength="5000" placeholder="Comprar más tiras para el glucómetro&#10;Cita de laboratorio el martes a las 9:00&#10;Preguntar si puede volver a caminar en las tardes"></textarea>
+
+        <label for="f-notes">Notas
+          <span class="hint">Cualquier otra cosa que deba saber la familia.</span>
+        </label>
+        <textarea id="f-notes" maxlength="5000" placeholder="Ej.: Estuvo de buen humor y preguntó por los nietos."></textarea>
+
+        <fieldset>
+          <legend>Foto (opcional)</legend>
+          <p class="hint">La foto de un aparato (presión, oxígeno, glucosa, temperatura) o de una nota o receta.</p>
+          <div class="radio-row" role="radiogroup" aria-label="Tipo de foto">
+            <label><input type="radio" name="photo-kind" value="monitor" checked> Aparato de medición</label>
+            <label><input type="radio" name="photo-kind" value="note"> Nota o receta</label>
+          </div>
+          <input type="file" id="f-photo" accept="image/*" class="hidden" aria-label="Elegir o tomar foto">
+          <div class="row" style="margin-top:12px">
+            <button type="button" id="photo-pick" class="secondary">Elegir o tomar foto</button>
+            <span id="photo-name" class="hint">Ninguna foto elegida</span>
+          </div>
+          <img id="photo-preview" class="photo-preview hidden" alt="Vista previa de la foto">
+          <div class="row" id="photo-actions" style="margin-top:10px">
+            <button type="button" id="ai-read" class="hidden">Leer foto con IA</button>
+            <button type="button" id="manual-read" class="secondary hidden">Escribir la lectura yo</button>
+            <button type="button" id="photo-remove" class="secondary hidden">Quitar foto</button>
+          </div>
+          <p class="status" id="photo-status"></p>
+
+          <div id="reading-box" class="ai-box hidden">
+            <span class="badge" id="reading-badge">Leído por IA, por favor verifica</span>
+            <p id="reading-explain">Esto es una sugerencia de la IA, no lo escribió una persona. Compárala con la foto y corrige lo que haga falta.</p>
+            <p id="reading-doubts" class="doubts hidden"></p>
+            <label for="f-reading">Lectura de la foto</label>
+            <textarea id="f-reading" maxlength="3000"></textarea>
+            <label class="confirm">
+              <input type="checkbox" id="f-reading-confirm">
+              <span id="reading-confirm-text">Revisé esta lectura contra la foto y está correcta.</span>
+            </label>
+            <div class="row" style="margin-top:10px">
+              <button type="button" id="reading-discard" class="secondary">Descartar lectura</button>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="warning">Revisa antes de guardar: una vez guardada, la entrada no se puede editar ni borrar, ni siquiera por quien la escribió.</div>
+        <button type="submit" id="save">Guardar entrada</button>
+        <p class="status" id="save-status" role="status"></p>
+      </form>
+    </section>
+
+    <section>
+      <h2>Entradas</h2>
+      <p class="status" id="list-status">Cargando entradas…</p>
+      <div id="entries"></div>
+    </section>
+  </div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup,
+  signInWithRedirect, signOut, connectAuthEmulator,
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import {
+  getFirestore, collection, query, orderBy, onSnapshot, addDoc,
+  serverTimestamp, Timestamp, connectFirestoreEmulator,
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import {
+  getStorage, ref as storageRef, uploadBytes, getDownloadURL, connectStorageEmulator,
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
+import {
+  getFunctions, httpsCallable, connectFunctionsEmulator,
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-functions.js";
+
+// ---------------------------------------------------------------------------
+// Firebase config: the same web-app config the other rks-family-apps sites
+// use (Firebase console > Project settings > General > Your apps). These
+// values are not secrets; access is controlled by the security rules.
+// ---------------------------------------------------------------------------
+const firebaseConfig = {
+  apiKey: "REPLACE_WITH_API_KEY",
+  authDomain: "rks-family-apps.firebaseapp.com",
+  projectId: "rks-family-apps",
+  storageBucket: "REPLACE_WITH_STORAGE_BUCKET",
+  messagingSenderId: "REPLACE_WITH_SENDER_ID",
+  appId: "REPLACE_WITH_APP_ID",
+};
+
+// Must match the database id in firebase.json and the Firebase console.
+const DATABASE_ID = "dad-care-log";
+// Times are entered and shown in Dad's time zone, whatever time zone the
+// person writing happens to be in.
+const CARE_TIME_ZONE = "America/Mexico_City";
+const FUNCTIONS_REGION = "us-central1";
+const MAX_IMAGE_EDGE = 2400;
+
+const $ = (id) => document.getElementById(id);
+const views = ["view-setup", "view-loading", "view-signed-out", "view-denied", "view-app"];
+function show(viewId) {
+  for (const id of views) $(id).classList.toggle("hidden", id !== viewId);
+}
+function setStatus(el, text, kind = "") {
+  el.textContent = text;
+  el.className = "status" + (kind ? " " + kind : "");
+}
+
+if (Object.values(firebaseConfig).some((v) => String(v).startsWith("REPLACE_"))) {
+  show("view-setup");
+  throw new Error("firebaseConfig not filled in");
+}
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app, DATABASE_ID);
+const storage = getStorage(app);
+const functions = getFunctions(app, FUNCTIONS_REGION);
+
+// Local testing only: http://localhost:5000/?emulator=1 talks to the Firebase
+// emulators instead of the real project.
+const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
+if (isLocal && new URLSearchParams(location.search).has("emulator")) {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+  connectFirestoreEmulator(db, "127.0.0.1", 8080);
+  connectStorageEmulator(storage, "127.0.0.1", 9199);
+  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+}
+
+// ---------------------------------------------------------------------------
+// Time zone helpers
+// ---------------------------------------------------------------------------
+function zoneParts(date) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: CARE_TIME_ZONE, hourCycle: "h23",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+  }).formatToParts(date);
+  return Object.fromEntries(parts.map((p) => [p.type, p.value]));
+}
+function zoneOffsetMs(date) {
+  const p = zoneParts(date);
+  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);
+  return asUtc - Math.floor(date.getTime() / 1000) * 1000;
+}
+// "2026-09-27T14:30" in CARE_TIME_ZONE -> Date
+function zonedInputToDate(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  if (!m) return null;
+  const guess = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+  let date = new Date(guess - zoneOffsetMs(new Date(guess)));
+  date = new Date(guess - zoneOffsetMs(date));
+  return date;
+}
+function dateToZonedInput(date) {
+  const p = zoneParts(date);
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;
+}
+const displayFormat = new Intl.DateTimeFormat("es-MX", {
+  timeZone: CARE_TIME_ZONE, weekday: "long", day: "numeric", month: "long",
+  year: "numeric", hour: "numeric", minute: "2-digit",
+});
+function formatWhen(date) {
+  const text = displayFormat.format(date);
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: "select_account" });
+
+$("sign-in").addEventListener("click", async () => {
+  setStatus($("sign-in-status"), "Abriendo Google…");
+  try {
+    await signInWithPopup(auth, provider);
+    setStatus($("sign-in-status"), "");
+  } catch (err) {
+    if (err.code === "auth/popup-blocked" || err.code === "auth/operation-not-supported-in-this-environment") {
+      await signInWithRedirect(auth, provider);
+      return;
+    }
+    if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") {
+      setStatus($("sign-in-status"), "Se cerró la ventana de Google antes de terminar. Intenta de nuevo.");
+      return;
+    }
+    console.error(err);
+    setStatus($("sign-in-status"), "No se pudo iniciar sesión. Revisa tu conexión e intenta de nuevo.", "error");
+  }
+});
+for (const id of ["sign-out", "denied-sign-out"]) {
+  $(id).addEventListener("click", () => signOut(auth));
+}
+
+let unsubscribeEntries = null;
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (unsubscribeEntries) { unsubscribeEntries(); unsubscribeEntries = null; }
+  resetPhoto();
+  if (!user) {
+    $("account").classList.add("hidden");
+    show("view-signed-out");
+    return;
+  }
+  $("who-am-i").textContent = user.email;
+  $("account").classList.remove("hidden");
+  show("view-loading");
+  startApp();
+});
+
+// ---------------------------------------------------------------------------
+// Entries list
+// ---------------------------------------------------------------------------
+const entriesQuery = query(collection(db, "entries"), orderBy("when", "desc"));
+let firstSnapshot = true;
+
+function startApp() {
+  firstSnapshot = true;
+  setStatus($("list-status"), "Cargando entradas…");
+  $("entries").replaceChildren();
+  unsubscribeEntries = onSnapshot(entriesQuery, { includeMetadataChanges: true }, (snap) => {
+    if (firstSnapshot) {
+      firstSnapshot = false;
+      initForm();
+      show("view-app");
+    }
+    renderEntries(snap);
+  }, (err) => {
+    if (err.code === "permission-denied") {
+      $("denied-email").textContent = currentUser ? currentUser.email : "";
+      show("view-denied");
+      return;
+    }
+    console.error(err);
+    show("view-app");
+    setStatus($("list-status"), "No se pudieron cargar las entradas. Revisa tu conexión y recarga la página.", "error");
+  });
+}
+
+function el(tag, attrs = {}, text) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function nextSteps(text) {
+  return String(text || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim().replace(/^([-*•·]|\d+[.)])\s*/, "").trim())
+    .filter(Boolean);
+}
+
+const FIELD_LABELS = {
+  doctor: "Doctor",
+  meds: "Medicamentos/síntomas",
+  next: "Próximos pasos",
+  notes: "Notas",
+};
+const PHOTO_KIND_LABELS = { monitor: "aparato de medición", note: "nota o receta" };
+
+function readingLabel(entry) {
+  const kind = PHOTO_KIND_LABELS[entry.photoKind] || "foto";
+  return entry.photoReadingSource === "ai"
+    ? `Lectura de la foto (${kind}), leída por IA y confirmada por ${entry.who}`
+    : `Lectura de la foto (${kind}), escrita por ${entry.who}`;
+}
+
+function renderEntries(snap) {
+  const container = $("entries");
+  container.replaceChildren();
+  if (snap.empty) {
+    setStatus($("list-status"), "Todavía no hay entradas. La primera que guardes aparecerá aquí.");
+    return;
+  }
+  setStatus($("list-status"), "");
+  for (const docSnap of snap.docs) {
+    container.appendChild(renderEntry(docSnap));
+  }
+}
+
+function renderEntry(docSnap) {
+  const entry = docSnap.data({ serverTimestamps: "estimate" });
+  const when = entry.when ? entry.when.toDate() : null;
+  const card = el("article", { class: "card entry" });
+
+  const title = el("h3", {}, when ? formatWhen(when) : "Sin fecha");
+  if (docSnap.metadata.hasPendingWrites) {
+    title.appendChild(el("span", { class: "pending" }, "Pendiente de enviar"));
+  }
+  card.appendChild(title);
+  card.appendChild(el("p", { class: "meta" }, `Escribió: ${entry.who}`));
+
+  for (const field of ["doctor", "meds", "next", "notes"]) {
+    const value = (entry[field] || "").trim();
+    if (!value) continue;
+    const block = el("div", { class: "field" });
+    block.appendChild(el("div", { class: "field-label" }, FIELD_LABELS[field]));
+    if (field === "next") {
+      const list = el("ul");
+      for (const item of nextSteps(value)) list.appendChild(el("li", {}, item));
+      block.appendChild(list);
+    } else {
+      block.appendChild(el("div", { class: "field-body" }, value));
+    }
+    card.appendChild(block);
+  }
+
+  if (entry.photoReading) {
+    const block = el("div", { class: "reading" + (entry.photoReadingSource === "ai" ? "" : " person") });
+    block.appendChild(el("div", { class: "field-label" }, readingLabel(entry)));
+    block.appendChild(el("div", { class: "field-body" }, entry.photoReading));
+    card.appendChild(block);
+  }
+
+  const actions = el("div", { class: "row actions" });
+  const share = el("button", { type: "button", class: "wa" }, "Compartir por WhatsApp");
+  share.addEventListener("click", () => shareToWhatsApp(entry));
+  actions.appendChild(share);
+
+  if (entry.photoPath) {
+    const photoBtn = el("button", { type: "button", class: "secondary" }, "Ver foto");
+    const photoStatus = el("p", { class: "status" });
+    photoBtn.addEventListener("click", async () => {
+      photoBtn.disabled = true;
+      setStatus(photoStatus, "Cargando foto…");
+      try {
+        const url = await getDownloadURL(storageRef(storage, entry.photoPath));
+        const img = el("img", { src: url, alt: "Foto de la entrada" });
+        photoStatus.replaceWith(img);
+        photoBtn.remove();
+      } catch (err) {
+        console.error(err);
+        photoBtn.disabled = false;
+        setStatus(photoStatus, "No se pudo cargar la foto. Intenta de nuevo.", "error");
+      }
+    });
+    actions.appendChild(photoBtn);
+    card.appendChild(actions);
+    card.appendChild(photoStatus);
+  } else {
+    card.appendChild(actions);
+  }
+  return card;
+}
+
+// ---------------------------------------------------------------------------
+// WhatsApp share: opens WhatsApp's chat picker with the text filled in. The
+// person chooses the chat and taps Send; nothing is sent automatically.
+// ---------------------------------------------------------------------------
+function buildWhatsAppText(entry) {
+  const lines = ["*Bitácora de cuidados de papá*"];
+  if (entry.when) lines.push(`*Fecha:* ${formatWhen(entry.when.toDate())}`);
+  lines.push(`*Escribió:* ${entry.who}`);
+
+  const add = (label, body) => {
+    lines.push("", `*${label}:*`, ...body);
+  };
+  const plain = (text) => String(text).trim().split(/\r?\n/).map((l) => l.trimEnd());
+
+  if (entry.doctor && entry.doctor.trim()) add(FIELD_LABELS.doctor, plain(entry.doctor));
+  if (entry.meds && entry.meds.trim()) add(FIELD_LABELS.meds, plain(entry.meds));
+  const steps = nextSteps(entry.next);
+  if (steps.length) add(FIELD_LABELS.next, steps.map((s) => `- ${s}`));
+  if (entry.notes && entry.notes.trim()) add(FIELD_LABELS.notes, plain(entry.notes));
+  if (entry.photoReading) add(readingLabel(entry), plain(entry.photoReading));
+  return lines.join("\n");
+}
+
+function shareToWhatsApp(entry) {
+  const url = "https://wa.me/?text=" + encodeURIComponent(buildWhatsAppText(entry));
+  window.open(url, "_blank", "noopener");
+}
+
+// ---------------------------------------------------------------------------
+// New entry form
+// ---------------------------------------------------------------------------
+const WHO_KEY = "dad-care-log:who";
+let formReady = false;
+
+function initForm() {
+  $("f-when").value = dateToZonedInput(new Date());
+  try {
+    const savedWho = localStorage.getItem(WHO_KEY);
+    if (savedWho) $("f-who").value = savedWho;
+  } catch { /* storage unavailable; the person picks their name */ }
+  if (formReady) return;
+  formReady = true;
+  $("entry-form").addEventListener("submit", onSave);
+}
+
+let saving = false;
+
+async function onSave(event) {
+  event.preventDefault();
+  if (saving) return;
+  const status = $("save-status");
+
+  const when = zonedInputToDate($("f-when").value);
+  const who = $("f-who").value;
+  const fields = {
+    doctor: $("f-doctor").value.trim(),
+    meds: $("f-meds").value.trim(),
+    next: $("f-next").value.trim(),
+    notes: $("f-notes").value.trim(),
+  };
+
+  if (!when) return setStatus(status, "Falta la fecha y hora.", "error");
+  if (!who) return setStatus(status, "Elige tu nombre en «¿Quién escribe?».", "error");
+
+  const reading = $("f-reading").value.trim();
+  const readingOpen = !$("reading-box").classList.contains("hidden");
+  if (readingOpen && reading && !$("f-reading-confirm").checked) {
+    return setStatus(status, "Antes de guardar, revisa la lectura de la foto y marca la casilla de confirmación, o descártala.", "error");
+  }
+  if (photo.aiPending) {
+    return setStatus(status, "Espera a que termine la lectura de la foto.", "error");
+  }
+  const hasText = Object.values(fields).some(Boolean);
+  if (!hasText && !photo.blob) {
+    return setStatus(status, "La entrada está vacía. Escribe algo o agrega una foto.", "error");
+  }
+  if (!confirm("¿Guardar esta entrada? Ya no se podrá editar ni borrar.")) return;
+
+  saving = true;
+  $("save").disabled = true;
+  setStatus(status, "Guardando…");
+  const slowTimer = setTimeout(() => {
+    setStatus(status, "Sigue guardando… Si no hay señal, la entrada se enviará cuando vuelva la conexión. No cierres esta página.");
+  }, 10000);
+
+  try {
+    const data = {
+      when: Timestamp.fromDate(when),
+      who,
+      authorEmail: currentUser.email.toLowerCase(),
+      authorUid: currentUser.uid,
+      createdAt: serverTimestamp(),
+    };
+    for (const [k, v] of Object.entries(fields)) if (v) data[k] = v;
+
+    if (photo.blob) {
+      data.photoPath = await ensurePhotoUploaded();
+      data.photoKind = selectedKind();
+      if (readingOpen && reading) {
+        data.photoReading = reading;
+        data.photoReadingSource = photo.readingSource;
+        data.photoReadingConfirmed = true;
+      }
+    }
+
+    await addDoc(collection(db, "entries"), data);
+    try { localStorage.setItem(WHO_KEY, who); } catch { /* ignore */ }
+    clearTimeout(slowTimer);
+    for (const id of ["f-doctor", "f-meds", "f-next", "f-notes"]) $(id).value = "";
+    $("f-when").value = dateToZonedInput(new Date());
+    resetPhoto();
+    setStatus(status, "Entrada guardada.", "ok");
+  } catch (err) {
+    clearTimeout(slowTimer);
+    console.error(err);
+    const msg = err.code === "permission-denied" || err.code === "storage/unauthorized"
+      ? "No se pudo guardar: tu cuenta no tiene permiso o algún dato no es válido. Nada se guardó."
+      : "No se pudo guardar. Revisa tu conexión e intenta de nuevo. Nada se guardó.";
+    setStatus(status, msg, "error");
+  } finally {
+    saving = false;
+    $("save").disabled = false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Photo + AI reading. The AI's text is only ever a suggestion shown in its
+// own tinted box; it can only be saved after the person ticks the
+// confirmation checkbox (and the Firestore rules require that flag).
+// ---------------------------------------------------------------------------
+const photo = { blob: null, kind: "monitor", uploadedPath: null, readingSource: null, aiPending: false, previewUrl: null };
+
+function resetPhoto() {
+  if (photo.previewUrl) URL.revokeObjectURL(photo.previewUrl);
+  Object.assign(photo, { blob: null, uploadedPath: null, readingSource: null, aiPending: false, previewUrl: null });
+  $("f-photo").value = "";
+  $("photo-name").textContent = "Ninguna foto elegida";
+  $("photo-preview").classList.add("hidden");
+  $("photo-preview").removeAttribute("src");
+  for (const id of ["ai-read", "manual-read", "photo-remove"]) $(id).classList.add("hidden");
+  $("ai-read").disabled = false;
+  setStatus($("photo-status"), "");
+  closeReading();
+  setKindLocked(false);
+}
+
+function setKindLocked(locked) {
+  for (const input of document.querySelectorAll('input[name="photo-kind"]')) input.disabled = locked;
+}
+
+function selectedKind() {
+  return document.querySelector('input[name="photo-kind"]:checked').value;
+}
+
+async function prepareImage(file) {
+  let source;
+  try {
+    source = await createImageBitmap(file, { imageOrientation: "from-image" });
+  } catch {
+    source = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  const w = source.width, h = source.height;
+  const scale = Math.min(1, MAX_IMAGE_EDGE / Math.max(w, h));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(w * scale);
+  canvas.height = Math.round(h * scale);
+  canvas.getContext("2d").drawImage(source, 0, 0, canvas.width, canvas.height);
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("toBlob failed"))), "image/jpeg", 0.88);
+  });
+}
+
+$("f-photo").addEventListener("change", async () => {
+  const file = $("f-photo").files[0];
+  const keepInput = file;
+  resetPhoto();
+  if (!keepInput) return;
+  setStatus($("photo-status"), "Preparando foto…");
+  try {
+    photo.blob = await prepareImage(keepInput);
+  } catch (err) {
+    console.error(err);
+    setStatus($("photo-status"), "No se pudo abrir esa foto. Intenta con otra, o toma una captura de pantalla de la foto y súbela.", "error");
+    return;
+  }
+  $("photo-name").textContent = "Foto elegida";
+  photo.previewUrl = URL.createObjectURL(photo.blob);
+  $("photo-preview").src = photo.previewUrl;
+  $("photo-preview").classList.remove("hidden");
+  for (const id of ["ai-read", "manual-read", "photo-remove"]) $(id).classList.remove("hidden");
+  setStatus($("photo-status"), "Foto lista. Puedes pedir que la IA la lea, escribir tú la lectura, o solo guardarla con la entrada.");
+});
+
+$("photo-remove").addEventListener("click", resetPhoto);
+$("photo-pick").addEventListener("click", () => $("f-photo").click());
+
+async function ensurePhotoUploaded() {
+  if (photo.uploadedPath) return photo.uploadedPath;
+  const name = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.jpg`;
+  const path = `dad-care-log/photos/${currentUser.uid}/${name}`;
+  await uploadBytes(storageRef(storage, path), photo.blob, { contentType: "image/jpeg" });
+  photo.uploadedPath = path;
+  return path;
+}
+
+function openReading(source, text, doubts) {
+  photo.readingSource = source;
+  photo.kind = selectedKind();
+  setKindLocked(true);
+  const isAi = source === "ai";
+  $("reading-box").classList.remove("hidden");
+  $("reading-box").classList.toggle("person", !isAi);
+  $("reading-badge").textContent = isAi ? "Leído por IA, por favor verifica" : "Lectura escrita por ti";
+  $("reading-explain").textContent = isAi
+    ? "Esto es una sugerencia de la IA, no lo escribió una persona. Compárala con la foto y corrige lo que haga falta."
+    : "Escribe lo que dice la foto, por ejemplo «Presión arterial: 128/82 mmHg».";
+  $("reading-doubts").textContent = doubts ? `La IA no está segura de: ${doubts}` : "";
+  $("reading-doubts").classList.toggle("hidden", !doubts);
+  $("f-reading").value = text;
+  $("f-reading-confirm").checked = false;
+  $("reading-confirm-text").textContent = isAi
+    ? "Revisé esta lectura contra la foto y está correcta."
+    : "Revisé que la lectura coincide con la foto.";
+  $("ai-read").classList.add("hidden");
+  $("manual-read").classList.add("hidden");
+}
+
+function closeReading() {
+  $("reading-box").classList.add("hidden");
+  $("f-reading").value = "";
+  $("f-reading-confirm").checked = false;
+  photo.readingSource = null;
+}
+
+// Editing the text after ticking the box means it needs checking again.
+$("f-reading").addEventListener("input", () => { $("f-reading-confirm").checked = false; });
+
+$("reading-discard").addEventListener("click", () => {
+  closeReading();
+  setKindLocked(false);
+  if (photo.blob) {
+    $("ai-read").classList.remove("hidden");
+    $("manual-read").classList.remove("hidden");
+  }
+  setStatus($("photo-status"), "Lectura descartada. La foto se guardará sin lectura, a menos que la quites.");
+});
+
+$("manual-read").addEventListener("click", () => {
+  openReading("person", "", "");
+  setStatus($("photo-status"), "");
+  $("f-reading").focus();
+});
+
+const readCarePhoto = httpsCallable(functions, "readCarePhoto", { timeout: 180000 });
+
+$("ai-read").addEventListener("click", async () => {
+  if (photo.aiPending || !photo.blob) return;
+  photo.aiPending = true;
+  photo.kind = selectedKind();
+  setKindLocked(true);
+  $("ai-read").disabled = true;
+  $("manual-read").classList.add("hidden");
+  setStatus($("photo-status"), "Subiendo foto…");
+  try {
+    const path = await ensurePhotoUploaded();
+    setStatus($("photo-status"), "La IA está leyendo la foto… puede tardar hasta un minuto.");
+    const { data } = await readCarePhoto({ path, kind: photo.kind });
+    if (!photo.blob || photo.uploadedPath !== path) return; // photo was removed meanwhile
+    if (!data.readable || !data.text) {
+      setStatus($("photo-status"), "La IA no pudo leer la foto" + (data.doubts ? `: ${data.doubts}` : ".") + " Toma otra foto más de cerca y con buena luz, o escribe tú la lectura.", "error");
+      $("ai-read").classList.remove("hidden");
+      $("manual-read").classList.remove("hidden");
+      setKindLocked(false);
+      return;
+    }
+    setStatus($("photo-status"), "");
+    openReading("ai", data.text, data.doubts);
+  } catch (err) {
+    console.error(err);
+    const msg = err.code === "functions/resource-exhausted"
+      ? "La IA está ocupada. Espera un momento e intenta de nuevo, o escribe tú la lectura."
+      : "No se pudo leer la foto con IA. Intenta de nuevo, o escribe tú la lectura.";
+    setStatus($("photo-status"), msg, "error");
+    $("ai-read").classList.remove("hidden");
+    $("manual-read").classList.remove("hidden");
+    setKindLocked(false);
+  } finally {
+    photo.aiPending = false;
+    $("ai-read").disabled = false;
+  }
+});
+</script>
+</body>
+</html>
