@@ -193,6 +193,52 @@ describe("firestore: entries are append-only", () => {
   });
 });
 
+describe("firestore: corrections", () => {
+  const alicePhoto = `dad-care-log/photos/${ALICE.uid}/1.jpg`;
+
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "entries/original"), {
+        ...goodEntry(ALICE), createdAt: Timestamp.now(), photoPath: alicePhoto, photoKind: "monitor",
+      });
+    });
+  });
+
+  test("any family member can add a correction of an existing entry", async () => {
+    await assertSucceeds(addDoc(collection(as(BOB).firestore(), "entries"),
+      goodEntry(BOB, { correctsId: "original", doctor: "Corregido" })));
+  });
+  test("a correction must point at an entry that exists", async () => {
+    await assertFails(addDoc(collection(as(BOB).firestore(), "entries"),
+      goodEntry(BOB, { correctsId: "doesNotExist" })));
+  });
+  test("correctsId must be a plain document id", async () => {
+    const db = as(BOB).firestore();
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(BOB, { correctsId: 42 })));
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(BOB, { correctsId: "a/b" })));
+  });
+  test("a correction can reuse the corrected entry's photo with a fixed reading", async () => {
+    await assertSucceeds(addDoc(collection(as(BOB).firestore(), "entries"), goodEntry(BOB, {
+      correctsId: "original", photoPath: alicePhoto, photoKind: "monitor",
+      photoReading: "Pulso: 74 lpm", photoReadingSource: "person", photoReadingConfirmed: true,
+    })));
+  });
+  test("reusing someone else's photo without correcting that entry is refused", async () => {
+    await assertFails(addDoc(collection(as(BOB).firestore(), "entries"),
+      goodEntry(BOB, { photoPath: alicePhoto, photoKind: "monitor" })));
+  });
+  test("a correction can't borrow a photo the corrected entry doesn't have", async () => {
+    await assertFails(addDoc(collection(as(BOB).firestore(), "entries"), goodEntry(BOB, {
+      correctsId: "original", photoPath: `dad-care-log/photos/${ALICE.uid}/2.jpg`, photoKind: "monitor",
+    })));
+  });
+  test("the original is still unchangeable after a correction", async () => {
+    await addDoc(collection(as(BOB).firestore(), "entries"), goodEntry(BOB, { correctsId: "original" }));
+    await assertFails(updateDoc(doc(as(ALICE).firestore(), "entries/original"), { doctor: "x" }));
+    await assertFails(deleteDoc(doc(as(ALICE).firestore(), "entries/original")));
+  });
+});
+
 describe("storage: photos", () => {
   const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3]);
   const meta = { contentType: "image/jpeg" };

@@ -143,6 +143,29 @@
   .entry img{max-width:100%; border-radius:8px; margin-top:8px; display:block;}
   .pending{display:inline-block; font-size:13px; background:#F3EFE4; color:var(--amber); font-weight:700; padding:1px 8px; border-radius:999px; margin-left:6px;}
   #who-am-i{font-size:14px; color:#C7D6DE;}
+  .correcting-banner{
+    background:#FBEBDD;
+    border:2px solid var(--amber);
+    border-radius:10px;
+    padding:10px 12px;
+    margin:0 0 6px;
+    font-size:15px;
+  }
+  .correcting-banner p{margin:0 0 8px;}
+  .tag{display:inline-block; font-size:13px; font-weight:700; padding:1px 8px; border-radius:999px; margin-left:6px; vertical-align:middle;}
+  .tag.correction{background:var(--amber); color:#fff;}
+  .tag.corrected{background:#F3EFE4; color:var(--amber); border:1px solid var(--amber);}
+  .entry .correction-note{
+    background:#FBEBDD;
+    border-left:4px solid var(--amber);
+    border-radius:6px;
+    padding:8px 10px;
+    margin:0 0 10px;
+    font-size:15px;
+  }
+  .entry .correction-note p{margin:0 0 4px;}
+  button.linklike{background:none; border:0; padding:0; color:var(--teal-dark); text-decoration:underline; font-weight:600; font-size:15px;}
+  .entry.flash{outline:3px solid var(--amber); outline-offset:2px;}
 </style>
 </head>
 <body>
@@ -188,7 +211,11 @@
   <div id="view-app" class="hidden">
 
     <section class="card">
-      <h2>Nueva entrada</h2>
+      <h2 id="form-title">Nueva entrada</h2>
+      <div id="correcting-banner" class="correcting-banner hidden">
+        <p id="correcting-text"></p>
+        <button type="button" id="correcting-cancel" class="secondary">Cancelar corrección</button>
+      </div>
       <form id="entry-form" novalidate>
         <label for="f-when">Fecha y hora
           <span class="hint">Hora del centro de México.</span>
@@ -421,6 +448,7 @@ onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (unsubscribeEntries) { unsubscribeEntries(); unsubscribeEntries = null; }
   resetPhoto();
+  setCorrecting(null);
   if (!user) {
     $("account").classList.add("hidden");
     show("view-signed-out");
@@ -498,22 +526,80 @@ function renderEntries(snap) {
     return;
   }
   setStatus($("list-status"), "");
+  const byId = new Map();
+  const correctionsOf = new Map();
   for (const docSnap of snap.docs) {
-    container.appendChild(renderEntry(docSnap));
+    const entry = docSnap.data({ serverTimestamps: "estimate" });
+    byId.set(docSnap.id, entry);
+    if (entry.correctsId) {
+      if (!correctionsOf.has(entry.correctsId)) correctionsOf.set(entry.correctsId, []);
+      correctionsOf.get(entry.correctsId).push({ id: docSnap.id, entry });
+    }
+  }
+  // Same `when`: most recently saved first, so a correction sits right
+  // above the entry it corrects.
+  const createdMs = (d) => d.data({ serverTimestamps: "estimate" }).createdAt?.toMillis() ?? 0;
+  const docs = [...snap.docs].sort((a, b) =>
+    (b.data().when?.toMillis() ?? 0) - (a.data().when?.toMillis() ?? 0) || createdMs(b) - createdMs(a));
+  for (const docSnap of docs) {
+    container.appendChild(renderEntry(docSnap, {
+      original: byId.get(docSnap.data().correctsId) || null,
+      corrections: correctionsOf.get(docSnap.id) || [],
+    }));
   }
 }
 
-function renderEntry(docSnap) {
+function describeEntry(entry) {
+  const when = entry.when ? formatWhen(entry.when.toDate()) : "sin fecha";
+  return `la entrada del ${when}, escrita por ${entry.who}`;
+}
+
+function scrollToEntry(id) {
+  const target = document.getElementById("entry-" + id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
+  target.classList.add("flash");
+  setTimeout(() => target.classList.remove("flash"), 2000);
+}
+
+function renderEntry(docSnap, context) {
   const entry = docSnap.data({ serverTimestamps: "estimate" });
   const when = entry.when ? entry.when.toDate() : null;
-  const card = el("article", { class: "card entry" });
+  const card = el("article", { class: "card entry", id: "entry-" + docSnap.id });
 
   const title = el("h3", {}, when ? formatWhen(when) : "Sin fecha");
+  if (entry.correctsId) title.appendChild(el("span", { class: "tag correction" }, "Corrección"));
+  if (context.corrections.length) title.appendChild(el("span", { class: "tag corrected" }, "Corregida"));
   if (docSnap.metadata.hasPendingWrites) {
     title.appendChild(el("span", { class: "pending" }, "Pendiente de enviar"));
   }
   card.appendChild(title);
-  card.appendChild(el("p", { class: "meta" }, `Escribió: ${entry.who}`));
+  let meta = `Escribió: ${entry.who}`;
+  if (entry.correctsId && entry.createdAt) meta += ` · corrección guardada el ${formatWhen(entry.createdAt.toDate())}`;
+  card.appendChild(el("p", { class: "meta" }, meta));
+
+  if (entry.correctsId) {
+    const note = el("div", { class: "correction-note" });
+    note.appendChild(el("p", {}, context.original
+      ? `Esta entrada corrige ${describeEntry(context.original)}. La original se conserva sin cambios.`
+      : "Esta entrada corrige una entrada anterior."));
+    if (context.original) {
+      const link = el("button", { type: "button", class: "linklike" }, "Ver la entrada original");
+      link.addEventListener("click", () => scrollToEntry(entry.correctsId));
+      note.appendChild(link);
+    }
+    card.appendChild(note);
+  }
+  for (const correction of context.corrections) {
+    const note = el("div", { class: "correction-note" });
+    const savedAt = correction.entry.createdAt ? ` el ${formatWhen(correction.entry.createdAt.toDate())}` : "";
+    note.appendChild(el("p", {}, `Corregida por ${correction.entry.who}${savedAt}`));
+    note.appendChild(el("p", {}, "Revisa la corrección antes de usar estos datos."));
+    const link = el("button", { type: "button", class: "linklike" }, "Ver la corrección");
+    link.addEventListener("click", () => scrollToEntry(correction.id));
+    note.appendChild(link);
+    card.appendChild(note);
+  }
 
   for (const field of ["doctor", "meds", "next", "notes"]) {
     const value = (entry[field] || "").trim();
@@ -539,8 +625,16 @@ function renderEntry(docSnap) {
 
   const actions = el("div", { class: "row actions" });
   const share = el("button", { type: "button", class: "wa" }, "Compartir por WhatsApp");
-  share.addEventListener("click", () => shareToWhatsApp(entry));
+  share.addEventListener("click", () => shareToWhatsApp(entry, context));
   actions.appendChild(share);
+
+  const fix = el("button", { type: "button", class: "secondary" }, "Corregir");
+  if (docSnap.metadata.hasPendingWrites) {
+    fix.disabled = true;
+    fix.title = "Espera a que la entrada termine de enviarse.";
+  }
+  fix.addEventListener("click", () => startCorrection(docSnap.id, entry));
+  actions.appendChild(fix);
 
   if (entry.photoPath) {
     const photoBtn = el("button", { type: "button", class: "secondary" }, "Ver foto");
@@ -572,8 +666,13 @@ function renderEntry(docSnap) {
 // WhatsApp share: opens WhatsApp's chat picker with the text filled in. The
 // person chooses the chat and taps Send; nothing is sent automatically.
 // ---------------------------------------------------------------------------
-function buildWhatsAppText(entry) {
+function buildWhatsAppText(entry, context = { original: null, corrections: [] }) {
   const lines = ["*Bitácora de cuidados de papá*"];
+  if (entry.correctsId) {
+    lines.push(context.original
+      ? `*Corrección* de ${describeEntry(context.original)}`
+      : "*Corrección* de una entrada anterior");
+  }
   if (entry.when) lines.push(`*Fecha:* ${formatWhen(entry.when.toDate())}`);
   lines.push(`*Escribió:* ${entry.who}`);
 
@@ -588,11 +687,15 @@ function buildWhatsAppText(entry) {
   if (steps.length) add(FIELD_LABELS.next, steps.map((s) => `- ${s}`));
   if (entry.notes && entry.notes.trim()) add(FIELD_LABELS.notes, plain(entry.notes));
   if (entry.photoReading) add(readingLabel(entry), plain(entry.photoReading));
+  if (context.corrections.length) {
+    const who = [...new Set(context.corrections.map((c) => c.entry.who))].join(", ");
+    lines.push("", `_Ojo: esta entrada fue corregida después por ${who}. Revisa la corrección en la bitácora._`);
+  }
   return lines.join("\n");
 }
 
-function shareToWhatsApp(entry) {
-  const url = "https://wa.me/?text=" + encodeURIComponent(buildWhatsAppText(entry));
+function shareToWhatsApp(entry, context) {
+  const url = "https://wa.me/?text=" + encodeURIComponent(buildWhatsAppText(entry, context));
   window.open(url, "_blank", "noopener");
 }
 
@@ -641,10 +744,13 @@ async function onSave(event) {
     return setStatus(status, "Espera a que termine la lectura de la foto.", "error");
   }
   const hasText = Object.values(fields).some(Boolean);
-  if (!hasText && !photo.blob) {
+  if (!hasText && !hasPhoto()) {
     return setStatus(status, "La entrada está vacía. Escribe algo o agrega una foto.", "error");
   }
-  if (!confirm("¿Guardar esta entrada? Ya no se podrá editar ni borrar.")) return;
+  const question = correcting
+    ? "¿Guardar esta corrección? Ya no se podrá editar ni borrar. La entrada original se conserva sin cambios."
+    : "¿Guardar esta entrada? Ya no se podrá editar ni borrar.";
+  if (!confirm(question)) return;
 
   saving = true;
   $("save").disabled = true;
@@ -662,9 +768,10 @@ async function onSave(event) {
       createdAt: serverTimestamp(),
     };
     for (const [k, v] of Object.entries(fields)) if (v) data[k] = v;
+    if (correcting) data.correctsId = correcting.id;
 
-    if (photo.blob) {
-      data.photoPath = await ensurePhotoUploaded();
+    if (hasPhoto()) {
+      data.photoPath = photo.existingPath || await ensurePhotoUploaded();
       data.photoKind = selectedKind();
       if (readingOpen && reading) {
         data.photoReading = reading;
@@ -676,10 +783,9 @@ async function onSave(event) {
     await addDoc(collection(db, "entries"), data);
     try { localStorage.setItem(WHO_KEY, who); } catch { /* ignore */ }
     clearTimeout(slowTimer);
-    for (const id of ["f-doctor", "f-meds", "f-next", "f-notes"]) $(id).value = "";
-    $("f-when").value = dateToZonedInput(new Date());
-    resetPhoto();
-    setStatus(status, "Entrada guardada.", "ok");
+    const wasCorrection = Boolean(correcting);
+    clearForm();
+    setStatus(status, wasCorrection ? "Corrección guardada." : "Entrada guardada.", "ok");
   } catch (err) {
     clearTimeout(slowTimer);
     console.error(err);
@@ -694,15 +800,87 @@ async function onSave(event) {
 }
 
 // ---------------------------------------------------------------------------
+// Corrections: saved entries can't be edited, so "Corregir" starts a new
+// entry, prefilled from the original, that points at it with correctsId.
+// ---------------------------------------------------------------------------
+let correcting = null;
+
+function formHasContent() {
+  return ["f-doctor", "f-meds", "f-next", "f-notes"].some((id) => $(id).value.trim()) || hasPhoto();
+}
+
+function clearForm() {
+  for (const id of ["f-doctor", "f-meds", "f-next", "f-notes"]) $(id).value = "";
+  $("f-when").value = dateToZonedInput(new Date());
+  resetPhoto();
+  setCorrecting(null);
+}
+
+function setCorrecting(target) {
+  correcting = target;
+  $("form-title").textContent = target ? "Corregir entrada" : "Nueva entrada";
+  $("save").textContent = target ? "Guardar corrección" : "Guardar entrada";
+  $("correcting-banner").classList.toggle("hidden", !target);
+  $("correcting-text").textContent = target
+    ? `Estás corrigiendo ${describeEntry(target.entry)}. Cambia lo que esté mal y guarda. La entrada original no se borra: quedará marcada como «Corregida» y enlazada a esta corrección.`
+    : "";
+}
+
+function startCorrection(id, entry) {
+  if (saving) return;
+  if (formHasContent() && !confirm("Se reemplazará lo que estás escribiendo en el formulario. ¿Continuar?")) return;
+  clearForm();
+  setCorrecting({ id, entry });
+  if (entry.when) $("f-when").value = dateToZonedInput(entry.when.toDate());
+  for (const field of ["doctor", "meds", "next", "notes"]) $("f-" + field).value = entry[field] || "";
+  if (entry.photoPath) useExistingPhoto(entry);
+  setStatus($("save-status"), "");
+  $("form-title").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+$("correcting-cancel").addEventListener("click", () => {
+  clearForm();
+  setStatus($("save-status"), "Corrección cancelada. No se guardó nada.");
+});
+
+// The correction keeps pointing at the original's photo (the rules allow
+// exactly that photo). The reading, if any, is reopened for a person to fix
+// and confirm; the AI button stays hidden because the photo isn't theirs.
+function useExistingPhoto(entry) {
+  photo.existingPath = entry.photoPath;
+  const kindInput = document.querySelector(`input[name="photo-kind"][value="${entry.photoKind}"]`);
+  if (kindInput) kindInput.checked = true;
+  $("photo-name").textContent = "Foto de la entrada original";
+  $("photo-remove").classList.remove("hidden");
+  getDownloadURL(storageRef(storage, entry.photoPath)).then((url) => {
+    if (photo.existingPath !== entry.photoPath) return;
+    $("photo-preview").src = url;
+    $("photo-preview").classList.remove("hidden");
+  }).catch((err) => console.error(err));
+  if (entry.photoReading) {
+    openReading("person", entry.photoReading, "");
+    $("reading-badge").textContent = "Lectura de la entrada original";
+    $("reading-explain").textContent = "Compara esta lectura con la foto y corrige lo que esté mal.";
+  } else {
+    $("manual-read").classList.remove("hidden");
+    setKindLocked(false);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Photo + AI reading. The AI's text is only ever a suggestion shown in its
 // own tinted box; it can only be saved after the person ticks the
 // confirmation checkbox (and the Firestore rules require that flag).
 // ---------------------------------------------------------------------------
-const photo = { blob: null, kind: "monitor", uploadedPath: null, readingSource: null, aiPending: false, previewUrl: null };
+const photo = { blob: null, existingPath: null, kind: "monitor", uploadedPath: null, readingSource: null, aiPending: false, previewUrl: null };
+
+function hasPhoto() {
+  return Boolean(photo.blob || photo.existingPath);
+}
 
 function resetPhoto() {
   if (photo.previewUrl) URL.revokeObjectURL(photo.previewUrl);
-  Object.assign(photo, { blob: null, uploadedPath: null, readingSource: null, aiPending: false, previewUrl: null });
+  Object.assign(photo, { blob: null, existingPath: null, uploadedPath: null, readingSource: null, aiPending: false, previewUrl: null });
   $("f-photo").value = "";
   $("photo-name").textContent = "Ninguna foto elegida";
   $("photo-preview").classList.add("hidden");
@@ -813,10 +991,8 @@ $("f-reading").addEventListener("input", () => { $("f-reading-confirm").checked 
 $("reading-discard").addEventListener("click", () => {
   closeReading();
   setKindLocked(false);
-  if (photo.blob) {
-    $("ai-read").classList.remove("hidden");
-    $("manual-read").classList.remove("hidden");
-  }
+  if (photo.blob) $("ai-read").classList.remove("hidden");
+  if (hasPhoto()) $("manual-read").classList.remove("hidden");
   setStatus($("photo-status"), "Lectura descartada. La foto se guardará sin lectura, a menos que la quites.");
 });
 

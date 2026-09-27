@@ -45,7 +45,7 @@ service cloud.firestore {
           'when', 'who', 'doctor', 'meds', 'next', 'notes',
           'authorEmail', 'authorUid', 'createdAt',
           'photoPath', 'photoKind', 'photoReading', 'photoReadingSource',
-          'photoReadingConfirmed'
+          'photoReadingConfirmed', 'correctsId'
         ])
         && d.when is timestamp
         && d.who in ['Adriana', 'Alejandro', 'Chavita', 'Daniel',
@@ -57,12 +57,30 @@ service cloud.firestore {
         && optionalString(d, 'meds', 5000)
         && optionalString(d, 'next', 5000)
         && optionalString(d, 'notes', 5000)
+        && isValidCorrection(d)
         && isValidPhoto(d)
         && hasSomeContent(d);
     }
 
-    // Photo fields are all-or-nothing. A photo may only point at the
-    // author's own upload folder. A reading of the photo can only be
+    // Entries can't be edited, so mistakes are fixed with a *new* entry
+    // that points at the one it corrects. The original stays as it was.
+    function isValidCorrection(d) {
+      return !('correctsId' in d)
+        || (d.correctsId is string
+            && d.correctsId.matches('[A-Za-z0-9]{1,64}')
+            && exists(/databases/$(database)/documents/entries/$(d.correctsId)));
+    }
+
+    // A photo path must be in the author's own upload folder, or, for a
+    // correction, the very same photo the corrected entry points at (so a
+    // misread number can be fixed without re-uploading the picture).
+    function isAllowedPhotoPath(d) {
+      return d.photoPath.matches('dad-care-log/photos/' + request.auth.uid + '/[A-Za-z0-9_.-]{1,100}')
+        || ('correctsId' in d
+            && d.photoPath == get(/databases/$(database)/documents/entries/$(d.correctsId)).data.get('photoPath', null));
+    }
+
+    // Photo fields are all-or-nothing. A reading of the photo can only be
     // saved with photoReadingConfirmed == true: the app sets that only
     // after the person has reviewed (and possibly edited) the text,
     // whether it started as an AI suggestion or was typed by hand.
@@ -71,7 +89,7 @@ service cloud.firestore {
               && !('photoReadingSource' in d) && !('photoReadingConfirmed' in d))
         || ('photoPath' in d
             && d.photoPath is string
-            && d.photoPath.matches('dad-care-log/photos/' + request.auth.uid + '/[A-Za-z0-9_.-]{1,100}')
+            && isAllowedPhotoPath(d)
             && d.photoKind in ['monitor', 'note']
             && (
               (!('photoReading' in d) && !('photoReadingSource' in d) && !('photoReadingConfirmed' in d))

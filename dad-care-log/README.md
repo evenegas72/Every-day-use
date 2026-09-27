@@ -104,7 +104,7 @@ To change the family list later: edit both rules files, run the tests, then
 ## Local testing
 
 ```bash
-cd dad-care-log/tests && npm install && npm test   # 37 rule tests on the emulators
+cd dad-care-log/tests && npm install && npm test   # 44 rule tests on the emulators
 cd ../functions && npm test                        # prompt / response parsing
 ```
 
@@ -126,6 +126,25 @@ from the repo root and open `http://localhost:5000/?emulator=1` (the
 - The Firestore rules refuse any entry with a `photoReading` unless
   `photoReadingConfirmed == true`. The saved entry shows "leída por IA y
   confirmada por <nombre>".
+
+## Corrections ("Corregir")
+
+Entries can't be edited, so each entry has a **Corregir** button. It opens the
+form prefilled with that entry's content. Saving creates a *new* entry with
+`correctsId` pointing at the original, which stays exactly as it was:
+
+- The original shows a "Corregida" tag and a note "Corregida por <nombre> el
+  <fecha>" with a link to the correction. The correction shows a "Corrección"
+  tag and a link back to the original.
+- The rules only accept a `correctsId` that points at an existing entry.
+- A correction may reuse the original's photo (and only that photo) so a
+  misread number can be fixed without re-uploading. The reading must be
+  re-confirmed by the person correcting.
+- Sharing the original to WhatsApp adds a line saying it was corrected later.
+
+As project owner you can still delete documents from the Firebase console
+(the rules apply to the app, not to project admins). Use that only for test
+entries made while setting up.
 
 ## Time zone
 
