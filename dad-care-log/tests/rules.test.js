@@ -23,10 +23,17 @@ function allowList(rules) {
   return [...body[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
 }
 
-const FAMILY = allowList(FIRESTORE_RULES);
-const ALICE = { uid: "familyUid1", email: FAMILY[0] };
-const BOB = { uid: "familyUid2", email: FAMILY[1] };
-const STRANGER = { uid: "strangerUid", email: "stranger@example.com" };
+function familyNames(rules) {
+  const body = /function familyNames\(\) \{\s*return \{([\s\S]*?)\};/.exec(rules);
+  assert.ok(body, "familyNames map not found in firestore.rules");
+  return Object.fromEntries([...body[1].matchAll(/'([^']+)':\s*'([^']+)'/g)].map((m) => [m[1], m[2]]));
+}
+
+const NAMES = familyNames(FIRESTORE_RULES);
+const FAMILY = Object.keys(NAMES);
+const ALICE = { uid: "familyUid1", email: FAMILY[0], name: NAMES[FAMILY[0]] };
+const BOB = { uid: "familyUid2", email: FAMILY[1], name: NAMES[FAMILY[1]] };
+const STRANGER = { uid: "strangerUid", email: "stranger@example.com", name: NAMES[FAMILY[0]] };
 
 let env;
 
@@ -37,7 +44,7 @@ function as(user, extra = {}) {
 function goodEntry(user, overrides = {}) {
   return {
     when: Timestamp.fromDate(new Date("2026-09-27T20:30:00Z")),
-    who: "Daniel",
+    who: user.name,
     doctor: "Todo bien",
     authorEmail: user.email.toLowerCase(),
     authorUid: user.uid,
@@ -71,6 +78,10 @@ describe("allow-lists", () => {
     assert.equal(FAMILY.length, 8);
     assert.equal(new Set(FAMILY).size, FAMILY.length);
     for (const email of FAMILY) assert.equal(email, email.toLowerCase(), email);
+  });
+  test("each of the eight names appears exactly once", () => {
+    assert.deepEqual(Object.values(NAMES).sort(),
+      ["Adriana", "Alejandro", "Chavita", "Daniel", "Enrique", "Lorena", "Salvador", "Teresa"]);
   });
 });
 
@@ -117,6 +128,9 @@ describe("firestore: creating entries", () => {
   test("who must be one of the eight family names", async () => {
     await assertFails(addDoc(collection(as(ALICE).firestore(), "entries"), goodEntry(ALICE, { who: "Pedro" })));
   });
+  test("who must be the signed-in person's own name", async () => {
+    await assertFails(addDoc(collection(as(ALICE).firestore(), "entries"), goodEntry(ALICE, { who: BOB.name })));
+  });
   test("unknown fields are refused", async () => {
     await assertFails(addDoc(collection(as(ALICE).firestore(), "entries"), goodEntry(ALICE, { extra: "x" })));
   });
@@ -161,6 +175,22 @@ describe("firestore: photo fields", () => {
   test("an unknown photo kind is refused", async () => {
     await assertFails(addDoc(collection(as(ALICE).firestore(), "entries"),
       goodEntry(ALICE, { photoPath: ownPath, photoKind: "xray" })));
+  });
+});
+
+describe("firestore: whoami", () => {
+  test("family can look up their own name", async () => {
+    await assertSucceeds(getDoc(doc(as(ALICE).firestore(), `whoami/${ALICE.name}`)));
+  });
+  test("family can't probe other names", async () => {
+    await assertFails(getDoc(doc(as(ALICE).firestore(), `whoami/${BOB.name}`)));
+  });
+  test("non-family can't look up any name", async () => {
+    await assertFails(getDoc(doc(as(STRANGER).firestore(), `whoami/${ALICE.name}`)));
+  });
+  test("whoami can't be listed or written", async () => {
+    await assertFails(getDocs(collection(as(ALICE).firestore(), "whoami")));
+    await assertFails(setDoc(doc(as(ALICE).firestore(), `whoami/${ALICE.name}`), { a: 1 }));
   });
 });
 

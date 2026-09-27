@@ -8,26 +8,36 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ---------------------------------------------------------------
-    // FAMILY ALLOW-LIST: one Google account email per person, written in
-    // lowercase. This list is the real security boundary: everyone
-    // else is refused, even with the link.
+    // FAMILY ALLOW-LIST: each person's Google account email (lowercase)
+    // and the name their entries are saved under. This is the real
+    // security boundary: everyone else is refused, even with the link.
+    // An entry's "who" must be the name listed here for the account
+    // that saves it, so nobody can write under someone else's name.
     //
-    // The same list is in storage.rules; keep the two identical
+    // The same emails are in storage.rules; keep the two identical
     // (`npm test` in dad-care-log/tests checks that they match).
     // ---------------------------------------------------------------
+    function familyNames() {
+      return {
+        'adriana@replace-me.invalid': 'Adriana',
+        'alejandro@replace-me.invalid': 'Alejandro',
+        'chavita@replace-me.invalid': 'Chavita',
+        'daniel@replace-me.invalid': 'Daniel',
+        'rickv72@gmail.com': 'Enrique',
+        'lorena@replace-me.invalid': 'Lorena',
+        'salvador@replace-me.invalid': 'Salvador',
+        'teresa@replace-me.invalid': 'Teresa'
+      };
+    }
+
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+
     function isFamily() {
       return request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email.lower() in [
-          'adriana@replace-me.invalid',    // Adriana
-          'alejandro@replace-me.invalid',  // Alejandro
-          'chavita@replace-me.invalid',    // Chavita
-          'daniel@replace-me.invalid',     // Daniel
-          'rickv72@gmail.com',            // Enrique
-          'lorena@replace-me.invalid',     // Lorena
-          'salvador@replace-me.invalid',   // Salvador
-          'teresa@replace-me.invalid'      // Teresa
-        ];
+        && myEmail() in familyNames();
     }
 
     function optionalString(data, field, maxLen) {
@@ -48,9 +58,8 @@ service cloud.firestore {
           'photoReadingConfirmed', 'correctsId'
         ])
         && d.when is timestamp
-        && d.who in ['Adriana', 'Alejandro', 'Chavita', 'Daniel',
-                     'Enrique', 'Lorena', 'Salvador', 'Teresa']
-        && d.authorEmail == request.auth.token.email.lower()
+        && d.who == familyNames()[myEmail()]
+        && d.authorEmail == myEmail()
         && d.authorUid == request.auth.uid
         && d.createdAt == request.time
         && optionalString(d, 'doctor', 5000)
@@ -116,6 +125,14 @@ service cloud.firestore {
       // it) can change or remove an entry. Enforced here, not just hidden
       // in the UI.
       allow update, delete: if false;
+    }
+
+    // Lets the app find out which name belongs to the signed-in account
+    // without the email list ever being sent to the browser: a get of
+    // /whoami/<name> is allowed only for that person's own name. No
+    // documents are stored here.
+    match /whoami/{name} {
+      allow get: if isFamily() && familyNames()[myEmail()] == name;
     }
 
     // Catch-all: deny anything not explicitly allowed above.

@@ -143,6 +143,10 @@
   .entry img{max-width:100%; border-radius:8px; margin-top:8px; display:block;}
   .pending{display:inline-block; font-size:13px; background:#F3EFE4; color:var(--amber); font-weight:700; padding:1px 8px; border-radius:999px; margin-left:6px;}
   #who-am-i{font-size:14px; color:#C7D6DE;}
+  .who-line{margin:14px 0 0; font-weight:600;}
+  .who-line strong{color:var(--teal-dark);}
+  .bullet-tip{margin:-4px 0 4px;}
+  .entry .field ul{margin:4px 0 0; padding-left:22px;}
   .correcting-banner{
     background:#FBEBDD;
     border:2px solid var(--amber);
@@ -216,44 +220,36 @@
         <p id="correcting-text"></p>
         <button type="button" id="correcting-cancel" class="secondary">Cancelar corrección</button>
       </div>
+      <p class="hint bullet-tip">Consejo: en cada campo, Enter empieza una viñeta nueva (•). Presiona Enter dos veces para terminar la lista.</p>
       <form id="entry-form" novalidate>
         <label for="f-when">Fecha y hora
           <span class="hint">Hora del centro de México.</span>
         </label>
         <input type="datetime-local" id="f-when" required>
 
-        <label for="f-who">¿Quién escribe?</label>
-        <select id="f-who" required>
-          <option value="">Elige tu nombre</option>
-          <option>Adriana</option>
-          <option>Alejandro</option>
-          <option>Chavita</option>
-          <option>Daniel</option>
-          <option>Enrique</option>
-          <option>Lorena</option>
-          <option>Salvador</option>
-          <option>Teresa</option>
-        </select>
+        <p class="who-line">Escribes como: <strong id="who-name"></strong>
+          <span class="hint">El nombre sale de tu cuenta de Google; no se puede cambiar.</span>
+        </p>
 
         <label for="f-doctor">Lo que dijo el doctor
           <span class="hint">Diagnóstico, indicaciones, cambios de tratamiento.</span>
         </label>
-        <textarea id="f-doctor" maxlength="5000" placeholder="Ej.: El Dr. Ramírez dice que la presión va mejor; bajar la dosis de losartán a media pastilla."></textarea>
+        <textarea id="f-doctor" maxlength="5000" placeholder="• Ej.: El Dr. Ramírez dice que la presión va mejor&#10;• Bajar la dosis de losartán a media pastilla"></textarea>
 
         <label for="f-meds">Medicamentos y síntomas
           <span class="hint">Qué tomó y a qué hora, cómo se sintió, qué notaste.</span>
         </label>
-        <textarea id="f-meds" maxlength="5000" placeholder="Ej.: 8:00 metformina 850 mg. Durmió bien, algo de tos en la tarde."></textarea>
+        <textarea id="f-meds" maxlength="5000" placeholder="• Ej.: 8:00 metformina 850 mg&#10;• Durmió bien, algo de tos en la tarde"></textarea>
 
         <label for="f-next">Próximos pasos para quien sigue
           <span class="hint">Uno por línea: pendientes, citas, preguntas para el doctor.</span>
         </label>
-        <textarea id="f-next" maxlength="5000" placeholder="Comprar más tiras para el glucómetro&#10;Cita de laboratorio el martes a las 9:00&#10;Preguntar si puede volver a caminar en las tardes"></textarea>
+        <textarea id="f-next" maxlength="5000" placeholder="• Comprar más tiras para el glucómetro&#10;• Cita de laboratorio el martes a las 9:00&#10;• Preguntar si puede volver a caminar en las tardes"></textarea>
 
         <label for="f-notes">Notas
           <span class="hint">Cualquier otra cosa que deba saber la familia.</span>
         </label>
-        <textarea id="f-notes" maxlength="5000" placeholder="Ej.: Estuvo de buen humor y preguntó por los nietos."></textarea>
+        <textarea id="f-notes" maxlength="5000" placeholder="• Ej.: Estuvo de buen humor y preguntó por los nietos"></textarea>
 
         <fieldset>
           <legend>Foto (opcional)</legend>
@@ -313,7 +309,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
   getFirestore, collection, query, orderBy, onSnapshot, addDoc,
-  serverTimestamp, Timestamp, connectFirestoreEmulator,
+  serverTimestamp, Timestamp, connectFirestoreEmulator, doc, getDoc,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import {
   getStorage, ref as storageRef, uploadBytes, getDownloadURL, connectStorageEmulator,
@@ -466,7 +462,47 @@ onAuthStateChanged(auth, (user) => {
 const entriesQuery = query(collection(db, "entries"), orderBy("when", "desc"));
 let firstSnapshot = true;
 
-function startApp() {
+// The family list lives only in the security rules. To learn the signed-in
+// person's name, try reading /whoami/<name> for each name: the rules allow
+// exactly one of those reads, and only for a family member. The answer is
+// cached per account so the form still works with a weak connection.
+const FAMILY_NAMES = ["Adriana", "Alejandro", "Chavita", "Daniel", "Enrique", "Lorena", "Salvador", "Teresa"];
+let myName = null;
+
+async function lookUpMyName(user) {
+  const cacheKey = "dad-care-log:name:" + user.uid;
+  const results = await Promise.allSettled(FAMILY_NAMES.map((name) => getDoc(doc(db, "whoami", name))));
+  const index = results.findIndex((r) => r.status === "fulfilled");
+  if (index >= 0) {
+    try { localStorage.setItem(cacheKey, FAMILY_NAMES[index]); } catch { /* ignore */ }
+    return { name: FAMILY_NAMES[index] };
+  }
+  if (results.every((r) => r.reason?.code === "permission-denied")) {
+    try { localStorage.removeItem(cacheKey); } catch { /* ignore */ }
+    return { denied: true };
+  }
+  let cached = null;
+  try { cached = localStorage.getItem(cacheKey); } catch { /* ignore */ }
+  return cached ? { name: cached } : { error: true };
+}
+
+async function startApp() {
+  const user = currentUser;
+  myName = null;
+  const me = await lookUpMyName(user);
+  if (currentUser !== user) return; // signed out or switched account meanwhile
+  if (me.denied) {
+    $("denied-email").textContent = user.email;
+    show("view-denied");
+    return;
+  }
+  if (me.error) {
+    show("view-app");
+    setStatus($("list-status"), "No se pudo conectar. Revisa tu conexión y recarga la página.", "error");
+    return;
+  }
+  myName = me.name;
+  $("who-name").textContent = myName;
   firstSnapshot = true;
   setStatus($("list-status"), "Cargando entradas…");
   $("entries").replaceChildren();
@@ -494,6 +530,34 @@ function el(tag, attrs = {}, text) {
   for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
   if (text !== undefined) node.textContent = text;
   return node;
+}
+
+const BULLET = "• ";
+const BULLET_RE = /^[•·]\s*/;
+
+// Lines starting with "•" are shown as a list; other lines as plain text.
+function renderRichText(value) {
+  const frag = document.createDocumentFragment();
+  let list = null;
+  let para = [];
+  const flushPara = () => {
+    if (para.length) frag.appendChild(el("div", { class: "field-body" }, para.join("\n")));
+    para = [];
+  };
+  for (const line of value.split(/\r?\n/)) {
+    if (BULLET_RE.test(line)) {
+      flushPara();
+      const item = line.replace(BULLET_RE, "").trim();
+      if (!item) continue;
+      if (!list) { list = el("ul"); frag.appendChild(list); }
+      list.appendChild(el("li", {}, item));
+    } else {
+      list = null;
+      para.push(line);
+    }
+  }
+  flushPara();
+  return frag;
 }
 
 function nextSteps(text) {
@@ -611,7 +675,7 @@ function renderEntry(docSnap, context) {
       for (const item of nextSteps(value)) list.appendChild(el("li", {}, item));
       block.appendChild(list);
     } else {
-      block.appendChild(el("div", { class: "field-body" }, value));
+      block.appendChild(renderRichText(value));
     }
     card.appendChild(block);
   }
@@ -679,7 +743,10 @@ function buildWhatsAppText(entry, context = { original: null, corrections: [] })
   const add = (label, body) => {
     lines.push("", `*${label}:*`, ...body);
   };
-  const plain = (text) => String(text).trim().split(/\r?\n/).map((l) => l.trimEnd());
+  // "• item" lines become "- item" so WhatsApp shows them as a list.
+  const plain = (text) => String(text).trim().split(/\r?\n/)
+    .map((l) => l.trimEnd().replace(BULLET_RE, "- "))
+    .filter((l) => l !== "- " && l !== "-");
 
   if (entry.doctor && entry.doctor.trim()) add(FIELD_LABELS.doctor, plain(entry.doctor));
   if (entry.meds && entry.meds.trim()) add(FIELD_LABELS.meds, plain(entry.meds));
@@ -702,18 +769,49 @@ function shareToWhatsApp(entry, context) {
 // ---------------------------------------------------------------------------
 // New entry form
 // ---------------------------------------------------------------------------
-const WHO_KEY = "dad-care-log:who";
 let formReady = false;
+const TEXT_FIELDS = ["f-doctor", "f-meds", "f-next", "f-notes"];
 
 function initForm() {
   $("f-when").value = dateToZonedInput(new Date());
-  try {
-    const savedWho = localStorage.getItem(WHO_KEY);
-    if (savedWho) $("f-who").value = savedWho;
-  } catch { /* storage unavailable; the person picks their name */ }
   if (formReady) return;
   formReady = true;
   $("entry-form").addEventListener("submit", onSave);
+  for (const id of TEXT_FIELDS) setUpBullets($(id));
+}
+
+// Enter starts a new "• " line when the current line is a bullet; Enter on an
+// empty bullet ends the list. Lines without a bullet behave normally.
+function setUpBullets(ta) {
+  ta.addEventListener("focus", () => {
+    if (ta.value === "") ta.value = BULLET;
+  });
+  ta.addEventListener("blur", () => {
+    if (cleanText(ta.value) === "") ta.value = "";
+  });
+  ta.addEventListener("beforeinput", (e) => {
+    if (e.inputType !== "insertLineBreak" && e.inputType !== "insertParagraph") return;
+    const { selectionStart: start, selectionEnd: end, value } = ta;
+    const lineStart = value.lastIndexOf("\n", start - 1) + 1;
+    const line = value.slice(lineStart, start);
+    if (!BULLET_RE.test(line)) return;
+    e.preventDefault();
+    if (start === end && line.replace(BULLET_RE, "").trim() === "") {
+      ta.setRangeText("", lineStart, start, "end");
+    } else {
+      ta.setRangeText("\n" + BULLET, start, end, "end");
+    }
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}
+
+// Drops empty bullet lines and surrounding whitespace before saving.
+function cleanText(text) {
+  return text.split(/\r?\n/)
+    .map((l) => l.trimEnd())
+    .filter((l) => l.replace(BULLET_RE, "").trim() !== "" || !BULLET_RE.test(l))
+    .join("\n")
+    .trim();
 }
 
 let saving = false;
@@ -724,16 +822,16 @@ async function onSave(event) {
   const status = $("save-status");
 
   const when = zonedInputToDate($("f-when").value);
-  const who = $("f-who").value;
+  const who = myName;
   const fields = {
-    doctor: $("f-doctor").value.trim(),
-    meds: $("f-meds").value.trim(),
-    next: $("f-next").value.trim(),
-    notes: $("f-notes").value.trim(),
+    doctor: cleanText($("f-doctor").value),
+    meds: cleanText($("f-meds").value),
+    next: cleanText($("f-next").value),
+    notes: cleanText($("f-notes").value),
   };
 
   if (!when) return setStatus(status, "Falta la fecha y hora.", "error");
-  if (!who) return setStatus(status, "Elige tu nombre en «¿Quién escribe?».", "error");
+  if (!who) return setStatus(status, "No se pudo confirmar tu nombre. Recarga la página e intenta de nuevo.", "error");
 
   const reading = $("f-reading").value.trim();
   const readingOpen = !$("reading-box").classList.contains("hidden");
@@ -781,7 +879,6 @@ async function onSave(event) {
     }
 
     await addDoc(collection(db, "entries"), data);
-    try { localStorage.setItem(WHO_KEY, who); } catch { /* ignore */ }
     clearTimeout(slowTimer);
     const wasCorrection = Boolean(correcting);
     clearForm();
@@ -806,7 +903,7 @@ async function onSave(event) {
 let correcting = null;
 
 function formHasContent() {
-  return ["f-doctor", "f-meds", "f-next", "f-notes"].some((id) => $(id).value.trim()) || hasPhoto();
+  return TEXT_FIELDS.some((id) => cleanText($(id).value)) || hasPhoto();
 }
 
 function clearForm() {

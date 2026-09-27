@@ -64,10 +64,15 @@ All commands run from the **repo root** (where `firebase.json` is).
    `firebase apps:sdkconfig web <appId>`). Until it's filled in the page shows
    a "Falta configurar la aplicación" message.
 
-5. **Family emails**: replace the eight `@replace-me.invalid` placeholders
-   in **both** `firestore.rules` and `storage.rules` with each person's Google
-   account email, in lowercase. `cd dad-care-log/tests && npm test` fails if
-   the two lists differ.
+5. **Family emails**: replace the `@replace-me.invalid` placeholders in
+   **both** files, using each person's Google account email in lowercase:
+   - `firestore.rules`, in `familyNames()`: `'email': 'Name'`. The name is
+     what the person's entries are saved under. The app shows it as
+     "Escribes como: …" and the rules refuse any other name for that account.
+   - `storage.rules`: the same email in the list.
+
+   `cd dad-care-log/tests && npm test` fails if the two files list different
+   emails.
 
 6. **Photos + AI reading** (needs the Blaze plan for Storage and Functions):
    - Firebase console → Storage → Get started (creates the default bucket).
@@ -104,7 +109,7 @@ To change the family list later: edit both rules files, run the tests, then
 ## Local testing
 
 ```bash
-cd dad-care-log/tests && npm install && npm test   # 44 rule tests on the emulators
+cd dad-care-log/tests && npm install && npm test   # 50 rule tests on the emulators
 cd ../functions && npm test                        # prompt / response parsing
 ```
 
