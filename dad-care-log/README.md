@@ -1,4 +1,4 @@
-# Dad's Care Log (Bitácora de cuidados de papá)
+# Care Log (Bitácora de cuidados del paciente)
 
 A shared, append-only caregiving journal for the family's care rotation.
 Family members sign in with Google, log what the doctor said, medications and
@@ -12,7 +12,7 @@ The UI is in Spanish. Field names in code and in Firestore (`when`, `who`,
 
 It lives in the existing **rks-family-apps** Firebase project (the same project
 as the rks-hub, trip-planner and a1c-roadmap sites) as its own Hosting site,
-with its own Firestore database (`dad-care-log`), so Dad's health information
+with its own Firestore database (`dad-care-log`), so the patient's health information
 isn't in the `(default)` database.
 
 ## Layout
@@ -60,7 +60,7 @@ All commands run from the **repo root** (where `firebase.json` is).
 4. **firebaseConfig** in `public/index.html`: Project settings → General →
    Your apps. None of the other apps in this repo use the Firebase JS SDK, so
    if no web app is registered yet, create one
-   (`firebase apps:create web "Dad's Care Log"`, then
+   (`firebase apps:create web "Care Log"`, then
    `firebase apps:sdkconfig web <appId>`). Until it's filled in the page shows
    a "Falta configurar la aplicación" message.
 
@@ -155,4 +155,4 @@ entries made while setting up.
 
 Dates are entered and shown in `America/Mexico_City` time (`CARE_TIME_ZONE`
 in `index.html`), so an entry written from the US shows the same clock time
-for everyone. Change it if Dad is in a different Mexican time zone.
+for everyone. Change it if the patient is in a different Mexican time zone.

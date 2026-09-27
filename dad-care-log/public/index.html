@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Bitácora de cuidados de papá</title>
+<title>Bitácora de cuidados del paciente</title>
 <style>
   :root{
     --navy:#12293F;
@@ -176,7 +176,7 @@
 <header>
   <div class="wrap">
     <div>
-      <h1>Bitácora de cuidados de papá</h1>
+      <h1>Bitácora de cuidados del paciente</h1>
       <p>Registro compartido de la familia. Las entradas no se pueden editar ni borrar.</p>
     </div>
     <div id="account" class="row hidden">
@@ -334,7 +334,7 @@ const firebaseConfig = {
 
 // Must match the database id in firebase.json and the Firebase console.
 const DATABASE_ID = "dad-care-log";
-// Times are entered and shown in Dad's time zone, whatever time zone the
+// Times are entered and shown in the patient's time zone, whatever time zone the
 // person writing happens to be in.
 const CARE_TIME_ZONE = "America/Mexico_City";
 const FUNCTIONS_REGION = "us-central1";
@@ -731,7 +731,7 @@ function renderEntry(docSnap, context) {
 // person chooses the chat and taps Send; nothing is sent automatically.
 // ---------------------------------------------------------------------------
 function buildWhatsAppText(entry, context = { original: null, corrections: [] }) {
-  const lines = ["*Bitácora de cuidados de papá*"];
+  const lines = ["*Bitácora de cuidados del paciente*"];
   if (entry.correctsId) {
     lines.push(context.original
       ? `*Corrección* de ${describeEntry(context.original)}`

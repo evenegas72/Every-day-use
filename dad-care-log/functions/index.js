@@ -1,4 +1,4 @@
-// Cloud Function for Dad's Care Log: reads a photo that a family member has
+// Cloud Function for the Care Log: reads a photo that a family member has
 // already uploaded to Storage and returns a *suggested* transcription from
 // Claude. It never writes to Firestore. The person reviews, edits and
 // confirms the suggestion in the app before anything is saved.

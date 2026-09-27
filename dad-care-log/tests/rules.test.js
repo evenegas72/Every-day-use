@@ -1,4 +1,4 @@
-// Security-rule tests for Dad's Care Log, run against the local Firebase
+// Security-rule tests for the Care Log, run against the local Firebase
 // emulators: `npm test` in this folder. The family emails are read from the
 // rules files, so these tests keep working after the real emails go in.
 

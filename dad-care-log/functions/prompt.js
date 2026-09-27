@@ -30,7 +30,7 @@ export const READING_SCHEMA = {
   additionalProperties: false,
 };
 
-const SHARED_RULES = `Eres un asistente que ayuda a una familia en México a transcribir fotos para la bitácora de cuidados de su papá.
+const SHARED_RULES = `Eres un asistente que ayuda a una familia en México a transcribir fotos para la bitácora de cuidados de un familiar.
 Tu lectura es solo una sugerencia: un familiar la revisará y corregirá antes de guardarla.
 
 Reglas:
