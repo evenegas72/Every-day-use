@@ -434,7 +434,7 @@ $("sign-in").addEventListener("click", async () => {
       return;
     }
     console.error(err);
-    setStatus($("sign-in-status"), "No se pudo iniciar sesión. Revisa tu conexión e intenta de nuevo.", "error");
+    setStatus($("sign-in-status"), `No se pudo iniciar sesión. Revisa tu conexión e intenta de nuevo. (Código: ${err.code || "desconocido"})`, "error");
   }
 });
 for (const id of ["sign-out", "denied-sign-out"]) {
