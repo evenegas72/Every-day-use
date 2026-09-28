@@ -295,7 +295,8 @@ describe("firestore: admin deletion", () => {
   function logFor(user, overrides = {}) {
     return {
       deletedBy: user.email, deletedAt: serverTimestamp(),
-      entryWhen: entry.when, entryWho: entry.who, entryPatient: entry.patient, ...overrides,
+      entryWhen: entry.when, entryWho: entry.who, entryPatient: entry.patient,
+      reason: "Entrada de prueba", ...overrides,
     };
   }
 
@@ -319,6 +320,16 @@ describe("firestore: admin deletion", () => {
   test("a non-admin family member can't delete, even with a record", async () => {
     await assertFails(deleteWithLog(CAROL));
   });
+  test("a reason of at least 3 characters is required", async () => {
+    const db = as(ADMIN).firestore();
+    const { reason, ...noReason } = logFor(ADMIN);
+    const batch = writeBatch(db);
+    batch.delete(doc(db, entryPath));
+    batch.set(doc(db, "deletions/testEntry"), noReason);
+    await assertFails(batch.commit());
+    await assertFails(deleteWithLog(ADMIN, { reason: "  a " }));
+    await assertFails(deleteWithLog(ADMIN, { reason: "x".repeat(301) }));
+  });
   test("the record must describe the entry truthfully", async () => {
     await assertFails(deleteWithLog(ADMIN, { entryWho: "Otro" }));
     await assertFails(deleteWithLog(ADMIN, { deletedAt: Timestamp.fromDate(new Date("2020-01-01")) }));
@@ -334,6 +345,7 @@ describe("firestore: admin deletion", () => {
     await assertSucceeds(getDocs(collection(as(CAROL).firestore(), "deletions")));
     await assertFails(getDocs(collection(as(STRANGER).firestore(), "deletions")));
     await assertFails(updateDoc(doc(as(ADMIN).firestore(), "deletions/testEntry"), { entryWho: "x" }));
+    await assertFails(updateDoc(doc(as(ADMIN).firestore(), "deletions/testEntry"), { reason: "otro motivo" }));
     await assertFails(deleteDoc(doc(as(ADMIN).firestore(), "deletions/testEntry")));
   });
   test("only the admin passes the admin check", async () => {

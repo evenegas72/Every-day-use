@@ -113,7 +113,7 @@ To change the family list later: edit both rules files, run the tests, then
 ## Local testing
 
 ```bash
-cd dad-care-log/tests && npm install && npm test   # 65 rule tests on the emulators
+cd dad-care-log/tests && npm install && npm test   # 66 rule tests on the emulators
 cd ../functions && npm test                        # prompt / response parsing
 ```
 
@@ -153,10 +153,12 @@ form prefilled with that entry's content. Saving creates a *new* entry with
 
 ## Deleting entries (admin only)
 
-The admin sees a **Borrar entrada** button on each entry. Deleting writes a
-record to `/deletions` in the same step (entry date, author, patient, and
-when it was deleted); the rules refuse a deletion without that record, and
-the record can't be changed or removed. The family sees these under
+The admin sees a **Borrar entrada** button on each entry. It opens a box
+asking for the **reason** (required, at least 3 characters); "Borrar
+definitivamente" stays disabled until one is written. Deleting writes a
+record to `/deletions` in the same step (entry date, author, patient, the
+reason, and when it was deleted); the rules refuse a deletion without that
+record or without a reason, and the record can't be changed or removed. The family sees these under
 "Entradas borradas por el administrador" at the bottom of the log. Photos
 attached to deleted entries stay in Storage.
 

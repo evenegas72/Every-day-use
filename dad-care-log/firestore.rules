@@ -20,7 +20,7 @@ service cloud.firestore {
     function familyNames() {
       return {
         'adriana@replace-me.invalid': 'Adriana',
-        'alejandro@replace-me.invalid': 'Alejandro',
+        'cremasgto74@gmail.com': 'Alejandro',
         'chavita@replace-me.invalid': 'Chavita',
         'veneegas95@gmail.com': 'Daniel',
         'rickv72@gmail.com': 'Enrique',
@@ -139,8 +139,9 @@ service cloud.firestore {
         && existsAfter(/databases/$(database)/documents/deletions/$(entryId));
     }
 
-    // Deletion log: who deleted which entry and when. Written together with
-    // the deletion, copied from the entry being deleted, and never changed.
+    // Deletion log: who deleted which entry, when, and why (a reason is
+    // required). Written together with the deletion, copied from the entry
+    // being deleted, and never changed.
     match /deletions/{entryId} {
       allow read: if isFamily();
       allow create: if isAdmin() && isValidDeletion(entryId);
@@ -153,7 +154,10 @@ service cloud.firestore {
       let entry = get(entryPath).data;
       return exists(entryPath)
         && !existsAfter(entryPath)
-        && d.keys().hasOnly(['deletedBy', 'deletedAt', 'entryWhen', 'entryWho', 'entryPatient'])
+        && d.keys().hasOnly(['deletedBy', 'deletedAt', 'entryWhen', 'entryWho', 'entryPatient', 'reason'])
+        && d.reason is string
+        && d.reason.trim().size() >= 3
+        && d.reason.size() <= 300
         && d.deletedBy == myEmail()
         && d.deletedAt == request.time
         && d.entryWhen == entry.when

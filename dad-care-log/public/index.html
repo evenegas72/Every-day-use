@@ -81,6 +81,11 @@
   button.wa{background:var(--wa);}
   button.danger{background:#fff; color:var(--danger); border:1px solid var(--danger);}
   button.danger:hover{background:#FBEAEA;}
+  button.danger-solid{background:var(--danger); color:#fff;}
+  button.danger-solid:hover{background:#86271F;}
+  .delete-box{margin-top:14px; border:2px solid var(--danger); border-radius:10px; padding:12px 14px; background:#FDF3F2;}
+  .delete-box .delete-title{margin:0; font-weight:700; color:var(--danger);}
+  .delete-box label{margin-top:10px;}
   .on-duty{background:#E6F2F2; border-left:4px solid var(--teal); border-radius:6px; padding:10px 12px; font-size:16px;}
   .on-duty strong{color:var(--teal-dark);}
   .on-duty.nobody{background:#F3EFE4; border-left-color:var(--amber);}
@@ -513,6 +518,7 @@ onAuthStateChanged(auth, (user) => {
   for (const stop of unsubscribers) stop();
   unsubscribers = [];
   isAdminUser = false;
+  deleteDraft = null;
   setStatus($("save-status"), "");
   resetPhoto();
   setCorrecting(null);
@@ -675,6 +681,15 @@ function updatePatients(snap) {
 }
 
 function renderEntries(snap) {
+  const reasonHadFocus = document.activeElement?.id === "delete-reason";
+  renderEntryList(snap);
+  if (reasonHadFocus) {
+    const box = $("delete-reason");
+    if (box) { box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
+  }
+}
+
+function renderEntryList(snap) {
   lastSnap = snap;
   updatePatients(snap);
   const container = $("entries");
@@ -798,10 +813,16 @@ function renderEntry(docSnap, context) {
   fix.addEventListener("click", () => startCorrection(docSnap.id, entry));
   actions.appendChild(fix);
 
+  let deleteBox = null;
   if (isAdminUser && !docSnap.metadata.hasPendingWrites) {
     const del = el("button", { type: "button", class: "danger" }, "Borrar entrada");
-    del.addEventListener("click", () => deleteEntry(docSnap.id, entry, del));
+    del.addEventListener("click", () => {
+      deleteDraft = { id: docSnap.id, reason: "" };
+      if (lastSnap) renderEntries(lastSnap);
+      $("delete-reason")?.focus();
+    });
     actions.appendChild(del);
+    if (deleteDraft?.id === docSnap.id) deleteBox = renderDeleteBox(docSnap.id, entry);
   }
 
   if (entry.photoPath) {
@@ -827,6 +848,7 @@ function renderEntry(docSnap, context) {
   } else {
     card.appendChild(actions);
   }
+  if (deleteBox) card.appendChild(deleteBox);
   return card;
 }
 
@@ -834,10 +856,43 @@ function renderEntry(docSnap, context) {
 // Admin-only deletion. The rules only allow it together with a record in
 // /deletions (who deleted what, and when), which the family can see.
 // ---------------------------------------------------------------------------
-async function deleteEntry(id, entry, button) {
-  const question = `¿Borrar para siempre ${describeEntry(entry)}?\n\nNo se puede deshacer. Quedará anotado en «Entradas borradas».`;
-  if (!confirm(question)) return;
+// The entry being deleted and the reason typed so far. Kept outside the
+// card so a list refresh (any new entry) doesn't wipe what was typed.
+let deleteDraft = null;
+const MIN_REASON = 3;
+
+function renderDeleteBox(id, entry) {
+  const box = el("div", { class: "delete-box" });
+  box.appendChild(el("p", { class: "delete-title" }, `Borrar ${describeEntry(entry)}`));
+  const label = el("label", { for: "delete-reason" }, "Motivo del borrado");
+  label.appendChild(el("span", { class: "hint" },
+    "Obligatorio. Quedará anotado junto con la fecha en «Entradas borradas». No se puede deshacer."));
+  box.appendChild(label);
+  const reason = el("textarea", { id: "delete-reason", maxlength: "300", placeholder: "Ej.: Entrada de prueba" });
+  reason.value = deleteDraft.reason;
+  box.appendChild(reason);
+  const row = el("div", { class: "row", style: "margin-top:10px" });
+  const confirmBtn = el("button", { type: "button", class: "danger-solid" }, "Borrar definitivamente");
+  const cancelBtn = el("button", { type: "button", class: "secondary" }, "Cancelar");
+  row.append(confirmBtn, cancelBtn);
+  box.appendChild(row);
+  const status = el("p", { class: "status" });
+  box.appendChild(status);
+  const update = () => { confirmBtn.disabled = reason.value.trim().length < MIN_REASON; };
+  update();
+  reason.addEventListener("input", () => { deleteDraft.reason = reason.value; update(); });
+  cancelBtn.addEventListener("click", () => {
+    deleteDraft = null;
+    if (lastSnap) renderEntries(lastSnap);
+  });
+  confirmBtn.addEventListener("click", () => deleteEntry(id, entry, reason.value.trim(), confirmBtn, status));
+  return box;
+}
+
+async function deleteEntry(id, entry, reason, button, status) {
+  if (reason.length < MIN_REASON) return;
   button.disabled = true;
+  setStatus(status, "Borrando…");
   try {
     const batch = writeBatch(db);
     batch.delete(doc(db, "entries", id));
@@ -847,12 +902,14 @@ async function deleteEntry(id, entry, button) {
       entryWhen: entry.when,
       entryWho: entry.who,
       entryPatient: entry.patient || "",
+      reason,
     });
     await batch.commit();
+    deleteDraft = null;
   } catch (err) {
     console.error(err);
     button.disabled = false;
-    alert("No se pudo borrar la entrada. Revisa tu conexión e intenta de nuevo.");
+    setStatus(status, "No se pudo borrar la entrada. Revisa tu conexión e intenta de nuevo.", "error");
   }
 }
 
@@ -866,7 +923,8 @@ function startDeletions() {
       const what = x.entryWhen ? formatWhen(x.entryWhen.toDate()) : "sin fecha";
       const patient = x.entryPatient ? ` (paciente: ${x.entryPatient})` : "";
       const whenDeleted = x.deletedAt ? formatWhen(x.deletedAt.toDate()) : "";
-      return el("li", {}, `Entrada del ${what}, escrita por ${x.entryWho}${patient}. Borrada el ${whenDeleted}.`);
+      const why = x.reason ? ` Motivo: ${x.reason}` : "";
+      return el("li", {}, `Entrada del ${what}, escrita por ${x.entryWho}${patient}. Borrada el ${whenDeleted}.${why}`);
     }));
   }, (err) => console.error(err)));
 }
