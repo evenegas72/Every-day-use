@@ -17,6 +17,14 @@ test("request sends the image and asks for structured JSON", () => {
   assert.match(req.messages[0].content[1].text, /receta/);
 });
 
+test("monitor instructions cover hospital equipment, not just home devices", () => {
+  const req = buildRequest({ kind: "monitor", mediaType: "image/jpeg", base64Data: "AAAA" });
+  const text = req.messages[0].content[1].text;
+  assert.match(text, /ventilador mecánico/);
+  assert.match(text, /monitor de signos vitales/);
+  assert.doesNotMatch(text, /en casa \(/);
+});
+
 test("parses a normal reading", () => {
   const r = parseReading({ stop_reason: "end_turn", content: [{ type: "text", text: '{"readable":true,"text":"Pulso: 71 lpm","doubts":""}' }] });
   assert.deepEqual(r, { readable: true, text: "Pulso: 71 lpm", doubts: "" });

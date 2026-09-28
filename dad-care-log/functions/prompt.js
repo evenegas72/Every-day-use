@@ -37,12 +37,19 @@ Reglas:
 - Escribe todo en español.
 - Transcribe solo lo que se ve en la foto. No interpretes, no diagnostiques, no des consejos médicos y no digas si un valor es normal o anormal.
 - Nunca adivines un número o una palabra. Si un dígito o palabra no se lee con claridad, escríbelo con [?] (por ejemplo "12[?]/80") y explícalo en "doubts".
-- Si la foto no es del tipo esperado, o no se puede leer, pon readable en false y explica por qué en "doubts".`;
+- Si la foto es de otro tipo del que se indica (por ejemplo, se eligió «aparato» pero es una receta), transcríbela de todos modos según lo que realmente muestra.
+- Solo pon readable en false si la foto no se puede leer (borrosa, oscura, cortada) o no muestra ningún aparato médico, nota ni documento; explica por qué en "doubts".`;
 
 const KIND_INSTRUCTIONS = {
-  monitor: `La foto es de la pantalla de un aparato de medición en casa (baumanómetro, oxímetro de pulso, glucómetro o termómetro).
-- Una línea por valor, con el formato "Nombre: valor unidad". Ejemplos: "Presión arterial: 128/82 mmHg", "Pulso: 71 lpm", "Oxigenación (SpO2): 96 %", "Glucosa: 142 mg/dL", "Temperatura: 37.2 °C".
-- Usa la unidad que muestra la pantalla. Si no muestra unidad, no la inventes.
+  monitor: `La foto es de la pantalla de un aparato médico. Puede ser un aparato de casa (baumanómetro, oxímetro de pulso, glucómetro, termómetro) o un equipo de hospital (monitor de signos vitales, ventilador mecánico, bomba de infusión, concentrador de oxígeno u otro).
+- Una línea por valor, con el formato "Nombre: valor unidad". Ejemplos: "Presión arterial: 128/82 mmHg", "Pulso: 71 lpm", "Oxigenación (SpO2): 96 %", "Glucosa: 142 mg/dL", "Temperatura: 37.2 °C", "PEEP: 6 cmH2O".
+- Usa la etiqueta y la unidad tal como aparecen en la pantalla (por ejemplo "Ppico", "VTesp", "FiO2"). Si no muestra unidad, no la inventes.
+- En pantallas con muchos datos (ventiladores, monitores de hospital):
+  - Empieza con el modo o programa si aparece (por ejemplo "Modo: VC-ACV").
+  - Transcribe los valores medidos que se ven en números grandes.
+  - Si la pantalla separa claramente los valores programados o configurados (por ejemplo, en una barra de botones abajo), ponlos después bajo una línea "Programado:".
+  - Si hay mensajes de alarma o avisos escritos en la pantalla, transcríbelos en una línea "Aviso en pantalla: ...".
+  - Ignora las gráficas y curvas; no describas su forma.
 - Si la pantalla muestra fecha u hora, agrégala en otra línea ("Hora en el aparato: ...").
 - Si hay varias lecturas guardadas o flechas de memoria, transcribe solo la que está en pantalla como la principal.`,
   note: `La foto es de una nota escrita a mano o de una receta médica.

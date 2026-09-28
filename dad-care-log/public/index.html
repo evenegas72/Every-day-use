@@ -312,9 +312,9 @@
 
         <fieldset>
           <legend>Foto (opcional)</legend>
-          <p class="hint">La foto de un aparato (presión, oxígeno, glucosa, temperatura) o de una nota o receta.</p>
+          <p class="hint">La foto de un aparato o monitor médico (presión, oxígeno, glucosa, temperatura, monitor del hospital, ventilador) o de una nota o receta.</p>
           <div class="radio-row" role="radiogroup" aria-label="Tipo de foto">
-            <label><input type="radio" name="photo-kind" value="monitor" checked> Aparato de medición</label>
+            <label><input type="radio" name="photo-kind" value="monitor" checked> Aparato o monitor médico</label>
             <label><input type="radio" name="photo-kind" value="note"> Nota o receta</label>
           </div>
           <input type="file" id="f-photo" accept="image/*" class="hidden" aria-label="Elegir o tomar foto">
@@ -648,7 +648,7 @@ const FIELD_LABELS = {
   next: "Próximos pasos",
   notes: "Notas",
 };
-const PHOTO_KIND_LABELS = { monitor: "aparato de medición", note: "nota o receta" };
+const PHOTO_KIND_LABELS = { monitor: "aparato o monitor médico", note: "nota o receta" };
 
 function readingLabel(entry) {
   const kind = PHOTO_KIND_LABELS[entry.photoKind] || "foto";
