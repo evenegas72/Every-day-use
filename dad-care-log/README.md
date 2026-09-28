@@ -113,7 +113,7 @@ To change the family list later: edit both rules files, run the tests, then
 ## Local testing
 
 ```bash
-cd dad-care-log/tests && npm install && npm test   # 69 rule tests on the emulators
+cd dad-care-log/tests && npm install && npm test   # 74 rule tests on the emulators
 cd ../functions && npm test                        # prompt / response parsing
 ```
 
@@ -206,11 +206,18 @@ record, so prefer the button.
 
 ## Watch schedule ("Turnos de guardia")
 
-At the top of the app: who is on duty now, the upcoming shifts, and a form to
-add one (person, start, end, optional note). Any family member can add a
-shift for anyone; whoever added it, or the admin, can remove it. Shifts can
-last up to 31 days. Shifts are stored in `/shifts` and, unlike entries, can
-be removed because schedules change.
+At the top of the app: who is on duty now, the upcoming shifts, the family's
+availability, and forms to add your own shift and edit your own availability.
+
+- **Shifts**: each person adds only their own shift ("Turno de: <name>",
+  from the Google account; the rules refuse any other name, admin included).
+  Start, end (up to 31 days) and an optional note. Whoever added a shift, or
+  the admin, can remove it; to change one, remove it and add it again.
+- **Disponibilidad de la familia**: all 8 names, each with the weekdays and
+  hours they can cover (each day its own start and end; an end earlier than
+  the start means overnight, shown as "(día sig.)"), an optional note and
+  "Actualizado el …". Each person edits only their own row
+  (`/availability/<Name>`); the admin can remove a row.
 
 ## Time zone
 

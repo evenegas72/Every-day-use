@@ -98,6 +98,19 @@
   .shift-list .now{display:inline-block; font-size:12px; font-weight:700; background:var(--teal); color:#fff; padding:0 6px; border-radius:999px; margin-left:6px;}
   .shift-list button{padding:5px 10px; font-size:14px; flex:none;}
   details.card summary, details.shift-add summary{cursor:pointer; font-weight:700;}
+  .avail-list{list-style:none; padding:0; margin:0;}
+  .avail-list li{border-bottom:1px solid var(--line); padding:8px 0;}
+  .avail-list li:last-child{border-bottom:0;}
+  .avail-list li.me{background:#F2F8F8; margin:0 -8px; padding:8px;}
+  .avail-list .who{font-weight:700;}
+  .avail-list .none{color:var(--ink-soft); font-size:14px;}
+  .avail-list .days{display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;}
+  .avail-list .day{font-size:13.5px; background:#E6F2F2; border:1px solid #B7D6D7; border-radius:6px; padding:2px 7px;}
+  .avail-list .note, .avail-list .updated{font-size:13.5px; color:var(--ink-soft); margin-top:3px;}
+  .avail-day{display:grid; grid-template-columns:64px minmax(0,1fr) minmax(0,1fr); gap:6px; align-items:center; margin-top:8px;}
+  .avail-day label{margin:0; display:flex; gap:6px; align-items:center; font-weight:600;}
+  .avail-day input[type=time]{font:inherit; font-size:15px; padding:6px 4px; border:1px solid var(--line); border-radius:8px; width:100%; min-width:0; box-sizing:border-box;}
+  .avail-day input[type=time]:disabled{opacity:.45;}
   details.shift-add{margin-top:14px; border-top:1px dashed var(--line); padding-top:10px;}
   #deletions-card ul{margin:8px 0 0; padding-left:20px; font-size:15px; color:var(--ink-soft);}
   .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
@@ -266,20 +279,30 @@
       <h3 class="sub">Próximos turnos</h3>
       <ul id="shift-list" class="shift-list"></ul>
       <p class="status" id="shift-list-status"></p>
+      <h3 class="sub">Disponibilidad de la familia</h3>
+      <p class="hint">Los días y horas en que cada quien puede cubrir un turno. Cada persona actualiza solo su propia disponibilidad.</p>
+      <ul id="avail-list" class="avail-list"></ul>
+
+      <details class="shift-add" id="avail-edit">
+        <summary>Editar mi disponibilidad</summary>
+        <form id="avail-form" novalidate>
+          <p class="hint">Marca los días que puedes cubrir y la hora de inicio y de fin. Si termina al día siguiente (por ejemplo de 8 p.m. a 8 a.m.), pon la hora de fin más temprano que la de inicio.</p>
+          <div id="avail-days"></div>
+          <label for="a-note">Nota (opcional)</label>
+          <input type="text" id="a-note" maxlength="200" placeholder="Ej.: Hasta el 15 de octubre; fines de semana alternos">
+          <div class="row" style="margin-top:12px">
+            <button type="submit" id="a-save">Guardar mi disponibilidad</button>
+          </div>
+          <p class="status" id="avail-status" role="status"></p>
+        </form>
+      </details>
+
       <details class="shift-add" id="shift-add">
-        <summary>Agregar turno</summary>
+        <summary>Agregar mi turno</summary>
         <form id="shift-form" novalidate>
-          <label for="s-person">¿Quién cuida?</label>
-          <select id="s-person">
-            <option>Adriana</option>
-            <option>Alejandro</option>
-            <option>Chavita</option>
-            <option>Daniel</option>
-            <option>Enrique</option>
-            <option>Lorena</option>
-            <option>Salvador</option>
-            <option>Teresa</option>
-          </select>
+          <p class="who-line">Turno de: <strong id="s-person-name"></strong>
+            <span class="hint">Cada persona agrega solo sus propios turnos.</span>
+          </p>
           <label for="s-start">Empieza <span class="hint">Hora del centro de México.</span></label>
           <input type="datetime-local" id="s-start">
           <label for="s-end">Termina</label>
@@ -434,7 +457,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
   getFirestore, collection, query, orderBy, onSnapshot, addDoc, where, writeBatch, deleteDoc,
-  serverTimestamp, Timestamp, connectFirestoreEmulator, doc, getDoc,
+  serverTimestamp, Timestamp, connectFirestoreEmulator, doc, getDoc, setDoc,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import {
   getStorage, ref as storageRef, uploadBytes, getDownloadURL, connectStorageEmulator,
@@ -1000,6 +1023,7 @@ let shiftFormReady = false;
 
 function startShifts() {
   setUpShiftForm();
+  startAvailability();
   const q = query(collection(db, "shifts"), where("end", ">=", Timestamp.now()), orderBy("end"));
   unsubscribers.push(onSnapshot(q, (snap) => {
     shiftDocs = snap.docs;
@@ -1011,6 +1035,120 @@ function startShifts() {
   clearInterval(shiftTimer);
   shiftTimer = setInterval(renderShifts, 60 * 1000);
   unsubscribers.push(() => clearInterval(shiftTimer));
+}
+
+// ---------------------------------------------------------------------------
+// Availability board: one row per family member, the days and hours they can
+// cover. Each person edits only their own row (enforced by the rules).
+// ---------------------------------------------------------------------------
+const WEEK = [["lun", "Lun"], ["mar", "Mar"], ["mie", "Mié"], ["jue", "Jue"], ["vie", "Vie"], ["sab", "Sáb"], ["dom", "Dom"]];
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+let availDocs = new Map();
+let availFormReady = false;
+
+function fmtTime(hhmm) {
+  const [h, m] = hhmm.split(":").map(Number);
+  const suffix = h < 12 ? "a.m." : "p.m.";
+  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${suffix}`;
+}
+
+function fmtRange(r) {
+  return `${fmtTime(r.from)} – ${fmtTime(r.to)}${r.to <= r.from ? " (día sig.)" : ""}`;
+}
+
+function startAvailability() {
+  setUpAvailabilityForm();
+  unsubscribers.push(onSnapshot(collection(db, "availability"), (snap) => {
+    availDocs = new Map(snap.docs.map((d) => [d.id, d.data({ serverTimestamps: "estimate" })]));
+    renderAvailability();
+    if (!$("avail-edit").open) fillAvailabilityForm();
+  }, (err) => console.error(err)));
+}
+
+function renderAvailability() {
+  const list = $("avail-list");
+  list.replaceChildren();
+  for (const name of FAMILY_NAMES) {
+    const a = availDocs.get(name);
+    const li = el("li", { class: name === myName ? "me" : "" });
+    li.appendChild(el("div", { class: "who" }, name === myName ? `${name} (tú)` : name));
+    const days = WEEK.filter(([k]) => a?.days?.[k]);
+    if (days.length) {
+      const row = el("div", { class: "days" });
+      for (const [k, label] of days) row.appendChild(el("span", { class: "day" }, `${label} ${fmtRange(a.days[k])}`));
+      li.appendChild(row);
+    } else {
+      li.appendChild(el("div", { class: "none" }, "Sin disponibilidad registrada"));
+    }
+    if (a?.note) li.appendChild(el("div", { class: "note" }, a.note));
+    if (a?.updatedAt) li.appendChild(el("div", { class: "updated" }, `Actualizado el ${formatWhen(a.updatedAt.toDate())}`));
+    list.appendChild(li);
+  }
+}
+
+function fillAvailabilityForm() {
+  const mine = availDocs.get(myName);
+  for (const [k] of WEEK) {
+    const r = mine?.days?.[k];
+    $(`a-${k}`).checked = Boolean(r);
+    $(`a-${k}-from`).value = r?.from || "";
+    $(`a-${k}-to`).value = r?.to || "";
+    $(`a-${k}-from`).disabled = $(`a-${k}-to`).disabled = !r;
+  }
+  $("a-note").value = mine?.note || "";
+}
+
+function setUpAvailabilityForm() {
+  setStatus($("avail-status"), "");
+  $("avail-edit").open = false;
+  if (availFormReady) return;
+  availFormReady = true;
+  $("avail-days").replaceChildren(...WEEK.map(([k, label]) => {
+    const row = el("div", { class: "avail-day" });
+    const lab = el("label");
+    const box = el("input", { type: "checkbox", id: `a-${k}` });
+    lab.append(box, label);
+    const from = el("input", { type: "time", id: `a-${k}-from`, "aria-label": `${label}: desde` });
+    const to = el("input", { type: "time", id: `a-${k}-to`, "aria-label": `${label}: hasta` });
+    from.disabled = to.disabled = true;
+    box.addEventListener("change", () => {
+      from.disabled = to.disabled = !box.checked;
+      if (box.checked && !from.value && !to.value) { from.value = "08:00"; to.value = "20:00"; }
+    });
+    row.append(lab, from, to);
+    return row;
+  }));
+  $("avail-edit").addEventListener("toggle", () => { if ($("avail-edit").open) fillAvailabilityForm(); });
+  let savingAvail = false;
+  $("avail-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (savingAvail || !myName) return;
+    const status = $("avail-status");
+    const days = {};
+    for (const [k, label] of WEEK) {
+      if (!$(`a-${k}`).checked) continue;
+      const from = $(`a-${k}-from`).value, to = $(`a-${k}-to`).value;
+      if (!HHMM.test(from) || !HHMM.test(to)) return setStatus(status, `Falta la hora de inicio o de fin del ${label}.`, "error");
+      if (from === to) return setStatus(status, `El ${label} empieza y termina a la misma hora.`, "error");
+      days[k] = { from, to };
+    }
+    const note = $("a-note").value.trim();
+    savingAvail = true;
+    $("a-save").disabled = true;
+    setStatus(status, "Guardando…");
+    try {
+      const data = { days, updatedAt: serverTimestamp(), updatedBy: currentUser.email.toLowerCase() };
+      if (note) data.note = note;
+      await setDoc(doc(db, "availability", myName), data);
+      setStatus(status, "Disponibilidad guardada.", "ok");
+    } catch (err) {
+      console.error(err);
+      setStatus(status, "No se pudo guardar. Revisa tu conexión e intenta de nuevo.", "error");
+    } finally {
+      savingAvail = false;
+      $("a-save").disabled = false;
+    }
+  });
 }
 
 function renderShifts() {
@@ -1067,7 +1205,7 @@ function resetShiftForm() {
   $("s-start").value = dateToZonedInput(start);
   $("s-end").value = dateToZonedInput(new Date(start.getTime() + 12 * 3600 * 1000));
   $("s-note").value = "";
-  if (myName) $("s-person").value = myName;
+  $("s-person-name").textContent = myName || "";
 }
 
 function setUpShiftForm() {
@@ -1092,7 +1230,7 @@ function setUpShiftForm() {
     setStatus(status, "Guardando…");
     try {
       const data = {
-        person: $("s-person").value,
+        person: myName,
         start: Timestamp.fromDate(start),
         end: Timestamp.fromDate(end),
         createdBy: currentUser.email.toLowerCase(),

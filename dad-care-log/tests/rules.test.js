@@ -382,11 +382,15 @@ describe("firestore: watch shifts", () => {
   const start = Timestamp.fromDate(new Date("2026-10-01T14:00:00Z"));
   const end = Timestamp.fromDate(new Date("2026-10-02T14:00:00Z"));
   function shift(user, overrides = {}) {
-    return { person: "Lorena", start, end, note: "Noche", createdBy: user.email, createdAt: serverTimestamp(), ...overrides };
+    return { person: user.name, start, end, note: "Noche", createdBy: user.email, createdAt: serverTimestamp(), ...overrides };
   }
 
-  test("family can add a shift for anyone in the family", async () => {
+  test("family can add a shift for themselves", async () => {
     await assertSucceeds(addDoc(collection(as(CAROL).firestore(), "shifts"), shift(CAROL)));
+  });
+  test("nobody can add a shift under someone else's name, admin included", async () => {
+    await assertFails(addDoc(collection(as(CAROL).firestore(), "shifts"), shift(CAROL, { person: ADMIN.name })));
+    await assertFails(addDoc(collection(as(ADMIN).firestore(), "shifts"), shift(ADMIN, { person: CAROL.name })));
   });
   test("non-family can't read or add shifts", async () => {
     await assertFails(getDocs(collection(as(STRANGER).firestore(), "shifts")));
@@ -412,6 +416,39 @@ describe("firestore: watch shifts", () => {
     await assertFails(updateDoc(doc(as(CAROL).firestore(), "shifts/a"), { note: "x" }));
     await assertSucceeds(deleteDoc(doc(as(CAROL).firestore(), "shifts/a")));
     await assertSucceeds(deleteDoc(doc(as(ADMIN).firestore(), "shifts/b")));
+  });
+});
+
+describe("firestore: availability board", () => {
+  const good = (user, overrides = {}) => ({
+    days: { lun: { from: "20:00", to: "08:00" }, sab: { from: "09:00", to: "21:00" } },
+    note: "Solo noches entre semana", updatedAt: serverTimestamp(), updatedBy: user.email, ...overrides,
+  });
+
+  test("each person writes and updates only their own row", async () => {
+    const db = as(CAROL).firestore();
+    await assertSucceeds(setDoc(doc(db, `availability/${CAROL.name}`), good(CAROL)));
+    await assertSucceeds(setDoc(doc(db, `availability/${CAROL.name}`), good(CAROL, { days: {} })));
+    await assertFails(setDoc(doc(db, `availability/${ADMIN.name}`), good(CAROL)));
+    await assertFails(setDoc(doc(as(ADMIN).firestore(), `availability/${CAROL.name}`), good(ADMIN)));
+  });
+  test("family reads the whole board; outsiders can't", async () => {
+    await assertSucceeds(getDocs(collection(as(CAROL).firestore(), "availability")));
+    await assertFails(getDocs(collection(as(STRANGER).firestore(), "availability")));
+  });
+  test("days and times must be well formed", async () => {
+    const db = as(CAROL).firestore();
+    const path = `availability/${CAROL.name}`;
+    await assertFails(setDoc(doc(db, path), good(CAROL, { days: { funday: { from: "08:00", to: "10:00" } } })));
+    await assertFails(setDoc(doc(db, path), good(CAROL, { days: { lun: { from: "8am", to: "10:00" } } })));
+    await assertFails(setDoc(doc(db, path), good(CAROL, { days: { lun: { from: "25:00", to: "10:00" } } })));
+    await assertFails(setDoc(doc(db, path), good(CAROL, { days: { lun: { from: "10:00", to: "10:00" } } })));
+    await assertFails(setDoc(doc(db, path), good(CAROL, { updatedBy: ADMIN.email })));
+    await assertFails(setDoc(doc(db, path), good(CAROL, { note: "x".repeat(201) })));
+  });
+  test("owner or admin can remove a row", async () => {
+    await setDoc(doc(as(CAROL).firestore(), `availability/${CAROL.name}`), good(CAROL));
+    await assertSucceeds(deleteDoc(doc(as(ADMIN).firestore(), `availability/${CAROL.name}`)));
   });
 });
 
