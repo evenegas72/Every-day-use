@@ -4,8 +4,11 @@ A shared, append-only caregiving journal for the family's care rotation.
 Family members sign in with Google, log what the doctor said, medications and
 symptoms, next steps for whoever is on shift next, and notes. They can also
 attach a photo of a monitor or a handwritten note, with an optional AI reading
-of it. Once an entry is saved, nobody can edit or delete it, including its
-author. The security rules enforce this, not just the UI.
+of it. Once an entry is saved, nobody can edit it, including its author.
+Only the admin (`rickv72@gmail.com`, set in `isAdmin()` in `firestore.rules`)
+can delete an entry, and every deletion leaves a record the family can see.
+A "Turnos de guardia" section shows who is on watch duty. The security
+rules enforce all of this, not just the UI.
 
 The UI is in Spanish. Field names in code and in Firestore (`when`, `who`,
 `doctor`, `meds`, `next`, `notes`, …) stay in English.
@@ -100,16 +103,17 @@ To change the family list later: edit both rules files, run the tests, then
 ## Checking the deployed rules
 
 - Firebase console → Firestore → database **dad-care-log** → Rules: shows
-  `allow update, delete: if false;` on `/entries/{entryId}`. The `(default)`
-  database's rules tab should be unchanged.
-- In the Rules tab, use the **Rules Playground**: simulate an `update` or
-  `delete` on `/entries/anything` as an authenticated family email. It should
-  be **denied**.
+  `allow update: if false;` on `/entries/{entryId}`, and a delete rule that
+  only lets the admin delete together with a `/deletions` record. The
+  `(default)` database's rules tab should be unchanged.
+- In the Rules tab, use the **Rules Playground**: simulate an `update` on
+  `/entries/anything` as any authenticated family email, and a `delete` as a
+  family email that isn't the admin. Both should be **denied**.
 
 ## Local testing
 
 ```bash
-cd dad-care-log/tests && npm install && npm test   # 51 rule tests on the emulators
+cd dad-care-log/tests && npm install && npm test   # 65 rule tests on the emulators
 cd ../functions && npm test                        # prompt / response parsing
 ```
 
@@ -147,9 +151,26 @@ form prefilled with that entry's content. Saving creates a *new* entry with
   re-confirmed by the person correcting.
 - Sharing the original to WhatsApp adds a line saying it was corrected later.
 
-As project owner you can still delete documents from the Firebase console
-(the rules apply to the app, not to project admins). Use that only for test
-entries made while setting up.
+## Deleting entries (admin only)
+
+The admin sees a **Borrar entrada** button on each entry. Deleting writes a
+record to `/deletions` in the same step (entry date, author, patient, and
+when it was deleted); the rules refuse a deletion without that record, and
+the record can't be changed or removed. The family sees these under
+"Entradas borradas por el administrador" at the bottom of the log. Photos
+attached to deleted entries stay in Storage.
+
+As project owner you can also delete documents from the Firebase console
+(the rules apply to the app, not to project admins), but that leaves no
+record, so prefer the button.
+
+## Watch schedule ("Turnos de guardia")
+
+At the top of the app: who is on duty now, the upcoming shifts, and a form to
+add one (person, start, end, optional note). Any family member can add a
+shift for anyone; whoever added it, or the admin, can remove it. Shifts can
+last up to 31 days. Shifts are stored in `/shifts` and, unlike entries, can
+be removed because schedules change.
 
 ## Time zone
 

@@ -10,7 +10,7 @@ import {
 } from "@firebase/rules-unit-testing";
 import {
   addDoc, collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp,
-  setDoc, Timestamp, updateDoc,
+  setDoc, Timestamp, updateDoc, writeBatch,
 } from "firebase/firestore";
 import { deleteObject, getBytes, ref, uploadBytes } from "firebase/storage";
 
@@ -33,6 +33,10 @@ const NAMES = familyNames(FIRESTORE_RULES);
 const FAMILY = Object.keys(NAMES);
 const ALICE = { uid: "familyUid1", email: FAMILY[0], name: NAMES[FAMILY[0]] };
 const BOB = { uid: "familyUid2", email: FAMILY[1], name: NAMES[FAMILY[1]] };
+const ADMIN_EMAIL = /myEmail\(\) == '([^']+)'/.exec(FIRESTORE_RULES)[1];
+const ADMIN = { uid: "adminUid", email: ADMIN_EMAIL, name: NAMES[ADMIN_EMAIL] };
+const NON_ADMIN_EMAIL = FAMILY.find((e) => e !== ADMIN_EMAIL);
+const CAROL = { uid: "familyUid3", email: NON_ADMIN_EMAIL, name: NAMES[NON_ADMIN_EMAIL] };
 const STRANGER = { uid: "strangerUid", email: "stranger@example.com", name: NAMES[FAMILY[0]] };
 
 let env;
@@ -222,7 +226,7 @@ describe("firestore: entries are append-only", () => {
   test("the author cannot overwrite it with set()", async () => {
     await assertFails(setDoc(doc(as(ALICE).firestore(), entryPath), goodEntry(ALICE, { doctor: "cambiado" })));
   });
-  test("the author cannot delete it", async () => {
+  test("the author cannot delete it (non-admin)", async () => {
     await assertFails(deleteDoc(doc(as(ALICE).firestore(), entryPath)));
   });
   test("other family members cannot update or delete it", async () => {
@@ -274,6 +278,104 @@ describe("firestore: corrections", () => {
     await addDoc(collection(as(BOB).firestore(), "entries"), goodEntry(BOB, { correctsId: "original" }));
     await assertFails(updateDoc(doc(as(ALICE).firestore(), "entries/original"), { doctor: "x" }));
     await assertFails(deleteDoc(doc(as(ALICE).firestore(), "entries/original")));
+  });
+});
+
+describe("firestore: admin deletion", () => {
+  const entryPath = "entries/testEntry";
+  let entry;
+
+  beforeEach(async () => {
+    entry = { ...goodEntry(CAROL), createdAt: Timestamp.now() };
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), entryPath), entry);
+    });
+  });
+
+  function logFor(user, overrides = {}) {
+    return {
+      deletedBy: user.email, deletedAt: serverTimestamp(),
+      entryWhen: entry.when, entryWho: entry.who, entryPatient: entry.patient, ...overrides,
+    };
+  }
+
+  function deleteWithLog(user, overrides) {
+    const db = as(user).firestore();
+    const batch = writeBatch(db);
+    batch.delete(doc(db, entryPath));
+    batch.set(doc(db, "deletions/testEntry"), logFor(user, overrides));
+    return batch.commit();
+  }
+
+  test("the admin email is in the family list", () => {
+    assert.ok(FAMILY.includes(ADMIN_EMAIL));
+  });
+  test("admin can delete an entry together with a deletion record", async () => {
+    await assertSucceeds(deleteWithLog(ADMIN));
+  });
+  test("admin can't delete without leaving a record", async () => {
+    await assertFails(deleteDoc(doc(as(ADMIN).firestore(), entryPath)));
+  });
+  test("a non-admin family member can't delete, even with a record", async () => {
+    await assertFails(deleteWithLog(CAROL));
+  });
+  test("the record must describe the entry truthfully", async () => {
+    await assertFails(deleteWithLog(ADMIN, { entryWho: "Otro" }));
+    await assertFails(deleteWithLog(ADMIN, { deletedAt: Timestamp.fromDate(new Date("2020-01-01")) }));
+  });
+  test("a deletion record can't be written without deleting the entry", async () => {
+    await assertFails(setDoc(doc(as(ADMIN).firestore(), "deletions/testEntry"), logFor(ADMIN)));
+  });
+  test("admin still can't edit entries", async () => {
+    await assertFails(updateDoc(doc(as(ADMIN).firestore(), entryPath), { doctor: "x" }));
+  });
+  test("family can read the deletion log; nobody can change it", async () => {
+    await deleteWithLog(ADMIN);
+    await assertSucceeds(getDocs(collection(as(CAROL).firestore(), "deletions")));
+    await assertFails(getDocs(collection(as(STRANGER).firestore(), "deletions")));
+    await assertFails(updateDoc(doc(as(ADMIN).firestore(), "deletions/testEntry"), { entryWho: "x" }));
+    await assertFails(deleteDoc(doc(as(ADMIN).firestore(), "deletions/testEntry")));
+  });
+  test("only the admin passes the admin check", async () => {
+    await assertSucceeds(getDoc(doc(as(ADMIN).firestore(), "admincheck/me")));
+    await assertFails(getDoc(doc(as(CAROL).firestore(), "admincheck/me")));
+  });
+});
+
+describe("firestore: watch shifts", () => {
+  const start = Timestamp.fromDate(new Date("2026-10-01T14:00:00Z"));
+  const end = Timestamp.fromDate(new Date("2026-10-02T14:00:00Z"));
+  function shift(user, overrides = {}) {
+    return { person: "Lorena", start, end, note: "Noche", createdBy: user.email, createdAt: serverTimestamp(), ...overrides };
+  }
+
+  test("family can add a shift for anyone in the family", async () => {
+    await assertSucceeds(addDoc(collection(as(CAROL).firestore(), "shifts"), shift(CAROL)));
+  });
+  test("non-family can't read or add shifts", async () => {
+    await assertFails(getDocs(collection(as(STRANGER).firestore(), "shifts")));
+    await assertFails(addDoc(collection(as(STRANGER).firestore(), "shifts"), shift(STRANGER)));
+  });
+  test("shift must be for a family name, end after start, at most 31 days", async () => {
+    const db = as(CAROL).firestore();
+    await assertFails(addDoc(collection(db, "shifts"), shift(CAROL, { person: "Pedro" })));
+    await assertFails(addDoc(collection(db, "shifts"), shift(CAROL, { end: start })));
+    await assertFails(addDoc(collection(db, "shifts"), shift(CAROL, {
+      end: Timestamp.fromDate(new Date("2026-11-15T14:00:00Z")) })));
+  });
+  test("createdBy must be the signed-in account", async () => {
+    await assertFails(addDoc(collection(as(CAROL).firestore(), "shifts"), shift(CAROL, { createdBy: ADMIN.email })));
+  });
+  test("who added it or the admin can remove it; others can't; nobody edits", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "shifts/a"), { ...shift(CAROL), createdAt: Timestamp.now() });
+      await setDoc(doc(ctx.firestore(), "shifts/b"), { ...shift(CAROL), createdAt: Timestamp.now() });
+    });
+    const other = { uid: "otherUid", email: FAMILY.find((e) => e !== ADMIN_EMAIL && e !== CAROL.email) };
+    await assertFails(deleteDoc(doc(as(other).firestore(), "shifts/a")));
+    await assertFails(updateDoc(doc(as(CAROL).firestore(), "shifts/a"), { note: "x" }));
+    await assertSucceeds(deleteDoc(doc(as(CAROL).firestore(), "shifts/a")));
+    await assertSucceeds(deleteDoc(doc(as(ADMIN).firestore(), "shifts/b")));
   });
 });
 

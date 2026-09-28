@@ -79,6 +79,22 @@
   button.secondary{background:#fff; color:var(--teal); border:1px solid var(--teal);}
   button.quiet{background:transparent; color:#FBF9F4; border:1px solid #7C93A4; padding:7px 12px; font-size:15px;}
   button.wa{background:var(--wa);}
+  button.danger{background:#fff; color:var(--danger); border:1px solid var(--danger);}
+  button.danger:hover{background:#FBEAEA;}
+  .on-duty{background:#E6F2F2; border-left:4px solid var(--teal); border-radius:6px; padding:10px 12px; font-size:16px;}
+  .on-duty strong{color:var(--teal-dark);}
+  .on-duty.nobody{background:#F3EFE4; border-left-color:var(--amber);}
+  h3.sub{font-size:16px; margin:16px 0 6px;}
+  .shift-list{list-style:none; padding:0; margin:0;}
+  .shift-list li{border-bottom:1px solid var(--line); padding:8px 0; display:flex; gap:10px; justify-content:space-between; align-items:flex-start;}
+  .shift-list li:last-child{border-bottom:0;}
+  .shift-list .who{font-weight:700;}
+  .shift-list .when, .shift-list .note{font-size:14px; color:var(--ink-soft);}
+  .shift-list .now{display:inline-block; font-size:12px; font-weight:700; background:var(--teal); color:#fff; padding:0 6px; border-radius:999px; margin-left:6px;}
+  .shift-list button{padding:5px 10px; font-size:14px; flex:none;}
+  details.card summary, details.shift-add summary{cursor:pointer; font-weight:700;}
+  details.shift-add{margin-top:14px; border-top:1px dashed var(--line); padding-top:10px;}
+  #deletions-card ul{margin:8px 0 0; padding-left:20px; font-size:15px; color:var(--ink-soft);}
   .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
   .status{margin:10px 0 0; font-size:15px; color:var(--ink-soft);}
   .status.error{color:var(--danger); font-weight:600;}
@@ -180,7 +196,7 @@
   <div class="wrap">
     <div>
       <h1>Bitácora de cuidados del paciente</h1>
-      <p>Registro compartido de la familia. Las entradas no se pueden editar ni borrar.</p>
+      <p>Registro compartido de la familia. Las entradas no se pueden editar.</p>
     </div>
     <div id="account" class="row hidden">
       <span id="who-am-i"></span>
@@ -216,6 +232,40 @@
   </section>
 
   <div id="view-app" class="hidden">
+
+    <section class="card" id="shifts-card">
+      <h2>Turnos de guardia</h2>
+      <div id="on-duty" class="on-duty">Cargando turnos…</div>
+      <h3 class="sub">Próximos turnos</h3>
+      <ul id="shift-list" class="shift-list"></ul>
+      <p class="status" id="shift-list-status"></p>
+      <details class="shift-add" id="shift-add">
+        <summary>Agregar turno</summary>
+        <form id="shift-form" novalidate>
+          <label for="s-person">¿Quién cuida?</label>
+          <select id="s-person">
+            <option>Adriana</option>
+            <option>Alejandro</option>
+            <option>Chavita</option>
+            <option>Daniel</option>
+            <option>Enrique</option>
+            <option>Lorena</option>
+            <option>Salvador</option>
+            <option>Teresa</option>
+          </select>
+          <label for="s-start">Empieza <span class="hint">Hora del centro de México.</span></label>
+          <input type="datetime-local" id="s-start">
+          <label for="s-end">Termina</label>
+          <input type="datetime-local" id="s-end">
+          <label for="s-note">Nota (opcional)</label>
+          <input type="text" id="s-note" maxlength="200" placeholder="Ej.: Noche en el hospital">
+          <div class="row" style="margin-top:12px">
+            <button type="submit" id="s-save">Guardar turno</button>
+          </div>
+          <p class="status" id="shift-status" role="status"></p>
+        </form>
+      </details>
+    </section>
 
     <section class="card">
       <h2 id="form-title">Nueva entrada</h2>
@@ -296,7 +346,7 @@
           </div>
         </fieldset>
 
-        <div class="warning">Revisa antes de guardar: una vez guardada, la entrada no se puede editar ni borrar, ni siquiera por quien la escribió.</div>
+        <div class="warning">Revisa antes de guardar: una vez guardada, la entrada no se puede editar, ni siquiera por quien la escribió. Si algo quedó mal, usa «Corregir». Solo el administrador puede borrar entradas, y cada borrado queda anotado.</div>
         <button type="submit" id="save">Guardar entrada</button>
         <p class="status" id="save-status" role="status"></p>
       </form>
@@ -310,6 +360,10 @@
       </div>
       <p class="status" id="list-status">Cargando entradas…</p>
       <div id="entries"></div>
+      <details class="card hidden" id="deletions-card">
+        <summary id="deletions-summary"></summary>
+        <ul id="deletions-list"></ul>
+      </details>
     </section>
   </div>
 </main>
@@ -321,7 +375,7 @@ import {
   signInWithRedirect, signOut, connectAuthEmulator,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
-  getFirestore, collection, query, orderBy, onSnapshot, addDoc,
+  getFirestore, collection, query, orderBy, onSnapshot, addDoc, where, writeBatch, deleteDoc,
   serverTimestamp, Timestamp, connectFirestoreEmulator, doc, getDoc,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import {
@@ -450,12 +504,16 @@ for (const id of ["sign-out", "denied-sign-out"]) {
   $(id).addEventListener("click", () => signOut(auth));
 }
 
-let unsubscribeEntries = null;
+let unsubscribers = [];
 let currentUser = null;
+let isAdminUser = false;
 
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
-  if (unsubscribeEntries) { unsubscribeEntries(); unsubscribeEntries = null; }
+  for (const stop of unsubscribers) stop();
+  unsubscribers = [];
+  isAdminUser = false;
+  setStatus($("save-status"), "");
   resetPhoto();
   setCorrecting(null);
   if (!user) {
@@ -516,10 +574,14 @@ async function startApp() {
   }
   myName = me.name;
   $("who-name").textContent = myName;
+  isAdminUser = await getDoc(doc(db, "admincheck", "me")).then(() => true, () => false);
+  if (currentUser !== user) return;
   firstSnapshot = true;
   setStatus($("list-status"), "Cargando entradas…");
   $("entries").replaceChildren();
-  unsubscribeEntries = onSnapshot(entriesQuery, { includeMetadataChanges: true }, (snap) => {
+  startShifts();
+  startDeletions();
+  unsubscribers.push(onSnapshot(entriesQuery, { includeMetadataChanges: true }, (snap) => {
     if (firstSnapshot) {
       firstSnapshot = false;
       initForm();
@@ -535,7 +597,7 @@ async function startApp() {
     console.error(err);
     show("view-app");
     setStatus($("list-status"), "No se pudieron cargar las entradas. Revisa tu conexión y recarga la página.", "error");
-  });
+  }));
 }
 
 function el(tag, attrs = {}, text) {
@@ -736,6 +798,12 @@ function renderEntry(docSnap, context) {
   fix.addEventListener("click", () => startCorrection(docSnap.id, entry));
   actions.appendChild(fix);
 
+  if (isAdminUser && !docSnap.metadata.hasPendingWrites) {
+    const del = el("button", { type: "button", class: "danger" }, "Borrar entrada");
+    del.addEventListener("click", () => deleteEntry(docSnap.id, entry, del));
+    actions.appendChild(del);
+  }
+
   if (entry.photoPath) {
     const photoBtn = el("button", { type: "button", class: "secondary" }, "Ver foto");
     const photoStatus = el("p", { class: "status" });
@@ -760,6 +828,175 @@ function renderEntry(docSnap, context) {
     card.appendChild(actions);
   }
   return card;
+}
+
+// ---------------------------------------------------------------------------
+// Admin-only deletion. The rules only allow it together with a record in
+// /deletions (who deleted what, and when), which the family can see.
+// ---------------------------------------------------------------------------
+async function deleteEntry(id, entry, button) {
+  const question = `¿Borrar para siempre ${describeEntry(entry)}?\n\nNo se puede deshacer. Quedará anotado en «Entradas borradas».`;
+  if (!confirm(question)) return;
+  button.disabled = true;
+  try {
+    const batch = writeBatch(db);
+    batch.delete(doc(db, "entries", id));
+    batch.set(doc(db, "deletions", id), {
+      deletedBy: currentUser.email.toLowerCase(),
+      deletedAt: serverTimestamp(),
+      entryWhen: entry.when,
+      entryWho: entry.who,
+      entryPatient: entry.patient || "",
+    });
+    await batch.commit();
+  } catch (err) {
+    console.error(err);
+    button.disabled = false;
+    alert("No se pudo borrar la entrada. Revisa tu conexión e intenta de nuevo.");
+  }
+}
+
+function startDeletions() {
+  const q = query(collection(db, "deletions"), orderBy("deletedAt", "desc"));
+  unsubscribers.push(onSnapshot(q, (snap) => {
+    $("deletions-card").classList.toggle("hidden", snap.empty);
+    $("deletions-summary").textContent = `Entradas borradas por el administrador (${snap.size})`;
+    $("deletions-list").replaceChildren(...snap.docs.map((d) => {
+      const x = d.data({ serverTimestamps: "estimate" });
+      const what = x.entryWhen ? formatWhen(x.entryWhen.toDate()) : "sin fecha";
+      const patient = x.entryPatient ? ` (paciente: ${x.entryPatient})` : "";
+      const whenDeleted = x.deletedAt ? formatWhen(x.deletedAt.toDate()) : "";
+      return el("li", {}, `Entrada del ${what}, escrita por ${x.entryWho}${patient}. Borrada el ${whenDeleted}.`);
+    }));
+  }, (err) => console.error(err)));
+}
+
+// ---------------------------------------------------------------------------
+// Watch schedule ("Turnos de guardia"). Shows who is on duty now and the
+// upcoming shifts. Anyone in the family can add a shift; whoever added it,
+// or the admin, can remove it.
+// ---------------------------------------------------------------------------
+const MAX_SHIFT_MS = 31 * 24 * 3600 * 1000;
+const shiftFormat = new Intl.DateTimeFormat("es-MX", {
+  timeZone: CARE_TIME_ZONE, weekday: "short", day: "numeric", month: "short",
+  hour: "numeric", minute: "2-digit",
+});
+let shiftDocs = [];
+let shiftTimer = null;
+let shiftFormReady = false;
+
+function startShifts() {
+  setUpShiftForm();
+  const q = query(collection(db, "shifts"), where("end", ">=", Timestamp.now()), orderBy("end"));
+  unsubscribers.push(onSnapshot(q, (snap) => {
+    shiftDocs = snap.docs;
+    renderShifts();
+  }, (err) => {
+    console.error(err);
+    $("on-duty").textContent = "No se pudieron cargar los turnos.";
+  }));
+  clearInterval(shiftTimer);
+  shiftTimer = setInterval(renderShifts, 60 * 1000);
+  unsubscribers.push(() => clearInterval(shiftTimer));
+}
+
+function renderShifts() {
+  const now = Date.now();
+  const shifts = shiftDocs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .filter((x) => x.end.toMillis() > now)
+    .sort((a, b) => a.start.toMillis() - b.start.toMillis());
+  const current = shifts.filter((x) => x.start.toMillis() <= now);
+  const box = $("on-duty");
+  box.replaceChildren();
+  box.classList.toggle("nobody", current.length === 0);
+  if (current.length === 0) {
+    box.textContent = "Nadie tiene turno asignado en este momento.";
+  } else {
+    box.append("De guardia ahora: ");
+    current.forEach((x, i) => {
+      if (i) box.append(i === current.length - 1 ? " y " : ", ");
+      box.appendChild(el("strong", {}, x.person));
+      box.append(` (hasta ${shiftFormat.format(x.end.toDate())})`);
+    });
+  }
+  const list = $("shift-list");
+  list.replaceChildren();
+  for (const x of shifts.slice(0, 12)) {
+    const li = el("li");
+    const info = el("div");
+    const who = el("span", { class: "who" }, x.person);
+    info.appendChild(who);
+    if (x.start.toMillis() <= now) who.after(el("span", { class: "now" }, "ahora"));
+    info.appendChild(el("div", { class: "when" },
+      `${shiftFormat.format(x.start.toDate())} → ${shiftFormat.format(x.end.toDate())}`));
+    if (x.note) info.appendChild(el("div", { class: "note" }, x.note));
+    li.appendChild(info);
+    if (x.createdBy === currentUser.email.toLowerCase() || isAdminUser) {
+      const remove = el("button", { type: "button", class: "danger" }, "Quitar");
+      remove.addEventListener("click", async () => {
+        if (!confirm(`¿Quitar el turno de ${x.person}?`)) return;
+        remove.disabled = true;
+        try { await deleteDoc(doc(db, "shifts", x.id)); }
+        catch (err) { console.error(err); remove.disabled = false; alert("No se pudo quitar el turno."); }
+      });
+      li.appendChild(remove);
+    }
+    list.appendChild(li);
+  }
+  setStatus($("shift-list-status"), shifts.length ? "" : "No hay turnos próximos. Agrega uno abajo.");
+}
+
+function resetShiftForm() {
+  const start = new Date();
+  start.setMinutes(0, 0, 0);
+  start.setHours(start.getHours() + 1);
+  $("s-start").value = dateToZonedInput(start);
+  $("s-end").value = dateToZonedInput(new Date(start.getTime() + 12 * 3600 * 1000));
+  $("s-note").value = "";
+  if (myName) $("s-person").value = myName;
+}
+
+function setUpShiftForm() {
+  resetShiftForm();
+  setStatus($("shift-status"), "");
+  $("shift-add").open = false;
+  if (shiftFormReady) return;
+  shiftFormReady = true;
+  let savingShift = false;
+  $("shift-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (savingShift) return;
+    const status = $("shift-status");
+    const start = zonedInputToDate($("s-start").value);
+    const end = zonedInputToDate($("s-end").value);
+    if (!start || !end) return setStatus(status, "Falta la hora de inicio o de fin.", "error");
+    if (end <= start) return setStatus(status, "El turno debe terminar después de empezar.", "error");
+    if (end - start > MAX_SHIFT_MS) return setStatus(status, "Un turno puede durar como máximo 31 días.", "error");
+    const note = $("s-note").value.trim();
+    savingShift = true;
+    $("s-save").disabled = true;
+    setStatus(status, "Guardando…");
+    try {
+      const data = {
+        person: $("s-person").value,
+        start: Timestamp.fromDate(start),
+        end: Timestamp.fromDate(end),
+        createdBy: currentUser.email.toLowerCase(),
+        createdAt: serverTimestamp(),
+      };
+      if (note) data.note = note;
+      await addDoc(collection(db, "shifts"), data);
+      resetShiftForm();
+      setStatus(status, "Turno guardado.", "ok");
+    } catch (err) {
+      console.error(err);
+      setStatus(status, "No se pudo guardar el turno. Revisa tu conexión e intenta de nuevo.", "error");
+    } finally {
+      savingShift = false;
+      $("s-save").disabled = false;
+    }
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -891,8 +1128,8 @@ async function onSave(event) {
     return setStatus(status, "La entrada está vacía. Escribe algo o agrega una foto.", "error");
   }
   const question = correcting
-    ? "¿Guardar esta corrección? Ya no se podrá editar ni borrar. La entrada original se conserva sin cambios."
-    : "¿Guardar esta entrada? Ya no se podrá editar ni borrar.";
+    ? "¿Guardar esta corrección? Ya no se podrá editar. La entrada original se conserva sin cambios."
+    : "¿Guardar esta entrada? Ya no se podrá editar.";
   if (!confirm(question)) return;
 
   saving = true;

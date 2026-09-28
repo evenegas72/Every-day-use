@@ -40,6 +40,13 @@ service cloud.firestore {
         && myEmail() in familyNames();
     }
 
+    // The one person who can delete entries (e.g. test entries). Every
+    // deletion must leave a record in /deletions, and entries still can't
+    // be edited by anyone.
+    function isAdmin() {
+      return isFamily() && myEmail() == 'rickv72@gmail.com';
+    }
+
     function optionalString(data, field, maxLen) {
       return !(field in data)
         || (data[field] is string && data[field].size() <= maxLen);
@@ -124,10 +131,64 @@ service cloud.firestore {
     match /entries/{entryId} {
       allow read: if isFamily();
       allow create: if isFamily() && isValidNewEntry();
-      // Append-only: once saved, nobody (including the person who wrote
-      // it) can change or remove an entry. Enforced here, not just hidden
-      // in the UI.
+      // Once saved, nobody (including the person who wrote it) can change
+      // an entry. Only the admin can remove one, and only in the same
+      // write that records the deletion in /deletions.
+      allow update: if false;
+      allow delete: if isAdmin()
+        && existsAfter(/databases/$(database)/documents/deletions/$(entryId));
+    }
+
+    // Deletion log: who deleted which entry and when. Written together with
+    // the deletion, copied from the entry being deleted, and never changed.
+    match /deletions/{entryId} {
+      allow read: if isFamily();
+      allow create: if isAdmin() && isValidDeletion(entryId);
       allow update, delete: if false;
+    }
+
+    function isValidDeletion(entryId) {
+      let d = request.resource.data;
+      let entryPath = /databases/$(database)/documents/entries/$(entryId);
+      let entry = get(entryPath).data;
+      return exists(entryPath)
+        && !existsAfter(entryPath)
+        && d.keys().hasOnly(['deletedBy', 'deletedAt', 'entryWhen', 'entryWho', 'entryPatient'])
+        && d.deletedBy == myEmail()
+        && d.deletedAt == request.time
+        && d.entryWhen == entry.when
+        && d.entryWho == entry.who
+        && d.entryPatient == entry.get('patient', '');
+    }
+
+    // Watch schedule ("Turnos de guardia"). Unlike entries, shifts can be
+    // removed (schedules change) by whoever added them or by the admin.
+    match /shifts/{shiftId} {
+      allow read: if isFamily();
+      allow create: if isFamily() && isValidShift();
+      allow update: if false;
+      allow delete: if isFamily()
+        && (resource.data.createdBy == myEmail() || isAdmin());
+    }
+
+    function isValidShift() {
+      let d = request.resource.data;
+      return d.keys().hasAll(['person', 'start', 'end', 'createdBy', 'createdAt'])
+        && d.keys().hasOnly(['person', 'start', 'end', 'note', 'createdBy', 'createdAt'])
+        && d.person in familyNames().values()
+        && d.start is timestamp
+        && d.end is timestamp
+        && d.end > d.start
+        && d.end - d.start <= duration.value(31, 'd')
+        && optionalString(d, 'note', 200)
+        && d.createdBy == myEmail()
+        && d.createdAt == request.time;
+    }
+
+    // Lets the page ask "am I the admin?" without the admin's email being
+    // in the page itself. No documents are stored here.
+    match /admincheck/{id} {
+      allow get: if isAdmin();
     }
 
     // Lets the app find out which name belongs to the signed-in account
