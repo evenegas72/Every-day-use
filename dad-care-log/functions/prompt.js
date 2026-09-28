@@ -204,3 +204,75 @@ export function parseExplanation(response) {
     .slice(0, MAX_QUESTIONS);
   return { values, questions };
 }
+
+// ---------------------------------------------------------------------------
+// "Pregúntale a la IA": a general explanation of a term, a diagnosis the
+// doctor mentioned, or a question from the family. General information
+// only, never a prognosis for this patient or treatment advice.
+// ---------------------------------------------------------------------------
+export const MAX_ASK_TEXT = 1000;
+export const MAX_ANSWER = 4000;
+
+export const ASK_SCHEMA = {
+  type: "object",
+  properties: {
+    answer: {
+      type: "string",
+      description: "The general explanation in plain Spanish, short paragraphs separated by blank lines.",
+    },
+    questions: {
+      type: "array",
+      description: "Short questions in Spanish the family can ask the doctor or nurse about this topic.",
+      items: { type: "string" },
+    },
+  },
+  required: ["answer", "questions"],
+  additionalProperties: false,
+};
+
+const ASK_RULES = `Eres un asistente que ayuda a una familia en México a entender, en palabras sencillas, lo que el médico les dijo sobre un familiar que están cuidando.
+Recibes una pregunta, un diagnóstico o un término médico (a veces copiado de otra conversación o de otra IA).
+
+En "answer", en español sencillo y en párrafos cortos (máximo unas 250 palabras):
+- Qué significa cada término (por ejemplo, qué es y qué quiere decir "bilateral").
+- Cómo se suele tratar o vigilar en general, sin recomendar medicamentos, dosis ni cambios de tratamiento.
+- Qué señales en general suelen ser motivo para avisar al personal médico, si aplica.
+
+En "questions": de 2 a ${MAX_QUESTIONS} preguntas concretas y útiles para hacerle al médico o a la enfermera sobre este tema.
+
+Reglas:
+- Da solo información general. No hagas un diagnóstico, no digas cómo va a evolucionar este paciente y no contradigas al médico tratante.
+- Si te piden algo que solo el equipo médico puede decidir (cambiar medicamentos, pronóstico, si dar de alta), explícalo en general y recomienda preguntarlo al médico.
+- Si el texto contiene afirmaciones dudosas o incorrectas, acláralo con cuidado.
+- No uses formato Markdown (sin asteriscos ni almohadillas); solo texto con párrafos.`;
+
+export function buildAskRequest({ question }) {
+  return {
+    model: MODEL,
+    max_tokens: 16000,
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    output_config: {
+      effort: "high",
+      format: { type: "json_schema", schema: ASK_SCHEMA },
+    },
+    system: ASK_RULES,
+    messages: [{ role: "user", content: question }],
+  };
+}
+
+// Returns { answer, questions } with sizes checked, or throws.
+export function parseAskAnswer(response) {
+  const parsed = parseJsonAnswer(response);
+  const answer = String(parsed.answer ?? "").trim().slice(0, MAX_ANSWER);
+  if (!answer) {
+    const err = new Error("empty answer");
+    err.code = "empty";
+    throw err;
+  }
+  const questions = (Array.isArray(parsed.questions) ? parsed.questions : [])
+    .map((q) => clip(q, 300))
+    .filter(Boolean)
+    .slice(0, MAX_QUESTIONS);
+  return { answer, questions };
+}

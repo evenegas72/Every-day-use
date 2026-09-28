@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PHOTO_PATH_PATTERN, MAX_QUESTIONS, buildExplainRequest, buildRequest, parseExplanation, parseReading } from "../prompt.js";
+import { PHOTO_PATH_PATTERN, MAX_QUESTIONS, buildAskRequest, buildExplainRequest, buildRequest, parseAskAnswer, parseExplanation, parseReading } from "../prompt.js";
 
 test("photo path must be dad-care-log/photos/<uid>/<file>", () => {
   assert.equal(PHOTO_PATH_PATTERN.exec("dad-care-log/photos/abc123/1-x.jpg")[1], "abc123");
@@ -60,4 +60,18 @@ test("explanation parsing cleans statuses, lengths and counts", () => {
 
 test("an explanation refusal is an error, never an empty 'all clear'", () => {
   assert.throws(() => parseExplanation({ stop_reason: "refusal", content: [] }), { code: "refusal" });
+});
+
+test("ask request sends the question and asks for general information only", () => {
+  const req = buildAskRequest({ question: "Derrame pleural bilateral y neumonía" });
+  assert.equal(req.messages[0].content, "Derrame pleural bilateral y neumonía");
+  assert.match(req.system, /No hagas un diagnóstico/);
+  assert.match(req.system, /no recomendar medicamentos|sin recomendar medicamentos/);
+});
+
+test("ask answer parsing requires an answer and limits questions", () => {
+  const ok = parseAskAnswer({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify({ answer: " Texto ", questions: Array(10).fill("¿?") }) }] });
+  assert.equal(ok.answer, "Texto");
+  assert.equal(ok.questions.length, MAX_QUESTIONS);
+  assert.throws(() => parseAskAnswer({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify({ answer: "", questions: [] }) }] }), { code: "empty" });
 });

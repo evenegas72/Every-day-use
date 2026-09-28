@@ -155,6 +155,11 @@
   .chip.no_range{background:#EEEEEE; color:#555; border-color:#CCC;}
   .questions-title{font-weight:700; margin:10px 0 2px; color:#2F4A7A;}
   .info-box ul, .entry .ai-info ul{margin:2px 0 0; padding-left:20px;}
+  fieldset.ask-ai{border-color:#8FA3C7;}
+  .ask-answer p{margin:8px 0 0; white-space:pre-wrap;}
+  .ai-info .ask-q{font-size:14px; color:var(--ink-soft); margin:4px 0 0;}
+  label.confirm.keep{display:flex; gap:8px; align-items:flex-start; font-weight:600; margin-top:12px;}
+  label.confirm.keep input{margin-top:5px; width:20px; height:20px; flex:none;}
   .disclaimer{font-size:13px; color:var(--ink-soft); font-style:italic; margin:10px 0 0;}
   .ai-box.person{background:#EEF4F4; border-color:var(--teal);}
   .ai-box.person .badge{background:var(--teal); color:#fff;}
@@ -316,6 +321,27 @@
           <span class="hint">Diagnóstico, indicaciones, cambios de tratamiento.</span>
         </label>
         <textarea id="f-doctor" maxlength="5000" placeholder="• Ej.: El Dr. Ramírez dice que la presión va mejor&#10;• Bajar la dosis de losartán a media pastilla"></textarea>
+
+        <fieldset class="ask-ai">
+          <legend>Pregúntale a la IA (opcional)</legend>
+          <p class="hint">Escribe una pregunta o pega lo que dijo el médico, por ejemplo «Derrame pleural bilateral y neumonía». La IA lo explica en palabras sencillas.</p>
+          <label for="f-ask">Tu pregunta</label>
+          <textarea id="f-ask" maxlength="1000" placeholder="Ej.: ¿Qué es un derrame pleural bilateral con neumonía?"></textarea>
+          <div class="row" style="margin-top:10px">
+            <button type="button" id="ask-btn">Preguntar a la IA</button>
+          </div>
+          <div id="ask-box" class="info-box hidden" aria-live="polite">
+            <span class="badge info">Explicación general generada por IA</span>
+            <p class="status" id="ask-status"></p>
+            <div id="ask-answer" class="ask-answer"></div>
+            <div id="ask-questions"></div>
+            <p class="disclaimer">Información general, no es un diagnóstico. Ante cualquier duda, consulte con el médico o la enfermera.</p>
+            <label class="confirm keep">
+              <input type="checkbox" id="ask-keep" checked>
+              <span>Guardar esta explicación con la entrada</span>
+            </label>
+          </div>
+        </fieldset>
 
         <label for="f-meds">Medicamentos y síntomas
           <span class="hint">Qué tomó y a qué hora, cómo se sintió, qué notaste.</span>
@@ -827,6 +853,7 @@ function renderEntry(docSnap, context) {
     card.appendChild(block);
   }
   if (Array.isArray(entry.aiFlags)) card.appendChild(renderSavedAiInfo(entry));
+  if (entry.aiAsk) card.appendChild(renderSavedAsk(entry));
 
   const actions = el("div", { class: "row actions" });
   const share = el("button", { type: "button", class: "wa" }, "Compartir por WhatsApp");
@@ -1119,8 +1146,13 @@ function buildWhatsAppText(entry, context = { original: null, corrections: [] })
       ? entry.aiFlags.map((f) => `- ${flagSentence(f)}`)
       : ["- Ningún valor leído está fuera de los rangos generales."]);
     if (entry.aiQuestions?.length) add("Preguntas para la enfermera o el médico", entry.aiQuestions.map((q) => `- ${q}`));
-    lines.push("", `_${AI_DISCLAIMER}_`);
   }
+  if (entry.aiAsk) {
+    add(`Pregunta a la IA (de ${entry.who})`, plain(entry.aiAsk.question));
+    add("Explicación general generada por IA (no es un diagnóstico)", entry.aiAsk.answer.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean));
+    if (entry.aiAsk.questions?.length) add("Preguntas para el médico", entry.aiAsk.questions.map((q) => `- ${q}`));
+  }
+  if (Array.isArray(entry.aiFlags) || entry.aiAsk) lines.push("", `_${AI_DISCLAIMER}_`);
   if (context.corrections.length) {
     const who = [...new Set(context.corrections.map((c) => c.entry.who))].join(", ");
     lines.push("", `_Ojo: esta entrada fue corregida después por ${who}. Revisa la corrección en la bitácora._`);
@@ -1219,8 +1251,16 @@ async function onSave(event) {
   if (explain.pending) {
     return setStatus(status, "Espera a que termine la información general de la IA.", "error");
   }
+  if (ask.pending) {
+    return setStatus(status, "Espera a que la IA termine de responder tu pregunta.", "error");
+  }
+  const askQuestion = $("f-ask").value.trim();
+  if (askQuestion && !ask.result) {
+    return setStatus(status, "Escribiste una pregunta para la IA sin respuesta: toca «Preguntar a la IA» o borra la pregunta.", "error");
+  }
+  const keepAsk = Boolean(ask.result && $("ask-keep").checked);
   const hasText = Object.values(fields).some(Boolean);
-  if (!hasText && !hasPhoto()) {
+  if (!hasText && !hasPhoto() && !keepAsk) {
     return setStatus(status, "La entrada está vacía. Escribe algo o agrega una foto.", "error");
   }
   const question = correcting
@@ -1246,6 +1286,7 @@ async function onSave(event) {
     };
     for (const [k, v] of Object.entries(fields)) if (v) data[k] = v;
     if (correcting) data.correctsId = correcting.id;
+    if (keepAsk) data.aiAsk = { question: ask.question, answer: ask.result.answer, questions: ask.result.questions };
 
     if (hasPhoto()) {
       data.photoPath = photo.existingPath || await ensurePhotoUploaded();
@@ -1289,11 +1330,12 @@ async function onSave(event) {
 let correcting = null;
 
 function formHasContent() {
-  return TEXT_FIELDS.some((id) => cleanText($(id).value)) || hasPhoto();
+  return TEXT_FIELDS.some((id) => cleanText($(id).value)) || hasPhoto() || Boolean($("f-ask").value.trim());
 }
 
 function clearForm() {
-  for (const id of ["f-doctor", "f-meds", "f-next", "f-notes"]) $(id).value = "";
+  for (const id of ["f-doctor", "f-meds", "f-next", "f-notes", "f-ask"]) $(id).value = "";
+  clearAsk();
   $("f-when").value = dateToZonedInput(new Date());
   resetPhoto();
   setCorrecting(null);
@@ -1571,10 +1613,10 @@ function valueRow(v, withMeaning) {
   return row;
 }
 
-function questionsBlock(questions) {
+function questionsBlock(questions, title = "Preguntas para la enfermera o el médico") {
   const frag = document.createDocumentFragment();
   if (!questions?.length) return frag;
-  frag.appendChild(el("div", { class: "questions-title" }, "Preguntas para la enfermera o el médico"));
+  frag.appendChild(el("div", { class: "questions-title" }, title));
   const list = el("ul");
   for (const q of questions) list.appendChild(el("li", {}, q));
   frag.appendChild(list);
@@ -1601,6 +1643,76 @@ function renderSavedAiInfo(entry) {
     block.appendChild(el("div", { class: "val-meta" }, "Ningún valor leído está fuera de los rangos generales."));
   }
   block.appendChild(questionsBlock(entry.aiQuestions));
+  block.appendChild(el("p", { class: "disclaimer" }, AI_DISCLAIMER));
+  return block;
+}
+
+// ---------------------------------------------------------------------------
+// "Pregúntale a la IA": a general explanation of a question or of what the
+// doctor said. Shown and saved apart from what people wrote.
+// ---------------------------------------------------------------------------
+const askCareQuestion = httpsCallable(functions, "askCareQuestion", { timeout: 180000 });
+const ask = { question: null, result: null, pending: false, seq: 0 };
+
+function clearAsk() {
+  ask.seq++;
+  Object.assign(ask, { question: null, result: null, pending: false });
+  $("ask-box").classList.add("hidden");
+  $("ask-answer").replaceChildren();
+  $("ask-questions").replaceChildren();
+  $("ask-keep").checked = true;
+  $("ask-btn").disabled = false;
+  setStatus($("ask-status"), "");
+}
+
+function answerParagraphs(text) {
+  return text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((p) => el("p", {}, p));
+}
+
+// A changed question means the old answer no longer applies.
+$("f-ask").addEventListener("input", () => {
+  if (ask.result || ask.pending) clearAsk();
+});
+
+$("ask-btn").addEventListener("click", async () => {
+  const question = $("f-ask").value.trim();
+  if (!question || ask.pending) return;
+  clearAsk();
+  const seq = ask.seq;
+  Object.assign(ask, { question, pending: true });
+  $("ask-btn").disabled = true;
+  $("ask-box").classList.remove("hidden");
+  setStatus($("ask-status"), "La IA está preparando la explicación… puede tardar hasta un minuto.");
+  try {
+    const { data } = await askCareQuestion({ question });
+    if (seq !== ask.seq) return;
+    ask.result = data;
+    setStatus($("ask-status"), "");
+    $("ask-answer").replaceChildren(...answerParagraphs(data.answer));
+    $("ask-questions").replaceChildren(questionsBlock(data.questions, "Preguntas para el médico"));
+  } catch (err) {
+    if (seq !== ask.seq) return;
+    console.error(err);
+    const msg = err.code === "functions/resource-exhausted"
+      ? "La IA está ocupada. Espera un momento e intenta de nuevo."
+      : "No se pudo obtener la explicación. Intenta de nuevo.";
+    setStatus($("ask-status"), msg, "error");
+  } finally {
+    if (seq === ask.seq) {
+      ask.pending = false;
+      $("ask-btn").disabled = false;
+    }
+  }
+});
+
+function renderSavedAsk(entry) {
+  const block = el("div", { class: "ai-info" });
+  block.appendChild(el("div", { class: "ai-info-title" }, "Explicación general generada por IA (no es un diagnóstico)"));
+  block.appendChild(el("p", { class: "ask-q" }, `Pregunta de ${entry.who}: ${entry.aiAsk.question}`));
+  const answer = el("div", { class: "ask-answer" });
+  answer.append(...answerParagraphs(entry.aiAsk.answer));
+  block.appendChild(answer);
+  block.appendChild(questionsBlock(entry.aiAsk.questions, "Preguntas para el médico"));
   block.appendChild(el("p", { class: "disclaimer" }, AI_DISCLAIMER));
   return block;
 }

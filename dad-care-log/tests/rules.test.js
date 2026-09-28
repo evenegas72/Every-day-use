@@ -184,6 +184,16 @@ describe("firestore: photo fields", () => {
     await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { aiFlags: flags, aiQuestions: [] })));
     await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { ...reading, aiFlags: flags, aiQuestions: Array(9).fill("x") })));
   });
+  test("a kept AI question and answer is accepted, and can be the entry's only content", async () => {
+    const db = as(ALICE).firestore();
+    const aiAsk = { question: "Derrame pleural bilateral y neumonía", answer: "Explicación general…", questions: ["¿Cuánto líquido hay?"] };
+    await assertSucceeds(addDoc(collection(db, "entries"), goodEntry(ALICE, { aiAsk })));
+    const { doctor, ...onlyAsk } = goodEntry(ALICE, { aiAsk });
+    await assertSucceeds(addDoc(collection(db, "entries"), onlyAsk));
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { aiAsk: { ...aiAsk, extra: 1 } })));
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { aiAsk: { ...aiAsk, answer: "" } })));
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { aiAsk: { ...aiAsk, questions: Array(9).fill("x") } })));
+  });
   test("a reading without a photo is refused", async () => {
     await assertFails(addDoc(collection(as(ALICE).firestore(), "entries"), goodEntry(ALICE, {
       photoReading: "128/82", photoReadingSource: "ai", photoReadingConfirmed: true,
@@ -357,6 +367,10 @@ describe("firestore: admin deletion", () => {
     await assertFails(updateDoc(doc(as(ADMIN).firestore(), "deletions/testEntry"), { entryWho: "x" }));
     await assertFails(updateDoc(doc(as(ADMIN).firestore(), "deletions/testEntry"), { reason: "otro motivo" }));
     await assertFails(deleteDoc(doc(as(ADMIN).firestore(), "deletions/testEntry")));
+  });
+  test("only family passes the family check", async () => {
+    await assertSucceeds(getDoc(doc(as(CAROL).firestore(), "familycheck/me")));
+    await assertFails(getDoc(doc(as(STRANGER).firestore(), "familycheck/me")));
   });
   test("only the admin passes the admin check", async () => {
     await assertSucceeds(getDoc(doc(as(ADMIN).firestore(), "admincheck/me")));

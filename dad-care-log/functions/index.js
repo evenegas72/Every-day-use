@@ -15,8 +15,11 @@ import {
   PHOTO_KINDS,
   PHOTO_PATH_PATTERN,
   MAX_EXPLAIN_TEXT,
+  MAX_ASK_TEXT,
+  buildAskRequest,
   buildRequest,
   buildExplainRequest,
+  parseAskAnswer,
   parseExplanation,
   parseReading,
 } from "./prompt.js";
@@ -133,6 +136,63 @@ export const explainCareReading = onCall(
     }
   },
 );
+
+// "Pregúntale a la IA": a general explanation of a question or of what the
+// doctor said. There is no photo to prove family membership here, so the
+// function asks the security rules directly, with the caller's own sign-in:
+// reading /familycheck/<anything> in the dad-care-log database is allowed
+// only for family (firestore.rules). The family list stays in one place.
+export const askCareQuestion = onCall(
+  {
+    region: "us-central1",
+    secrets: [ANTHROPIC_API_KEY],
+    timeoutSeconds: 180,
+    memory: "256MiB",
+    maxInstances: 3,
+  },
+  async (request) => {
+    const auth = request.auth;
+    if (!auth || auth.token.email_verified !== true) {
+      throw new HttpsError("unauthenticated", "sign-in required");
+    }
+    const question = typeof request.data?.question === "string" ? request.data.question.trim() : "";
+    if (!question || question.length > MAX_ASK_TEXT) {
+      throw new HttpsError("invalid-argument", "question is required");
+    }
+    const idToken = (request.rawRequest.headers.authorization || "").replace(/^Bearer\s+/i, "");
+    if (!(await isFamilyPerRules(idToken))) {
+      throw new HttpsError("permission-denied", "not in the family list");
+    }
+
+    const response = await callClaude(buildAskRequest({ question }));
+    try {
+      const answer = parseAskAnswer(response);
+      logger.info("question answered", { questions: answer.questions.length, model: response.model });
+      return answer;
+    } catch (error) {
+      logger.error("could not use Claude answer", {
+        code: error.code ?? "parse",
+        stop_reason: response.stop_reason,
+      });
+      throw new HttpsError("internal", "AI answer unusable");
+    }
+  },
+);
+
+async function isFamilyPerRules(idToken) {
+  if (!idToken) return false;
+  const project = process.env.GCLOUD_PROJECT;
+  const host = process.env.FIRESTORE_EMULATOR_HOST
+    ? `http://${process.env.FIRESTORE_EMULATOR_HOST}`
+    : "https://firestore.googleapis.com";
+  const url = `${host}/v1/projects/${project}/databases/dad-care-log/documents/familycheck/me`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${idToken}` } });
+  // Allowed reads of this never-written document answer 404; refused ones 403.
+  if (res.status === 404 || res.ok) return true;
+  if (res.status === 403 || res.status === 401) return false;
+  logger.error("family check failed", { status: res.status });
+  throw new HttpsError("unavailable", "could not check access");
+}
 
 async function callClaude(params) {
   const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY.value() });

@@ -113,7 +113,7 @@ To change the family list later: edit both rules files, run the tests, then
 ## Local testing
 
 ```bash
-cd dad-care-log/tests && npm install && npm test   # 67 rule tests on the emulators
+cd dad-care-log/tests && npm install && npm test   # 69 rule tests on the emulators
 cd ../functions && npm test                        # prompt / response parsing
 ```
 
@@ -155,6 +155,24 @@ the nurse or doctor.
   general range and the questions, shown in the entry's blue section and in
   the WhatsApp share. The full per-value explanation is on screen only.
 - The rules accept these fields only alongside a confirmed photo reading.
+
+## "Pregúntale a la IA"
+
+An optional box under "Lo que dijo el doctor": type a question or paste what
+the doctor said (e.g. "Derrame pleural bilateral y neumonía") and tap
+**Preguntar a la IA**. The `askCareQuestion` function returns a plain-Spanish
+general explanation plus questions for the doctor, shown in the blue AI box
+with the same "no es un diagnóstico" line. It gives no prognosis for this
+patient and recommends no medications or treatment changes.
+
+- "Guardar esta explicación con la entrada" (ticked by default) saves the
+  question, answer and questions in the entry (`aiAsk`), shown in a blue AI
+  section under the author's name and included in the WhatsApp share.
+- Editing the question clears the answer; an unanswered question blocks
+  saving so nobody thinks it was answered.
+- Access: the function checks the caller is family by reading
+  `/familycheck/me` with the caller's own sign-in; the rules allow that only
+  for family, so the family list stays in the rules files.
 
 ## Corrections ("Corregir")
 

@@ -62,7 +62,7 @@ service cloud.firestore {
           'when', 'who', 'patient', 'doctor', 'meds', 'next', 'notes',
           'authorEmail', 'authorUid', 'createdAt',
           'photoPath', 'photoKind', 'photoReading', 'photoReadingSource',
-          'photoReadingConfirmed', 'correctsId', 'aiFlags', 'aiQuestions'
+          'photoReadingConfirmed', 'correctsId', 'aiFlags', 'aiQuestions', 'aiAsk'
         ])
         && d.when is timestamp
         && d.who == familyNames()[myEmail()]
@@ -79,6 +79,7 @@ service cloud.firestore {
         && isValidCorrection(d)
         && isValidPhoto(d)
         && isValidAiInfo(d)
+        && isValidAiAsk(d)
         && hasSomeContent(d);
     }
 
@@ -133,12 +134,25 @@ service cloud.firestore {
             && d.photoReadingConfirmed == true);
     }
 
+    // "Pregúntale a la IA": a question the author asked and the general
+    // explanation they chose to keep with the entry.
+    function isValidAiAsk(d) {
+      return !('aiAsk' in d)
+        || (d.aiAsk is map
+            && d.aiAsk.keys().hasAll(['question', 'answer', 'questions'])
+            && d.aiAsk.keys().hasOnly(['question', 'answer', 'questions'])
+            && d.aiAsk.question is string && d.aiAsk.question.size() > 0 && d.aiAsk.question.size() <= 1000
+            && d.aiAsk.answer is string && d.aiAsk.answer.size() > 0 && d.aiAsk.answer.size() <= 4000
+            && d.aiAsk.questions is list && d.aiAsk.questions.size() <= 8);
+    }
+
     function hasSomeContent(d) {
       return ('doctor' in d && d.doctor.size() > 0)
         || ('meds' in d && d.meds.size() > 0)
         || ('next' in d && d.next.size() > 0)
         || ('notes' in d && d.notes.size() > 0)
-        || ('photoPath' in d);
+        || ('photoPath' in d)
+        || ('aiAsk' in d);
     }
 
     match /entries/{entryId} {
@@ -200,6 +214,13 @@ service cloud.firestore {
         && optionalString(d, 'note', 200)
         && d.createdBy == myEmail()
         && d.createdAt == request.time;
+    }
+
+    // Lets a Cloud Function check, with the caller's own sign-in, that the
+    // caller is in the family list: a get here is allowed only for family.
+    // No documents are stored here.
+    match /familycheck/{id} {
+      allow get: if isFamily();
     }
 
     // Lets the page ask "am I the admin?" without the admin's email being
