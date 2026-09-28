@@ -62,7 +62,7 @@ service cloud.firestore {
           'when', 'who', 'patient', 'doctor', 'meds', 'next', 'notes',
           'authorEmail', 'authorUid', 'createdAt',
           'photoPath', 'photoKind', 'photoReading', 'photoReadingSource',
-          'photoReadingConfirmed', 'correctsId'
+          'photoReadingConfirmed', 'correctsId', 'aiFlags', 'aiQuestions'
         ])
         && d.when is timestamp
         && d.who == familyNames()[myEmail()]
@@ -78,6 +78,7 @@ service cloud.firestore {
         && optionalString(d, 'notes', 5000)
         && isValidCorrection(d)
         && isValidPhoto(d)
+        && isValidAiInfo(d)
         && hasSomeContent(d);
     }
 
@@ -118,6 +119,18 @@ service cloud.firestore {
                   && d.photoReadingSource in ['ai', 'person']
                   && d.photoReadingConfirmed == true)
             ));
+    }
+
+    // General AI information about a confirmed reading: the values outside
+    // the general range and questions for the nurse or doctor. Saved only
+    // together, and only with a photo reading the person confirmed.
+    function isValidAiInfo(d) {
+      return (!('aiFlags' in d) && !('aiQuestions' in d))
+        || ('aiFlags' in d && 'aiQuestions' in d
+            && d.aiFlags is list && d.aiFlags.size() <= 20
+            && d.aiQuestions is list && d.aiQuestions.size() <= 8
+            && 'photoReading' in d
+            && d.photoReadingConfirmed == true);
     }
 
     function hasSomeContent(d) {

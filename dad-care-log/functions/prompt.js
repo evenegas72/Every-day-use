@@ -83,6 +83,16 @@ export function buildRequest({ kind, mediaType, base64Data }) {
 
 // Returns { readable, text, doubts } or throws with a reason code.
 export function parseReading(response) {
+  const parsed = parseJsonAnswer(response);
+  return {
+    readable: parsed.readable === true,
+    text: String(parsed.text ?? "").slice(0, 3000),
+    doubts: String(parsed.doubts ?? "").slice(0, 1000),
+  };
+}
+
+// The JSON object in a structured-output response, or throws with a code.
+function parseJsonAnswer(response) {
   if (response.stop_reason === "refusal") {
     const err = new Error("refusal");
     err.code = "refusal";
@@ -99,10 +109,98 @@ export function parseReading(response) {
     err.code = "empty";
     throw err;
   }
-  const parsed = JSON.parse(textBlock.text);
+  return JSON.parse(textBlock.text);
+}
+
+// ---------------------------------------------------------------------------
+// General explanation of a confirmed reading: what each value means, the
+// general adult range, whether the value is inside it, and questions to take
+// to the nurse or doctor. Text only (no photo): it explains the numbers the
+// family member has already checked and confirmed.
+// ---------------------------------------------------------------------------
+export const VALUE_STATUSES = ["within", "below", "above", "no_range"];
+export const MAX_EXPLAIN_TEXT = 3000;
+export const MAX_VALUES = 20;
+export const MAX_QUESTIONS = 8;
+
+export const EXPLAIN_SCHEMA = {
+  type: "object",
+  properties: {
+    values: {
+      type: "array",
+      description: "One item per value in the reading, in the same order.",
+      items: {
+        type: "object",
+        properties: {
+          label: { type: "string", description: "The value's name as written in the reading, e.g. \"SpO2\"." },
+          value: { type: "string", description: "The value with its unit, exactly as in the reading, e.g. \"96 %\"." },
+          meaning: { type: "string", description: "One short sentence in Spanish: what this value measures." },
+          generalRange: { type: "string", description: "The usual general range for adults, e.g. \"92–100 %\"; empty if there is no general range." },
+          status: { type: "string", enum: VALUE_STATUSES },
+        },
+        required: ["label", "value", "meaning", "generalRange", "status"],
+        additionalProperties: false,
+      },
+    },
+    questions: {
+      type: "array",
+      description: "Short questions in Spanish to ask the nurse or doctor, about values outside the general range or unclear.",
+      items: { type: "string" },
+    },
+  },
+  required: ["values", "questions"],
+  additionalProperties: false,
+};
+
+const EXPLAIN_RULES = `Eres un asistente que ayuda a una familia en México a entender, de forma general, los valores de un aparato médico que cuidan en casa o en el hospital.
+Recibes una lectura que un familiar ya revisó y confirmó. Para cada valor de la lectura:
+- "meaning": en una frase corta y sencilla, qué mide ese valor.
+- "generalRange": el rango general habitual para adultos (por ejemplo "92–100 %", "60–100 lpm"). Usa los rangos de referencia más aceptados.
+- "status": "within" si el valor está dentro de ese rango, "below" si está por debajo, "above" si está por encima.
+- Usa "no_range" cuando no existe un rango general porque el equipo médico lo ajusta para cada paciente (por ejemplo el modo del ventilador u otros valores programados), cuando el valor no es un número, o cuando no estás seguro del rango. En ese caso deja "generalRange" vacío o explica en él que lo ajusta el equipo médico.
+- En valores medidos por un ventilador que sí tienen una referencia general conocida (por ejemplo la presión meseta o la frecuencia respiratoria), da esa referencia.
+
+"questions": de 0 a ${MAX_QUESTIONS} preguntas cortas y concretas para hacerle a la enfermera o al médico, sobre los valores fuera del rango general o poco claros. Ejemplo: "La FiO2 está en 65 %. ¿Cuál es la meta actual y se está bajando?".
+
+Reglas:
+- Escribe todo en español sencillo.
+- Da solo información general sobre cada valor por separado. No des un diagnóstico, no sugieras medicamentos ni cambios en el tratamiento o en el aparato.
+- Usa solo los valores que aparecen en la lectura; no inventes valores.
+- Si la lectura no tiene valores que explicar, devuelve listas vacías.`;
+
+export function buildExplainRequest({ text }) {
   return {
-    readable: parsed.readable === true,
-    text: String(parsed.text ?? "").slice(0, 3000),
-    doubts: String(parsed.doubts ?? "").slice(0, 1000),
+    model: MODEL,
+    max_tokens: 16000,
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    output_config: {
+      effort: "high",
+      format: { type: "json_schema", schema: EXPLAIN_SCHEMA },
+    },
+    system: EXPLAIN_RULES,
+    messages: [{ role: "user", content: `Lectura confirmada:\n${text}` }],
   };
+}
+
+const clip = (v, n) => String(v ?? "").trim().slice(0, n);
+
+// Returns { values, questions } with sizes and statuses checked, or throws.
+export function parseExplanation(response) {
+  const parsed = parseJsonAnswer(response);
+  const values = (Array.isArray(parsed.values) ? parsed.values : [])
+    .slice(0, MAX_VALUES)
+    .map((v) => ({
+      label: clip(v.label, 80),
+      value: clip(v.value, 60),
+      meaning: clip(v.meaning, 300),
+      generalRange: clip(v.generalRange, 120),
+      status: VALUE_STATUSES.includes(v.status) ? v.status : "no_range",
+    }))
+    .filter((v) => v.label && v.value);
+  const questions = (Array.isArray(parsed.questions) ? parsed.questions : [])
+    .map((q) => clip(q, 300))
+    .filter(Boolean)
+    .slice(0, MAX_QUESTIONS);
+  return { values, questions };
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PHOTO_PATH_PATTERN, buildRequest, parseReading } from "../prompt.js";
+import { PHOTO_PATH_PATTERN, MAX_QUESTIONS, buildExplainRequest, buildRequest, parseExplanation, parseReading } from "../prompt.js";
 
 test("photo path must be dad-care-log/photos/<uid>/<file>", () => {
   assert.equal(PHOTO_PATH_PATTERN.exec("dad-care-log/photos/abc123/1-x.jpg")[1], "abc123");
@@ -33,4 +33,31 @@ test("parses a normal reading", () => {
 test("refusals and truncation are errors, never partial readings", () => {
   assert.throws(() => parseReading({ stop_reason: "refusal", content: [] }), { code: "refusal" });
   assert.throws(() => parseReading({ stop_reason: "max_tokens", content: [{ type: "text", text: '{"readable":tr' }] }), { code: "truncated" });
+});
+
+test("explanation request sends only the confirmed text and asks for JSON", () => {
+  const req = buildExplainRequest({ text: "SpO2: 96 %" });
+  assert.equal(req.messages[0].content, "Lectura confirmada:\nSpO2: 96 %");
+  assert.equal(req.output_config.format.type, "json_schema");
+  assert.match(req.system, /rango general/);
+  assert.match(req.system, /No des un diagnóstico/);
+});
+
+test("explanation parsing cleans statuses, lengths and counts", () => {
+  const answer = {
+    values: [
+      { label: "SpO2", value: "96 %", meaning: "Oxígeno en la sangre", generalRange: "92–100 %", status: "within" },
+      { label: "FiO2", value: "65 %", meaning: "Oxígeno que da el ventilador", generalRange: "21 %", status: "weird" },
+      { label: "", value: "1", meaning: "", generalRange: "", status: "above" },
+    ],
+    questions: Array.from({ length: 12 }, (_, i) => `Pregunta ${i}`),
+  };
+  const r = parseExplanation({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify(answer) }] });
+  assert.equal(r.values.length, 2);
+  assert.equal(r.values[1].status, "no_range");
+  assert.equal(r.questions.length, MAX_QUESTIONS);
+});
+
+test("an explanation refusal is an error, never an empty 'all clear'", () => {
+  assert.throws(() => parseExplanation({ stop_reason: "refusal", content: [] }), { code: "refusal" });
 });

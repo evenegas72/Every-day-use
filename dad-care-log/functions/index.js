@@ -14,7 +14,10 @@ import {
   MAX_PHOTO_BYTES,
   PHOTO_KINDS,
   PHOTO_PATH_PATTERN,
+  MAX_EXPLAIN_TEXT,
   buildRequest,
+  buildExplainRequest,
+  parseExplanation,
   parseReading,
 } from "./prompt.js";
 
@@ -63,23 +66,9 @@ export const readCarePhoto = onCall(
     }
     const [bytes] = await file.download();
 
-    const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY.value() });
-    let response;
-    try {
-      response = await client.beta.messages.create(
-        buildRequest({ kind, mediaType, base64Data: bytes.toString("base64") }),
-      );
-    } catch (error) {
-      if (error instanceof Anthropic.RateLimitError) {
-        logger.warn("Claude rate limited", { status: error.status });
-        throw new HttpsError("resource-exhausted", "busy, try again");
-      }
-      if (error instanceof Anthropic.APIError) {
-        logger.error("Claude API error", { status: error.status, message: error.message });
-        throw new HttpsError("unavailable", "AI reading failed");
-      }
-      throw error;
-    }
+    const response = await callClaude(
+      buildRequest({ kind, mediaType, base64Data: bytes.toString("base64") }),
+    );
 
     try {
       const reading = parseReading(response);
@@ -94,3 +83,70 @@ export const readCarePhoto = onCall(
     }
   },
 );
+
+// General explanation of a reading the family member has already confirmed:
+// what each value means, the general adult range and whether the value is in
+// it, plus questions for the nurse or doctor. Text only.
+//
+// Access control: the reading always belongs to a photo, and only family
+// members can upload photos (storage.rules), so the photo must exist under
+// dad-care-log/photos/. Any family folder is accepted because a correction
+// may reuse a photo another family member uploaded.
+export const explainCareReading = onCall(
+  {
+    region: "us-central1",
+    secrets: [ANTHROPIC_API_KEY],
+    timeoutSeconds: 180,
+    memory: "256MiB",
+    maxInstances: 3,
+  },
+  async (request) => {
+    const auth = request.auth;
+    if (!auth || auth.token.email_verified !== true) {
+      throw new HttpsError("unauthenticated", "sign-in required");
+    }
+    const { path, text } = request.data ?? {};
+    if (typeof path !== "string" || !PHOTO_PATH_PATTERN.test(path)
+        || typeof text !== "string" || !text.trim() || text.length > MAX_EXPLAIN_TEXT) {
+      throw new HttpsError("invalid-argument", "path and text are required");
+    }
+    const [exists] = await getStorage().bucket().file(path).exists();
+    if (!exists) {
+      throw new HttpsError("not-found", "photo not found");
+    }
+
+    const response = await callClaude(buildExplainRequest({ text: text.trim() }));
+    try {
+      const explanation = parseExplanation(response);
+      logger.info("reading explained", {
+        values: explanation.values.length,
+        flagged: explanation.values.filter((v) => v.status === "below" || v.status === "above").length,
+        model: response.model,
+      });
+      return explanation;
+    } catch (error) {
+      logger.error("could not use Claude explanation", {
+        code: error.code ?? "parse",
+        stop_reason: response.stop_reason,
+      });
+      throw new HttpsError("internal", "AI explanation unusable");
+    }
+  },
+);
+
+async function callClaude(params) {
+  const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY.value() });
+  try {
+    return await client.beta.messages.create(params);
+  } catch (error) {
+    if (error instanceof Anthropic.RateLimitError) {
+      logger.warn("Claude rate limited", { status: error.status });
+      throw new HttpsError("resource-exhausted", "busy, try again");
+    }
+    if (error instanceof Anthropic.APIError) {
+      logger.error("Claude API error", { status: error.status, message: error.message });
+      throw new HttpsError("unavailable", "AI request failed");
+    }
+    throw error;
+  }
+}

@@ -174,6 +174,16 @@ describe("firestore: photo fields", () => {
     await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, base)));
     await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { ...base, photoReadingConfirmed: false })));
   });
+  test("AI information is saved only with a confirmed reading", async () => {
+    const db = as(ALICE).firestore();
+    const reading = { photoPath: ownPath, photoKind: "monitor", photoReading: "FiO2: 65 %", photoReadingSource: "ai", photoReadingConfirmed: true };
+    const flags = [{ label: "FiO2", value: "65 %", generalRange: "21 %", status: "above" }];
+    await assertSucceeds(addDoc(collection(db, "entries"), goodEntry(ALICE, { ...reading, aiFlags: flags, aiQuestions: ["¿Cuál es la meta?"] })));
+    await assertSucceeds(addDoc(collection(db, "entries"), goodEntry(ALICE, { ...reading, aiFlags: [], aiQuestions: [] })));
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { ...reading, aiFlags: flags })));
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { aiFlags: flags, aiQuestions: [] })));
+    await assertFails(addDoc(collection(db, "entries"), goodEntry(ALICE, { ...reading, aiFlags: flags, aiQuestions: Array(9).fill("x") })));
+  });
   test("a reading without a photo is refused", async () => {
     await assertFails(addDoc(collection(as(ALICE).firestore(), "entries"), goodEntry(ALICE, {
       photoReading: "128/82", photoReadingSource: "ai", photoReadingConfirmed: true,

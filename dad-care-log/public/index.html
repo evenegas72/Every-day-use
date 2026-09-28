@@ -139,6 +139,23 @@
   .ai-box textarea{background:#FFFCF2; border-color:var(--ai-line);}
   .ai-box .doubts{white-space:pre-wrap;}
   .ai-box .confirm{display:flex; gap:8px; align-items:flex-start; font-weight:600; margin-top:12px;}
+  .info-box, .entry .ai-info{background:#EEF2F9; border:2px solid #8FA3C7; border-radius:10px; padding:12px 14px; margin-top:14px;}
+  .entry .ai-info{border-width:0 0 0 4px; border-radius:6px; padding:8px 10px; margin-top:10px;}
+  .badge.info{display:inline-block; font-size:13px; font-weight:700; padding:2px 8px; border-radius:999px; letter-spacing:.02em; background:#3E5C94; color:#fff;}
+  .ai-info-title{font-weight:700; font-size:15px; color:#2F4A7A;}
+  .val-row{border-top:1px solid #D5DDEB; padding:8px 0;}
+  .val-row:first-child{border-top:0;}
+  .val-head{display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center;}
+  .val-name{font-weight:700;}
+  .val-meta{font-size:14px; color:var(--ink-soft); margin-top:2px;}
+  .val-advice{font-size:14px; font-weight:600; color:#8A4B00; margin-top:2px;}
+  .chip{display:inline-block; font-size:12.5px; font-weight:700; padding:1px 8px; border-radius:999px; border:1px solid;}
+  .chip.within{background:#E1F3E7; color:#1E6B3E; border-color:#9CCFAF;}
+  .chip.below, .chip.above{background:#FFEBC9; color:#8A4B00; border-color:#E0A84A;}
+  .chip.no_range{background:#EEEEEE; color:#555; border-color:#CCC;}
+  .questions-title{font-weight:700; margin:10px 0 2px; color:#2F4A7A;}
+  .info-box ul, .entry .ai-info ul{margin:2px 0 0; padding-left:20px;}
+  .disclaimer{font-size:13px; color:var(--ink-soft); font-style:italic; margin:10px 0 0;}
   .ai-box.person{background:#EEF4F4; border-color:var(--teal);}
   .ai-box.person .badge{background:var(--teal); color:#fff;}
   .ai-box.person p{color:var(--teal-dark);}
@@ -348,6 +365,16 @@
             <div class="row" style="margin-top:10px">
               <button type="button" id="reading-discard" class="secondary">Descartar lectura</button>
             </div>
+          </div>
+
+          <div id="explain-box" class="info-box hidden" aria-live="polite">
+            <span class="badge info">Información general generada por IA</span>
+            <p class="hint">Aparece al confirmar la lectura. Compara cada valor con el rango general para adultos; no es un diagnóstico.</p>
+            <p class="status" id="explain-status"></p>
+            <div id="explain-values"></div>
+            <div id="explain-questions"></div>
+            <button type="button" id="explain-retry" class="secondary hidden">Intentar de nuevo</button>
+            <p class="disclaimer">Información general, no es un diagnóstico. Ante cualquier duda, consulte con el médico o la enfermera.</p>
           </div>
         </fieldset>
 
@@ -799,6 +826,7 @@ function renderEntry(docSnap, context) {
     block.appendChild(el("div", { class: "field-body" }, entry.photoReading));
     card.appendChild(block);
   }
+  if (Array.isArray(entry.aiFlags)) card.appendChild(renderSavedAiInfo(entry));
 
   const actions = el("div", { class: "row actions" });
   const share = el("button", { type: "button", class: "wa" }, "Compartir por WhatsApp");
@@ -1086,6 +1114,13 @@ function buildWhatsAppText(entry, context = { original: null, corrections: [] })
   if (steps.length) add(FIELD_LABELS.next, steps.map((s) => `- ${s}`));
   if (entry.notes && entry.notes.trim()) add(FIELD_LABELS.notes, plain(entry.notes));
   if (entry.photoReading) add(readingLabel(entry), plain(entry.photoReading));
+  if (Array.isArray(entry.aiFlags)) {
+    add("Información general generada por IA (no es un diagnóstico)", entry.aiFlags.length
+      ? entry.aiFlags.map((f) => `- ${flagSentence(f)}`)
+      : ["- Ningún valor leído está fuera de los rangos generales."]);
+    if (entry.aiQuestions?.length) add("Preguntas para la enfermera o el médico", entry.aiQuestions.map((q) => `- ${q}`));
+    lines.push("", `_${AI_DISCLAIMER}_`);
+  }
   if (context.corrections.length) {
     const who = [...new Set(context.corrections.map((c) => c.entry.who))].join(", ");
     lines.push("", `_Ojo: esta entrada fue corregida después por ${who}. Revisa la corrección en la bitácora._`);
@@ -1181,6 +1216,9 @@ async function onSave(event) {
   if (photo.aiPending) {
     return setStatus(status, "Espera a que termine la lectura de la foto.", "error");
   }
+  if (explain.pending) {
+    return setStatus(status, "Espera a que termine la información general de la IA.", "error");
+  }
   const hasText = Object.values(fields).some(Boolean);
   if (!hasText && !hasPhoto()) {
     return setStatus(status, "La entrada está vacía. Escribe algo o agrega una foto.", "error");
@@ -1216,6 +1254,12 @@ async function onSave(event) {
         data.photoReading = reading;
         data.photoReadingSource = photo.readingSource;
         data.photoReadingConfirmed = true;
+        if (explain.result && explain.text === reading) {
+          data.aiFlags = flaggedValues(explain.result.values).map((v) => ({
+            label: v.label, value: v.value, generalRange: v.generalRange, status: v.status,
+          }));
+          data.aiQuestions = explain.result.questions;
+        }
       }
     }
 
@@ -1423,10 +1467,27 @@ function closeReading() {
   $("f-reading").value = "";
   $("f-reading-confirm").checked = false;
   photo.readingSource = null;
+  clearExplain();
 }
 
-// Editing the text after ticking the box means it needs checking again.
-$("f-reading").addEventListener("input", () => { $("f-reading-confirm").checked = false; });
+// Editing the text after ticking the box means it needs checking again, and
+// any explanation of the old text no longer applies.
+$("f-reading").addEventListener("input", () => {
+  $("f-reading-confirm").checked = false;
+  clearExplain();
+});
+
+// Ticking the box asks the AI to explain the numbers the person confirmed
+// (monitor photos only); unticking clears it.
+$("f-reading-confirm").addEventListener("change", () => {
+  const text = $("f-reading").value.trim();
+  if ($("f-reading-confirm").checked && text && selectedKind() === "monitor") runExplain(text);
+  else clearExplain();
+});
+$("explain-retry").addEventListener("click", () => {
+  const text = $("f-reading").value.trim();
+  if ($("f-reading-confirm").checked && text) runExplain(text);
+});
 
 $("reading-discard").addEventListener("click", () => {
   closeReading();
@@ -1441,6 +1502,108 @@ $("manual-read").addEventListener("click", () => {
   setStatus($("photo-status"), "");
   $("f-reading").focus();
 });
+
+// ---------------------------------------------------------------------------
+// General AI information about a confirmed reading: what each value means,
+// the general adult range and whether the value is in it, plus questions for
+// the nurse or doctor. Kept visibly apart from what people wrote.
+// ---------------------------------------------------------------------------
+const explainCareReading = httpsCallable(functions, "explainCareReading", { timeout: 180000 });
+const explain = { text: null, result: null, pending: false, seq: 0 };
+const AI_DISCLAIMER = "Información general, no es un diagnóstico. Ante cualquier duda, consulte con el médico o la enfermera.";
+const STATUS_LABELS = {
+  within: "Dentro del rango general",
+  below: "Por debajo del rango general",
+  above: "Por encima del rango general",
+  no_range: "Sin rango general",
+};
+const flaggedValues = (values) => values.filter((v) => v.status === "below" || v.status === "above");
+
+function flagSentence(f) {
+  const range = f.generalRange ? ` (rango general: ${f.generalRange})` : "";
+  return `${f.label} ${f.value}: ${(STATUS_LABELS[f.status] || "").toLowerCase()}${range}. Consulte con el médico o la enfermera para una evaluación precisa.`;
+}
+
+function clearExplain() {
+  explain.seq++;
+  Object.assign(explain, { text: null, result: null, pending: false });
+  $("explain-box").classList.add("hidden");
+  $("explain-values").replaceChildren();
+  $("explain-questions").replaceChildren();
+  $("explain-retry").classList.add("hidden");
+  setStatus($("explain-status"), "");
+}
+
+async function runExplain(text) {
+  clearExplain();
+  const seq = explain.seq;
+  explain.pending = true;
+  explain.text = text;
+  $("explain-box").classList.remove("hidden");
+  setStatus($("explain-status"), "La IA está preparando la información general de estos valores…");
+  try {
+    const path = photo.existingPath || await ensurePhotoUploaded();
+    const { data } = await explainCareReading({ path, text });
+    if (seq !== explain.seq) return; // the reading changed meanwhile
+    explain.result = data;
+    renderExplain(data);
+  } catch (err) {
+    if (seq !== explain.seq) return;
+    console.error(err);
+    setStatus($("explain-status"), "No se pudo obtener la información general. Puedes intentar de nuevo o guardar la entrada sin ella.", "error");
+    $("explain-retry").classList.remove("hidden");
+  } finally {
+    if (seq === explain.seq) explain.pending = false;
+  }
+}
+
+function valueRow(v, withMeaning) {
+  const row = el("div", { class: "val-row" });
+  const head = el("div", { class: "val-head" });
+  head.appendChild(el("span", { class: "val-name" }, `${v.label}: ${v.value}`));
+  if (STATUS_LABELS[v.status]) head.appendChild(el("span", { class: `chip ${v.status}` }, STATUS_LABELS[v.status]));
+  row.appendChild(head);
+  if (withMeaning && v.meaning) row.appendChild(el("div", { class: "val-meta" }, v.meaning));
+  if (v.generalRange) row.appendChild(el("div", { class: "val-meta" }, `Rango general: ${v.generalRange}`));
+  if (v.status === "below" || v.status === "above") {
+    row.appendChild(el("div", { class: "val-advice" }, "Consulte con el médico o la enfermera para una evaluación precisa."));
+  }
+  return row;
+}
+
+function questionsBlock(questions) {
+  const frag = document.createDocumentFragment();
+  if (!questions?.length) return frag;
+  frag.appendChild(el("div", { class: "questions-title" }, "Preguntas para la enfermera o el médico"));
+  const list = el("ul");
+  for (const q of questions) list.appendChild(el("li", {}, q));
+  frag.appendChild(list);
+  return frag;
+}
+
+function renderExplain(data) {
+  const flagged = flaggedValues(data.values).length;
+  setStatus($("explain-status"), !data.values.length
+    ? "La IA no encontró valores que explicar en esta lectura."
+    : flagged
+      ? `${flagged} ${flagged === 1 ? "valor está" : "valores están"} fuera del rango general. Se guardará${flagged === 1 ? "" : "n"} con la entrada junto con las preguntas.`
+      : "Ningún valor leído está fuera de los rangos generales.");
+  $("explain-values").replaceChildren(...data.values.map((v) => valueRow(v, true)));
+  $("explain-questions").replaceChildren(questionsBlock(data.questions));
+}
+
+function renderSavedAiInfo(entry) {
+  const block = el("div", { class: "ai-info" });
+  block.appendChild(el("div", { class: "ai-info-title" }, "Información general generada por IA (no es un diagnóstico)"));
+  if (entry.aiFlags.length) {
+    for (const f of entry.aiFlags) block.appendChild(valueRow(f, false));
+  } else {
+    block.appendChild(el("div", { class: "val-meta" }, "Ningún valor leído está fuera de los rangos generales."));
+  }
+  block.appendChild(questionsBlock(entry.aiQuestions));
+  block.appendChild(el("p", { class: "disclaimer" }, AI_DISCLAIMER));
+  return block;
+}
 
 const readCarePhoto = httpsCallable(functions, "readCarePhoto", { timeout: 180000 });
 

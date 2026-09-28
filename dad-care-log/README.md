@@ -113,7 +113,7 @@ To change the family list later: edit both rules files, run the tests, then
 ## Local testing
 
 ```bash
-cd dad-care-log/tests && npm install && npm test   # 66 rule tests on the emulators
+cd dad-care-log/tests && npm install && npm test   # 67 rule tests on the emulators
 cd ../functions && npm test                        # prompt / response parsing
 ```
 
@@ -135,6 +135,26 @@ from the repo root and open `http://localhost:5000/?emulator=1` (the
 - The Firestore rules refuse any entry with a `photoReading` unless
   `photoReadingConfirmed == true`. The saved entry shows "leída por IA y
   confirmada por <nombre>".
+
+## General AI information about a reading
+
+When someone ticks the confirmation box on a monitor reading, the page calls
+the `explainCareReading` Cloud Function with the **confirmed** text (not the
+photo). Claude returns, for each value: what it measures, the general adult
+range, and whether the value is within, below or above it (or has no general
+range, e.g. ventilator settings the medical team chooses), plus questions for
+the nurse or doctor.
+
+- It appears in its own blue box labelled "Información general generada por
+  IA", with colour chips: green = within, amber = below/above (with
+  "Consulte con el médico o la enfermera para una evaluación precisa"),
+  grey = no general range. A fixed line says it is general information, not a
+  diagnosis.
+- Editing the reading clears it; it is re-requested on the next confirmation.
+- Saved with the entry (`aiFlags`, `aiQuestions`): only the values outside the
+  general range and the questions, shown in the entry's blue section and in
+  the WhatsApp share. The full per-value explanation is on screen only.
+- The rules accept these fields only alongside a confirmed photo reading.
 
 ## Corrections ("Corregir")
 
