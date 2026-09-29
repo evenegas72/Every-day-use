@@ -15,7 +15,7 @@
           "rks-hub"
         ],
         "care-log": [
-          "bitacora-paciente"
+          "bitacora-del-enfermo"
         ],
         "care-log-redirect": [
           "dad-care-log"

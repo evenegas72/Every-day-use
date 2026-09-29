@@ -32,7 +32,7 @@ isn't in the `(default)` database.
 
 Hosting, Firestore, Storage and Functions are configured in the repo-root
 `firebase.json` and `.firebaserc`: target `care-log` → site
-`bitacora-paciente` (the app), and target `care-log-redirect` → site
+`bitacora-del-enfermo` (the app), and target `care-log-redirect` → site
 `dad-care-log` (the app's first address, which now only redirects to the new
 one so old links and bookmarks keep working). The database and the photo
 folder keep the `dad-care-log` name; the family never sees those.
@@ -46,10 +46,10 @@ All commands run from the **repo root** (where `firebase.json` is).
 
    ```bash
    firebase use rks-family-apps
-   firebase hosting:sites:create bitacora-paciente
+   firebase hosting:sites:create bitacora-del-enfermo
    ```
 
-   The `care-log → bitacora-paciente` target mapping is already in
+   The `care-log → bitacora-del-enfermo` target mapping is already in
    `.firebaserc`, so `firebase target:apply hosting care-log <site>` is only
    needed if you pick a different site id. (`dad-care-log`, the redirect site,
    already exists.)
@@ -63,8 +63,8 @@ All commands run from the **repo root** (where `firebase.json` is).
 
 3. **Google sign-in**: Firebase console → Authentication → Sign-in method →
    Google must be enabled. Then Authentication → Settings → **Authorized
-   domains** must list `bitacora-paciente.web.app` and
-   `bitacora-paciente.firebaseapp.com`. Add them if missing, or sign-in fails on
+   domains** must list `bitacora-del-enfermo.web.app` and
+   `bitacora-del-enfermo.firebaseapp.com`. Add them if missing, or sign-in fails on
    the new site. The browser API key (Google Cloud console → APIs & Services →
    Credentials) must list the same two addresses under Website restrictions.
 
@@ -101,7 +101,7 @@ cd dad-care-log/functions && npm ci && cd ../..
 firebase deploy --only hosting:care-log,hosting:care-log-redirect,firestore:dad-care-log,storage,functions:dad-care-log
 ```
 
-Live at **https://bitacora-paciente.web.app**. The old address,
+Live at **https://bitacora-del-enfermo.web.app**. The old address,
 https://dad-care-log.web.app, redirects there. After a merge to `main`, the GitHub
 Action also redeploys the hosting part. Rules and functions are only deployed
 by hand with the command above.

@@ -36,7 +36,7 @@
       "public": "dad-care-log/redirect",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "redirects": [
-        { "source": "**", "destination": "https://bitacora-paciente.web.app/", "type": 302 }
+        { "source": "**", "destination": "https://bitacora-del-enfermo.web.app/", "type": 302 }
       ]
     }
   ],
