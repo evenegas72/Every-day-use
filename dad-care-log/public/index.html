@@ -9,8 +9,9 @@
   :root{
     --navy:#12293F;
     --navy-2:#1B3B57;
-    --paper:#F6F3EC;
-    --card:#FFFFFF;
+    --paper:#E0D8C6;
+    --card:#EDE6D7;
+    --field:#F6F1E6;
     --teal:#0E6E72;
     --teal-dark:#0A5457;
     --amber:#BE6A2E;
@@ -229,6 +230,36 @@
   .entry .correction-note p{margin:0 0 4px;}
   button.linklike{background:none; border:0; padding:0; color:var(--teal-dark); text-decoration:underline; font-weight:600; font-size:15px;}
   .entry.flash{outline:3px solid var(--amber); outline-offset:2px;}
+
+  /* ---- Softer tone (tono C) and clearer fields -------------------------- */
+  input[type=datetime-local], input[type=text], select, textarea,
+  .avail-day input[type=time]{background:var(--field); border:1.5px solid #8A8472;}
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--teal); outline-offset:1px; border-color:var(--teal);}
+  .hint{color:#3E444A;}
+  button.secondary, button.danger{background:var(--field);}
+  .ai-box textarea{background:#FBF4E0;}
+  .ai-box.person textarea{background:var(--field);}
+  .info-box, .entry .ai-info{background:#E3E7EE;}
+
+  /* ---- Turnos de guardia: its own coloured section ----------------------- */
+  #shifts-card{background:#D3E5E5; border:1px solid #9CC7C8; padding:0 0 18px; overflow:hidden;}
+  #shifts-card > *{margin-left:18px; margin-right:18px;}
+  #shifts-card > h2{background:#0A5457; color:#fff; margin:0 0 14px; padding:14px 18px;}
+  #on-duty{background:#0A5457; color:#fff; font-size:18px; font-weight:700; border-left:0; padding:12px 14px;}
+  #on-duty strong{color:#fff;}
+  #on-duty.nobody{background:#FBE3C8; color:#6B3A00; border-left:5px solid var(--amber);}
+  .shift-list li{background:var(--field); border:1px solid #9CBDBE; border-left:5px solid var(--teal); border-radius:8px; padding:10px 12px; margin-bottom:8px;}
+  .shift-list li:last-child{border-bottom:1px solid #9CBDBE;}
+  .shift-list .who{font-size:17px;}
+  .shift-list .when{color:#2B3136; font-size:14.5px;}
+  .shift-list .now{background:#D96C00; font-size:13px; padding:1px 8px;}
+  .avail-list li{border-bottom-color:#A9C6C7;}
+  .avail-list li.me{background:#BFD9D9;}
+  .avail-list .who{font-size:16.5px;}
+  .avail-list .day{background:#E6F1F1; border-color:#0E6E72; color:#0A3F41; font-weight:600;}
+  details.shift-add{border-top-color:#A9C6C7;}
+  details.shift-add summary{display:inline-block; border:1.5px solid var(--teal); color:var(--teal-dark); border-radius:8px; padding:8px 14px; background:var(--field);}
+  details.shift-add[open] summary{background:var(--teal); color:#fff;}
 </style>
 </head>
 <body>
