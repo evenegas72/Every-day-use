@@ -21,7 +21,7 @@ service cloud.firestore {
       return {
         'adriana@replace-me.invalid': 'Adriana',
         'cremasgto74@gmail.com': 'Alejandro',
-        'chavita@replace-me.invalid': 'Chavita',
+        'vengassalvador@gmail.com': 'Chavita',
         'veneegas95@gmail.com': 'Daniel',
         'rickv72@gmail.com': 'Enrique',
         'lorena@replace-me.invalid': 'Lorena',
