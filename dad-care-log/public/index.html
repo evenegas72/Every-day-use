@@ -53,7 +53,7 @@
   h2{font-size:20px; margin:0 0 12px;}
   label{display:block; font-weight:600; margin:14px 0 4px;}
   .hint{display:block; font-weight:400; font-size:14px; color:var(--ink-soft); margin-top:2px;}
-  input[type=datetime-local], input[type=text], select, textarea{
+  input[type=datetime-local], input[type=text], input[type=search], select, textarea{
     width:100%;
     font:inherit;
     padding:10px 12px;
@@ -181,7 +181,22 @@
   .ai-box.person textarea{background:#fff; border-color:var(--line);}
   .ai-box .confirm input{margin-top:5px; width:20px; height:20px; flex:none;}
   .entry h3{font-size:17px; margin:0;}
+  /* Collapsed entries: the header is a button that opens the full entry. */
+  button.entry-head{display:block; width:100%; text-align:left; background:none; border:0; padding:0; margin:0;
+    color:inherit; font:inherit; font-size:17px; font-weight:700; cursor:pointer; min-height:0;}
+  button.entry-head:hover, button.entry-head:focus{background:none; color:inherit;}
+  button.entry-head:focus-visible{outline:3px solid var(--teal); outline-offset:4px; border-radius:4px;}
+  .entry-head .chev{float:right; font-size:15px; color:var(--teal-dark); font-weight:700; margin-left:10px;}
+  .entry-head .patient, .entry-head .meta, .entry-head .preview{display:block; font-size:15px;}
+  .entry-head .meta{font-weight:400; margin:2px 0 0;}
+  .entry-head .preview{font-weight:400; color:var(--ink); margin-top:6px; overflow-wrap:anywhere;}
+  .entry.open .entry-head .preview{display:none;}
+  .entry .entry-body{margin-top:8px;}
+  #search-row{margin:0 0 12px;}
+  #search-row label{margin-top:0;}
+  #older-row{margin:4px 0 16px; text-align:center;}
   .entry .meta{color:var(--ink-soft); font-size:14px; margin:2px 0 10px;}
+  .entry .entry-body > .meta{margin-top:0;}
   .entry .field{margin:10px 0 0;}
   .entry .field-label{font-weight:700; font-size:15px; color:var(--navy-2);}
   .entry .field-body{white-space:pre-wrap; overflow-wrap:anywhere;}
@@ -232,7 +247,7 @@
   .entry.flash{outline:3px solid var(--amber); outline-offset:2px;}
 
   /* ---- Softer tone (tono C) and clearer fields -------------------------- */
-  input[type=datetime-local], input[type=text], select, textarea,
+  input[type=datetime-local], input[type=text], input[type=search], select, textarea,
   .avail-day input[type=time]{background:var(--field); border:1.5px solid #8A8472;}
   input:focus, select:focus, textarea:focus{outline:2px solid var(--teal); outline-offset:1px; border-color:var(--teal);}
   .hint{color:#3E444A;}
@@ -466,12 +481,19 @@
 
     <section>
       <h2>Entradas</h2>
+      <div id="search-row">
+        <label for="entry-search">Buscar en las entradas</label>
+        <input type="search" id="entry-search" autocomplete="off" placeholder="Ej.: fiebre, Daniel, Dr. López">
+      </div>
       <div id="patient-filter-row" class="hidden">
         <label for="patient-filter">Mostrar entradas de</label>
         <select id="patient-filter"></select>
       </div>
       <p class="status" id="list-status">Cargando entradas…</p>
       <div id="entries"></div>
+      <div id="older-row" class="hidden">
+        <button type="button" class="secondary" id="show-older">Ver entradas anteriores</button>
+      </div>
       <details class="card hidden" id="deletions-card">
         <summary id="deletions-summary"></summary>
         <ul id="deletions-list"></ul>
@@ -796,11 +818,97 @@ function renderEntries(snap) {
   }
 }
 
+// The list shows the last RECENT_DAYS days; "Ver entradas anteriores" moves
+// the cut-off back. A search looks through every entry, whatever its date.
+const RECENT_DAYS = 7;
+const OLDER_STEP_DAYS = 30;
+const DAY_MS = 24 * 60 * 60 * 1000;
+let olderCutoffMs = null; // null = the last RECENT_DAYS days
+// Entries the person opened or closed by hand (id -> true/false). Anything
+// not in here is closed, except the newest entry in the list.
+const entryOpen = new Map();
+
+function listCutoffMs() {
+  return olderCutoffMs ?? Date.now() - RECENT_DAYS * DAY_MS;
+}
+
+function entryWhenMs(docSnap) {
+  return docSnap.data({ serverTimestamps: "estimate" }).when?.toMillis() ?? 0;
+}
+
+// Lowercase, without accents, so "medico" finds "Médico".
+function normalizeText(text) {
+  return String(text).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+// The labelled texts of an entry, used for the search and the preview line.
+function entryTexts(entry) {
+  const texts = [];
+  for (const field of ["doctor", "meds", "next", "notes"]) {
+    const value = (entry[field] || "").trim();
+    if (value) texts.push([FIELD_LABELS[field], value]);
+  }
+  if (entry.photoReading) texts.push(["Lectura de la foto", entry.photoReading]);
+  if (entry.aiAsk) {
+    texts.push(["Pregunta a la IA", entry.aiAsk.question || ""]);
+    texts.push(["Respuesta de la IA", entry.aiAsk.answer || ""]);
+  }
+  if (Array.isArray(entry.aiFlags)) {
+    for (const flag of entry.aiFlags) texts.push(["Información de la IA", typeof flag === "string" ? flag : Object.values(flag || {}).join(" ")]);
+  }
+  if (Array.isArray(entry.aiQuestions)) {
+    for (const q of entry.aiQuestions) texts.push(["Preguntas para el médico", String(q)]);
+  }
+  return texts;
+}
+
+function entryMatches(entry, needle) {
+  const when = entry.when ? formatWhen(entry.when.toDate()) : "";
+  const haystack = [entry.who, entry.patient, when, ...entryTexts(entry).map(([, t]) => t)].join("\n");
+  return normalizeText(haystack).includes(needle);
+}
+
+// One line under the header of a closed entry: the first text of the entry,
+// or, while searching, the words around the first match.
+function entryPreview(entry, needle) {
+  // Lines joined with " · ", without the bullet marks.
+  const flat = (t) => String(t).split("\n")
+    .map((line) => line.replace(/^\s*[•\-*]\s*/, "").replace(/\s+/g, " ").trim())
+    .filter(Boolean).join(" · ");
+  const texts = entryTexts(entry);
+  if (needle) {
+    for (const [label, text] of texts) {
+      const value = flat(text);
+      const at = normalizeText(value).indexOf(needle);
+      if (at < 0) continue;
+      const from = Math.max(0, at - 40);
+      return `${label}: ${from > 0 ? "…" : ""}${value.slice(from, from + 120)}${from + 120 < value.length ? "…" : ""}`;
+    }
+  }
+  if (texts.length) {
+    const [label, text] = texts[0];
+    const value = flat(text);
+    return `${label}: ${value.length > 110 ? value.slice(0, 110) + "…" : value}`;
+  }
+  return entry.photoPath ? "Foto adjunta" : "";
+}
+
+function showOlderEntries() {
+  if (!lastSnap) return;
+  const cutoff = listCutoffMs();
+  const older = lastSnap.docs.map(entryWhenMs).filter((ms) => ms < cutoff);
+  if (!older.length) return;
+  // Always reach the next older entry, even after a long gap, plus a month.
+  olderCutoffMs = Math.min(cutoff, Math.max(...older)) - OLDER_STEP_DAYS * DAY_MS;
+  renderEntries(lastSnap);
+}
+
 function renderEntryList(snap) {
   lastSnap = snap;
   updatePatients(snap);
   const container = $("entries");
   container.replaceChildren();
+  $("older-row").classList.add("hidden");
   if (snap.empty) {
     setStatus($("list-status"), "Todavía no hay entradas. La primera que guardes aparecerá aquí.");
     return;
@@ -822,14 +930,40 @@ function renderEntryList(snap) {
   const docs = [...snap.docs].sort((a, b) =>
     (b.data().when?.toMillis() ?? 0) - (a.data().when?.toMillis() ?? 0) || createdMs(b) - createdMs(a));
   const filter = $("patient-filter").value;
-  for (const docSnap of docs) {
-    if (filter && filter !== ALL_PATIENTS && (docSnap.data().patient || "").trim() !== filter) continue;
+  const forPatient = docs.filter((d) =>
+    !filter || filter === ALL_PATIENTS || (d.data().patient || "").trim() === filter);
+  const needle = normalizeText($("entry-search").value.trim());
+
+  let shown;
+  if (needle) {
+    shown = forPatient.filter((d) => entryMatches(d.data({ serverTimestamps: "estimate" }), needle));
+  } else {
+    const cutoff = listCutoffMs();
+    shown = forPatient.filter((d) => entryWhenMs(d) >= cutoff || d.metadata.hasPendingWrites);
+    const olderCount = forPatient.length - shown.length;
+    if (olderCount > 0) {
+      $("show-older").textContent = `Ver entradas anteriores (${olderCount} más)`;
+      $("older-row").classList.remove("hidden");
+    }
+  }
+
+  shown.forEach((docSnap, index) => {
     container.appendChild(renderEntry(docSnap, {
       original: byId.get(docSnap.data().correctsId) || null,
       corrections: correctionsOf.get(docSnap.id) || [],
+      needle,
+      openByDefault: index === 0 && !needle,
     }));
+  });
+
+  if (needle) {
+    setStatus($("list-status"), shown.length === 1 ? "1 entrada encontrada."
+      : shown.length ? `${shown.length} entradas encontradas.` : "Ninguna entrada coincide con la búsqueda.");
+  } else if (!forPatient.length) {
+    setStatus($("list-status"), "No hay entradas de este paciente.");
+  } else if (!shown.length) {
+    setStatus($("list-status"), `No hay entradas en los últimos ${RECENT_DAYS} días.`);
   }
-  if (!container.children.length) setStatus($("list-status"), "No hay entradas de este paciente.");
 }
 
 function describeEntry(entry) {
@@ -838,6 +972,18 @@ function describeEntry(entry) {
 }
 
 function scrollToEntry(id) {
+  entryOpen.set(id, true);
+  const targetSnap = lastSnap?.docs.find((d) => d.id === id);
+  if (targetSnap && lastSnap) {
+    // A search, the patient filter or the date cut-off may hide it.
+    if ($("entry-search").value) $("entry-search").value = "";
+    const patient = (targetSnap.data().patient || "").trim();
+    const filter = $("patient-filter");
+    if (filter.value !== ALL_PATIENTS && filter.value !== patient) filter.value = ALL_PATIENTS;
+    const when = entryWhenMs(targetSnap);
+    if (when < listCutoffMs()) olderCutoffMs = when;
+    renderEntries(lastSnap);
+  }
   const target = document.getElementById("entry-" + id);
   if (!target) return;
   target.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -848,19 +994,46 @@ function scrollToEntry(id) {
 function renderEntry(docSnap, context) {
   const entry = docSnap.data({ serverTimestamps: "estimate" });
   const when = entry.when ? entry.when.toDate() : null;
-  const card = el("article", { class: "card entry", id: "entry-" + docSnap.id });
+  const outer = el("article", { class: "card entry", id: "entry-" + docSnap.id });
+  const isOpen = deleteDraft?.id === docSnap.id
+    || (entryOpen.has(docSnap.id) ? entryOpen.get(docSnap.id) : context.openByDefault);
 
-  const title = el("h3", {}, when ? formatWhen(when) : "Sin fecha");
-  if (entry.correctsId) title.appendChild(el("span", { class: "tag correction" }, "Corrección"));
-  if (context.corrections.length) title.appendChild(el("span", { class: "tag corrected" }, "Corregida"));
+  // Header: always visible, and the button that opens or closes the entry.
+  const heading = el("h3");
+  const head = el("button", { type: "button", class: "entry-head", "aria-controls": "entry-body-" + docSnap.id });
+  const chev = el("span", { class: "chev", "aria-hidden": "true" });
+  head.appendChild(chev);
+  head.appendChild(el("span", {}, when ? formatWhen(when) : "Sin fecha"));
+  if (entry.correctsId) head.appendChild(el("span", { class: "tag correction" }, "Corrección"));
+  if (context.corrections.length) head.appendChild(el("span", { class: "tag corrected" }, "Corregida"));
   if (docSnap.metadata.hasPendingWrites) {
-    title.appendChild(el("span", { class: "pending" }, "Pendiente de enviar"));
+    head.appendChild(el("span", { class: "pending" }, "Pendiente de enviar"));
   }
-  card.appendChild(title);
-  if (entry.patient) card.appendChild(el("p", { class: "patient" }, `Paciente: ${entry.patient}`));
-  let meta = `Escribió: ${entry.who}`;
-  if (entry.correctsId && entry.createdAt) meta += ` · corrección guardada el ${formatWhen(entry.createdAt.toDate())}`;
-  card.appendChild(el("p", { class: "meta" }, meta));
+  if (entry.patient) head.appendChild(el("span", { class: "patient" }, `Paciente: ${entry.patient}`));
+  head.appendChild(el("span", { class: "meta" }, `Escribió: ${entry.who}`));
+  const preview = entryPreview(entry, context.needle);
+  if (preview) head.appendChild(el("span", { class: "preview" }, preview));
+  heading.appendChild(head);
+  outer.appendChild(heading);
+
+  const card = el("div", { class: "entry-body", id: "entry-body-" + docSnap.id });
+  outer.appendChild(card);
+  const setOpen = (open) => {
+    outer.classList.toggle("open", open);
+    card.hidden = !open;
+    head.setAttribute("aria-expanded", String(open));
+    chev.textContent = open ? "Cerrar ▲" : "Ver ▼";
+  };
+  setOpen(isOpen);
+  head.addEventListener("click", () => {
+    const open = card.hidden;
+    entryOpen.set(docSnap.id, open);
+    setOpen(open);
+  });
+
+  if (entry.correctsId && entry.createdAt) {
+    card.appendChild(el("p", { class: "meta" }, `Corrección guardada el ${formatWhen(entry.createdAt.toDate())}`));
+  }
 
   if (entry.correctsId) {
     const note = el("div", { class: "correction-note" });
@@ -958,7 +1131,7 @@ function renderEntry(docSnap, context) {
     card.appendChild(actions);
   }
   if (deleteBox) card.appendChild(deleteBox);
-  return card;
+  return outer;
 }
 
 // ---------------------------------------------------------------------------
@@ -1351,6 +1524,8 @@ function initForm() {
   formReady = true;
   $("entry-form").addEventListener("submit", onSave);
   $("patient-filter").addEventListener("change", () => { if (lastSnap) renderEntries(lastSnap); });
+  $("entry-search").addEventListener("input", () => { if (lastSnap) renderEntries(lastSnap); });
+  $("show-older").addEventListener("click", showOlderEntries);
   for (const id of TEXT_FIELDS) setUpBullets($(id));
 }
 

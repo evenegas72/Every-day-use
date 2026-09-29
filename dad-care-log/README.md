@@ -174,6 +174,22 @@ patient and recommends no medications or treatment changes.
   `/familycheck/me` with the caller's own sign-in; the rules allow that only
   for family, so the family list stays in the rules files.
 
+## The list of entries
+
+- **Closed by default**: each entry shows its date, tags, patient, author and
+  a one-line preview. Tapping the header opens the full entry with its
+  buttons; the newest entry starts open.
+- **Last 7 days** (`RECENT_DAYS` in `index.html`): older entries are behind
+  **Ver entradas anteriores (N más)**, which reaches back to the next older
+  entry plus a month each time. The page still downloads every entry; only
+  the display is shortened.
+- **Buscar en las entradas**: searches every entry, whatever its date, in the
+  author, patient, date, the four text fields, the photo reading and the AI
+  sections. Accents and capitals don't matter ("presion" finds "Presión").
+  The preview shows the words around the match.
+- A link to a correction or an original opens that entry, clearing the search
+  or date limit if needed.
+
 ## Corrections ("Corregir")
 
 Entries can't be edited, so each entry has a **Corregir** button. It opens the
