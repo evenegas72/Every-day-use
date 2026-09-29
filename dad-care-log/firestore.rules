@@ -19,7 +19,7 @@ service cloud.firestore {
     // ---------------------------------------------------------------
     function familyNames() {
       return {
-        'adriana@replace-me.invalid': 'Adriana',
+        'adri.gh1703@gmail.com': 'Adriana',
         'cremasgto74@gmail.com': 'Alejandro',
         'vengassalvador@gmail.com': 'Chavita',
         'veneegas95@gmail.com': 'Daniel',

@@ -16,7 +16,7 @@ service firebase.storage {
       return request.auth != null
         && request.auth.token.email_verified == true
         && request.auth.token.email.lower() in [
-          'adriana@replace-me.invalid',    // Adriana
+          'adri.gh1703@gmail.com',         // Adriana
           'cremasgto74@gmail.com',         // Alejandro
           'vengassalvador@gmail.com',      // Chavita
           'veneegas95@gmail.com',          // Daniel
