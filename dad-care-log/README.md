@@ -28,9 +28,14 @@ isn't in the `(default)` database.
 | `firestore.indexes.json` | Empty; the one query (entries by `when`) needs no composite index. |
 | `functions/` | `readCarePhoto` Cloud Function: sends an uploaded photo to Claude and returns a *suggested* reading. |
 | `tests/` | Security-rule tests against the local emulators (`npm test`). |
+| `redirect/` | Fallback page for the old address; `firebase.json` redirects it to the new one. |
 
 Hosting, Firestore, Storage and Functions are configured in the repo-root
-`firebase.json` (target `care-log` → site `dad-care-log`) and `.firebaserc`.
+`firebase.json` and `.firebaserc`: target `care-log` → site
+`bitacora-paciente` (the app), and target `care-log-redirect` → site
+`dad-care-log` (the app's first address, which now only redirects to the new
+one so old links and bookmarks keep working). The database and the photo
+folder keep the `dad-care-log` name; the family never sees those.
 
 ## One-time setup
 
@@ -41,12 +46,13 @@ All commands run from the **repo root** (where `firebase.json` is).
 
    ```bash
    firebase use rks-family-apps
-   firebase hosting:sites:create dad-care-log
+   firebase hosting:sites:create bitacora-paciente
    ```
 
-   The `care-log → dad-care-log` target mapping is already in `.firebaserc`, so
-   `firebase target:apply hosting care-log dad-care-log` is only needed if you
-   pick a different site id.
+   The `care-log → bitacora-paciente` target mapping is already in
+   `.firebaserc`, so `firebase target:apply hosting care-log <site>` is only
+   needed if you pick a different site id. (`dad-care-log`, the redirect site,
+   already exists.)
 
 2. **Firestore database** with delete protection on (a deploy would otherwise
    auto-create it *without* delete protection):
@@ -57,8 +63,10 @@ All commands run from the **repo root** (where `firebase.json` is).
 
 3. **Google sign-in**: Firebase console → Authentication → Sign-in method →
    Google must be enabled. Then Authentication → Settings → **Authorized
-   domains** must list `dad-care-log.web.app` and `dad-care-log.firebaseapp.com`.
-   Add them if missing, or sign-in fails on the new site.
+   domains** must list `bitacora-paciente.web.app` and
+   `bitacora-paciente.firebaseapp.com`. Add them if missing, or sign-in fails on
+   the new site. The browser API key (Google Cloud console → APIs & Services →
+   Credentials) must list the same two addresses under Website restrictions.
 
 4. **firebaseConfig** in `public/index.html`: Project settings → General →
    Your apps. None of the other apps in this repo use the Firebase JS SDK, so
@@ -90,10 +98,11 @@ All commands run from the **repo root** (where `firebase.json` is).
 
 ```bash
 cd dad-care-log/functions && npm ci && cd ../..
-firebase deploy --only hosting:care-log,firestore:dad-care-log,storage,functions:dad-care-log
+firebase deploy --only hosting:care-log,hosting:care-log-redirect,firestore:dad-care-log,storage,functions:dad-care-log
 ```
 
-Live at **https://dad-care-log.web.app**. After a merge to `main`, the GitHub
+Live at **https://bitacora-paciente.web.app**. The old address,
+https://dad-care-log.web.app, redirects there. After a merge to `main`, the GitHub
 Action also redeploys the hosting part. Rules and functions are only deployed
 by hand with the command above.
 
