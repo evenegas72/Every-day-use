@@ -135,7 +135,7 @@ async function allViewsClean(page, label) {
   const route = await page.evaluate(() => S.days.map((d) => d.to.split(',')[0]).join(' → '));
   ok(route.includes('Eagle Pass → Saltillo') && !route.includes('San Antonio'), 'route crosses at Eagle Pass / Piedras Negras: ' + route);
   const r1 = await page.evaluate(() => mapsRoute(S.days[0]));
-  ok(r1.includes('destination=35.40050%2C-119.46960') && r1.includes('origin=42.43900%2C-123.32840'), 'route button sends exact coordinates (Day 1 → Buttonwillow): ' + r1);
+  ok(r1.includes('destination=36.00830%2C-119.96180') && r1.includes('origin=42.43900%2C-123.32840'), 'route button sends exact coordinates (Day 1 → Kettleman City): ' + r1);
   ok(await page.evaluate(() => S.days[4].links.length === 5 && S.days[7].links.length === 5), 'both border days have wait-time and backup-bridge links');
 
   // Fuel: two full fills → mpg
@@ -210,7 +210,7 @@ async function allViewsClean(page, label) {
   const offTxt = await visibleText(p2);
   // Prove the network is really down (an uncached URL must fail), then that the app still rendered.
   const netDown = await p2.evaluate(() => fetch('/not-cached-' + Date.now()).then(() => false, () => true));
-  ok(netDown && offTxt.includes('Grants Pass') && offTxt.includes('Bakersfield'), 'app loads and works in airplane mode (network confirmed down)');
+  ok(netDown && offTxt.includes('Grants Pass') && offTxt.includes('Kettleman City'), 'app loads and works in airplane mode (network confirmed down)');
   await p2.click('[data-nav="spend"]');
   await p2.fill('form[data-form="expense"] [name=amount]', '5');
   await p2.click('form[data-form="expense"] [type=submit]');
@@ -239,8 +239,8 @@ async function allViewsClean(page, label) {
     paid40out: expectedStatus().find((x) => x.exp.key === 'out-40d').paid, ret40: S.expectedTolls.some((e) => e.key === 'ret-40d'),
     colombia: S.expectedTolls.some((e) => e.key === 'out-colombia'), to1: S.days[0].to, from5: S.days[4].from,
   }));
-  ok(up.v === 3 && up.days === 12, `plan upgraded to 12 days (out1–6 + ret1–6): ${up.keys}`);
-  ok(up.to1 === 'Buttonwillow, CA (I-5)' && up.from5 === 'Eagle Pass, TX', 'untouched days moved to the Eagle Pass route');
+  ok(up.v === 4 && up.days === 12, `plan upgraded to 12 days (out1–6 + ret1–6): ${up.keys}`);
+  ok(up.to1 === 'Kettleman City, CA (I-5)' && up.from5 === 'Eagle Pass, TX', 'untouched days moved to the current route (Kettleman City, Eagle Pass)');
   ok(up.exp === 1 && up.tolls === 1, 'existing expenses and tolls kept');
   ok(up.route1 === 'I-5 S (user edit)' && up.food === 400, 'user edits kept (day route, food budget)');
   ok(up.start6 === '07:25' && up.fuel === 1140, 'untouched seed values updated (Day 6 start 7:25, round-trip fuel budget)');
@@ -302,13 +302,36 @@ async function allViewsClean(page, label) {
     own: S.days[5].tomorrowNotes.some((n) => n.text === 'My own note'),
     tollKeys: S.expectedTolls.map((e) => e.key).join(','), exp: S.expenses.length, tolls: S.tolls.length,
   }));
-  ok(u4.v === 3 && u4.n === 12 && u4.out4 === 'Eagle Pass, TX' && u4.ret2 === 'Eagle Pass, TX' && u4.ret5 === 'Kettleman City, CA (I-5)', 'Colombia days rerouted via Eagle Pass, both directions');
+  ok(u4.v === 4 && u4.n === 12 && u4.out4 === 'Eagle Pass, TX' && u4.ret2 === 'Eagle Pass, TX' && u4.ret5 === 'Kettleman City, CA (I-5)', 'Colombia days rerouted via Eagle Pass, both directions');
   ok(u4.hours4 === '8 h (my estimate)' && u4.route1 === 'I-5 S (user edit)', 'fields the user edited are kept');
   ok(u4.notes5.some((x) => x.startsWith('Check Puente 2')) && !u4.notes5.some((x) => x.includes('Puente Colombia hours')) && u4.done5, 'border-day notes switched to Puente 2; checked notes stay checked');
   ok(u4.own && u4.exp === 1 && u4.tolls === 1, "user's own notes, expenses and tolls kept");
   ok(u4.tollKeys.includes('out-bridge2') && u4.tollKeys.includes('ret-bridge2') && !u4.tollKeys.includes('ret-colombia') && u4.tollKeys.includes('out-40d'), 'expected tolls: Puente II added, unused Colombia ones removed, paid 40D kept');
   await allViewsClean(p4, 'English after v2 upgrade');
   await ctx4.close();
+
+  // ── 5. Upgrade a phone that has the Eagle Pass / Buttonwillow version (seed v3, live before this one) ──
+  console.log('Upgrade from the Eagle Pass / Buttonwillow version (fixtures/v3-state.json)');
+  const V3 = fs.readFileSync(path.join(__dirname, 'fixtures/v3-state.json'), 'utf8');
+  const ctx5 = await browser.newContext({ viewport: { width: 412, height: 915 } });
+  const p5 = await ctx5.newPage();
+  p5.on('pageerror', (e) => errors.push(e.message));
+  await p5.goto(BASE + 'manifest.webmanifest');
+  await p5.evaluate((s) => { localStorage.clear(); localStorage.setItem('mexico-trip-v2', s); }, V3);
+  await p5.goto(BASE);
+  await p5.waitForSelector('.day-num');
+  const u5 = await p5.evaluate(() => ({
+    v: S.seedVersion, to: S.days.map((d) => d.to.split(' (')[0]).join(' | '), route1: S.days[0].route, hours4: S.days[3].driveHours,
+    fog: S.days[1].tomorrowNotes.some((n) => (n.text.en || '').startsWith('Tule fog')), exp: S.expenses.length,
+  }));
+  ok(u5.v === 4 && u5.to.startsWith('Kettleman City, CA | Goodyear, AZ | El Paso, TX | Eagle Pass, TX') && u5.to.includes('Goodyear, AZ | Kettleman City, CA | Grants Pass, OR'), 'Day 1 → Kettleman City, Day 2 → Goodyear, mirrored on the return: ' + u5.to);
+  ok(u5.route1 === 'I-5 S (user edit)' && u5.hours4 === '8 h (my estimate)' && u5.exp === 1, 'user edits and expenses kept');
+  ok(u5.fog, 'tule fog heads-up added before Day 2');
+  await p5.click('[data-nav="more"]');
+  await p5.click('[data-name="moreTab"][data-val="settings"]');
+  const setTxt = await visibleText(p5);
+  ok(setTxt.includes('App version 2.5 · trip plan v4') || setTxt.includes('Versión de la app 2.5 · plan del viaje v4'), 'app version shown in Settings');
+  await ctx5.close();
 
   const realErrors = errors.filter((e) => !/net::ERR_INTERNET_DISCONNECTED|net::ERR_FAILED|Failed to fetch|frankfurter|jsdelivr|ERR_TUNNEL|ERR_PROXY|status of 40/i.test(e));
   ok(realErrors.length === 0, 'no JavaScript errors' + (realErrors.length ? ' → ' + realErrors.join(' | ') : ''));

@@ -39,7 +39,7 @@ const push = (obj, k, f, v) => { obj[k] = obj[k] || {}; obj[k][f] = obj[k][f] ||
 
 const commits = process.argv.slice(2);
 if (!commits.length) { console.error('List the commits of every shipped seed version, oldest first.'); process.exit(1); }
-const H = { versions: {}, days: {}, notes: {}, tolls: {}, budget: {}, docs: {}, v1TollNames: {}, v1Docs: {} };
+const H = { versions: {}, days: {}, notes: {}, notesByVersion: {}, tolls: {}, budget: {}, docs: {}, v1TollNames: {}, v1Docs: {} };
 for (const c of commits) {
   const s = loadSeed(c);
   H.versions[s.version] = { days: s.days.map((d) => d.key), tolls: s.tolls.map((e) => e.key), docs: s.docs.map((d) => d.key) };
@@ -47,6 +47,8 @@ for (const c of commits) {
     FIELDS.forEach((f) => push(H.days, d.key, f, d[f]));
     H.notes[d.key] = H.notes[d.key] || [];
     (s.tomorrow[i] || []).forEach((n) => { if (!H.notes[d.key].includes(n.en)) H.notes[d.key].push(n.en); });
+    H.notesByVersion[s.version] = H.notesByVersion[s.version] || {};
+    H.notesByVersion[s.version][d.key] = (s.tomorrow[i] || []).map((n) => n.en);
   });
   s.tolls.forEach((e) => TOLL_FIELDS.forEach((f) => push(H.tolls, e.key, f, e[f])));
   s.budget.forEach((b) => ['amount', 'currency', 'note'].forEach((f) => push(H.budget, b.cat, f, b[f])));
