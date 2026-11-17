@@ -1,0 +1,2043 @@
+{
+ "schema": 2,
+ "seedVersion": 2,
+ "createdAt": "2026-11-17T05:15:29.009Z",
+ "settings": {
+  "lang": "es",
+  "units": "mi",
+  "theme": "dark",
+  "travelerName": "",
+  "manualRate": null,
+  "tankGal": 19.4,
+  "mpg": 23,
+  "usWarnMi": 300,
+  "notify": false
+ },
+ "rate": {
+  "value": null,
+  "date": null,
+  "source": "default"
+ },
+ "budgetOverallUSD": 0,
+ "budget": [
+  {
+   "cat": "fuel",
+   "amount": 1140,
+   "currency": "USD",
+   "note": {
+    "en": "~$570 each way",
+    "es": "~$570 por trayecto"
+   }
+  },
+  {
+   "cat": "toll",
+   "amount": 2800,
+   "currency": "MXN",
+   "note": {
+    "en": "Mexican tolls ~MX$1,400 each way",
+    "es": "Casetas en México ~MX$1,400 por trayecto"
+   }
+  },
+  {
+   "cat": "hotel",
+   "amount": 1300,
+   "currency": "USD",
+   "note": {
+    "en": "$100–130/night × 10 nights (5 each way)",
+    "es": "$100–130/noche × 10 noches (5 por trayecto)"
+   }
+  },
+  {
+   "cat": "food",
+   "amount": 400,
+   "currency": "USD",
+   "note": {
+    "en": "$40–60/day × 12 travel days",
+    "es": "$40–60/día × 12 días de camino"
+   }
+  },
+  {
+   "cat": "bridge",
+   "amount": 0,
+   "currency": "USD",
+   "note": {
+    "en": "Bridge tolls (cash), both directions",
+    "es": "Cuotas del puente (efectivo), ida y vuelta"
+   }
+  },
+  {
+   "cat": "permits",
+   "amount": 355,
+   "currency": "USD",
+   "note": {
+    "en": "TIP ~$55 + Mexican insurance $150–300 (+ FMM if needed)",
+    "es": "TIP ~$55 + seguro mexicano $150–300 (+ FMM si aplica)"
+   }
+  },
+  {
+   "cat": "other",
+   "amount": 0,
+   "currency": "USD",
+   "note": {
+    "en": "",
+    "es": ""
+   }
+  }
+ ],
+ "days": [
+  {
+   "key": "out1",
+   "leg": "out",
+   "date": "2026-12-12",
+   "from": "Grants Pass, OR",
+   "to": "Bakersfield, CA",
+   "fromLat": 42.439,
+   "fromLng": -123.3284,
+   "toLat": 35.3733,
+   "toLng": -119.0187,
+   "country": "US",
+   "startTz": "America/Los_Angeles",
+   "arriveTz": "America/Los_Angeles",
+   "distanceMi": 545,
+   "distanceNote": "~545 mi",
+   "driveHours": "~8.5 h",
+   "start": "06:00",
+   "arrive": "15:30",
+   "route": "I-5 S (user edit)",
+   "notes": {
+    "en": "",
+    "es": ""
+   },
+   "stops": [
+    {
+     "name": "Grants Pass, OR",
+     "lat": 42.439,
+     "lng": -123.3284,
+     "r": 8000
+    },
+    {
+     "name": "Redding, CA",
+     "lat": 40.5865,
+     "lng": -122.3917,
+     "r": 8000
+    },
+    {
+     "name": "Williams, CA",
+     "lat": 39.1546,
+     "lng": -122.1494,
+     "r": 8000
+    },
+    {
+     "name": "Dunnigan, CA",
+     "lat": 38.8857,
+     "lng": -121.9694,
+     "r": 8000
+    },
+    {
+     "name": "Buttonwillow, CA",
+     "lat": 35.4005,
+     "lng": -119.4696,
+     "r": 8000
+    },
+    {
+     "name": "Bakersfield, CA",
+     "lat": 35.3733,
+     "lng": -119.0187,
+     "r": 7000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Fill up in Grants Pass (cheaper than CA).",
+     "es": "Llenar el tanque en Grants Pass (más barato que CA)."
+    },
+    {
+     "en": "Refuel at Williams / Dunnigan, CA (~290 mi).",
+     "es": "Recargar en Williams / Dunnigan, CA (~290 mi)."
+    }
+   ],
+   "fuelSearch": [
+    "gas station Grants Pass OR",
+    "Love's Travel Stop near Williams CA",
+    "Pilot Flying J near Dunnigan CA"
+   ],
+   "foodSearch": [
+    "rest area I-5 near Redding CA",
+    "restaurants near Williams CA I-5",
+    "rest area I-5 near Buttonwillow CA"
+   ],
+   "overnightSearch": [
+    "hotels near I-5 Bakersfield CA",
+    "Hampton Inn Bakersfield",
+    "Holiday Inn Express Bakersfield"
+   ],
+   "id": "mwk8o31w0pyd9",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31w1fdly",
+     "text": {
+      "en": "Check ODOT TripCheck and Caltrans QuickMap for snow and chain controls on Siskiyou Pass / Mt. Shasta (I-5). Carry chains.",
+      "es": "Revisar ODOT TripCheck y Caltrans QuickMap por nieve y control de cadenas en Siskiyou Pass / Mt. Shasta (I-5). Llevar cadenas."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w2rxdf",
+     "text": {
+      "en": "Fill the tank in Grants Pass tonight.",
+      "es": "Llenar el tanque en Grants Pass esta noche."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w30xye",
+     "text": {
+      "en": "Download Google Maps offline areas for the whole route.",
+      "es": "Descargar las zonas sin conexión de Google Maps para toda la ruta."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w4iv6a",
+     "text": {
+      "en": "Confirm TIP and Mexican insurance start dates.",
+      "es": "Confirmar fechas de inicio del permiso (TIP) y del seguro mexicano."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w5gnbi",
+     "text": {
+      "en": "Notify bank and cards of Mexico travel.",
+      "es": "Avisar al banco y tarjetas del viaje a México."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w6s1xb",
+     "text": {
+      "en": "Get USD cash and some MXN.",
+      "es": "Tener efectivo en USD y algo de MXN."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w70wlc",
+     "text": {
+      "en": "Confirm hotel bookings.",
+      "es": "Confirmar reservaciones de hotel."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "out2",
+   "leg": "out",
+   "date": "2026-12-13",
+   "from": "Bakersfield, CA",
+   "to": "Phoenix, AZ (Chandler/Tempe)",
+   "fromLat": 35.3733,
+   "fromLng": -119.0187,
+   "toLat": 33.3062,
+   "toLng": -111.8413,
+   "country": "US",
+   "startTz": "America/Los_Angeles",
+   "arriveTz": "America/Phoenix",
+   "distanceMi": 490,
+   "distanceNote": "~490 mi",
+   "driveHours": "~7.5 h",
+   "start": "06:00",
+   "arrive": "15:30",
+   "route": "I-5 S (Grapevine), I-210 E, I-10 E",
+   "tzNote": {
+    "en": "Clocks +1 h at the Arizona line (Arizona MST, no DST).",
+    "es": "Reloj +1 h al entrar a Arizona (MST, sin horario de verano)."
+   },
+   "notes": {
+    "en": "",
+    "es": ""
+   },
+   "stops": [
+    {
+     "name": "Bakersfield, CA",
+     "lat": 35.3733,
+     "lng": -119.0187,
+     "r": 7000
+    },
+    {
+     "name": "Banning, CA",
+     "lat": 33.9256,
+     "lng": -116.8764,
+     "r": 8000
+    },
+    {
+     "name": "Chiriaco Summit, CA",
+     "lat": 33.6614,
+     "lng": -115.7219,
+     "r": 8000
+    },
+    {
+     "name": "Blythe, CA",
+     "lat": 33.6103,
+     "lng": -114.5964,
+     "r": 8000
+    },
+    {
+     "name": "Quartzsite, AZ",
+     "lat": 33.6639,
+     "lng": -114.2299,
+     "r": 8000
+    },
+    {
+     "name": "Tonopah, AZ",
+     "lat": 33.4934,
+     "lng": -112.9363,
+     "r": 8000
+    },
+    {
+     "name": "Chandler / Tempe, AZ",
+     "lat": 33.3062,
+     "lng": -111.8413,
+     "r": 6000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Buy only what you need in CA.",
+     "es": "En CA cargar solo lo necesario."
+    },
+    {
+     "en": "Refuel at Blythe / Quartzsite at the AZ line.",
+     "es": "Recargar en Blythe / Quartzsite en la línea con AZ."
+    }
+   ],
+   "fuelSearch": [
+    "Love's Travel Stop near Quartzsite AZ",
+    "Pilot Flying J near Blythe CA",
+    "TA Travel Center near Tonopah AZ"
+   ],
+   "foodSearch": [
+    "restaurants near Banning CA I-10",
+    "rest area I-10 near Chiriaco Summit CA",
+    "restaurants near Quartzsite AZ"
+   ],
+   "overnightSearch": [
+    "hotels near I-10 Chandler AZ",
+    "Holiday Inn Express Chandler AZ",
+    "Hampton Inn Tempe AZ"
+   ],
+   "id": "mwk8o31w85fbz",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31w9kur7",
+     "text": {
+      "en": "Check Caltrans for Grapevine (I-5 Tejon Pass) closures from snow or wind.",
+      "es": "Revisar Caltrans por cierres en el Grapevine (I-5 Tejon Pass) por nieve o viento."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wa520i",
+     "text": {
+      "en": "Leave at 6 AM to clear LA on Sunday morning.",
+      "es": "Salir a las 6 AM para pasar LA el domingo temprano."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wbs5jp",
+     "text": {
+      "en": "Clocks move +1 h in Arizona.",
+      "es": "El reloj se adelanta +1 h en Arizona."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wc3yrv",
+     "text": {
+      "en": "CA gas is expensive: buy only enough to reach Blythe/Quartzsite.",
+      "es": "La gasolina en CA es cara: cargar solo lo necesario para llegar a Blythe/Quartzsite."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "out3",
+   "leg": "out",
+   "date": "2026-12-14",
+   "from": "Phoenix, AZ",
+   "to": "El Paso, TX",
+   "fromLat": 33.3062,
+   "fromLng": -111.8413,
+   "toLat": 31.7619,
+   "toLng": -106.485,
+   "country": "US",
+   "startTz": "America/Phoenix",
+   "arriveTz": "America/Denver",
+   "distanceMi": 430,
+   "distanceNote": "~430 mi",
+   "driveHours": "~6.5 h",
+   "start": "06:00",
+   "arrive": "14:00",
+   "route": "I-10 E",
+   "notes": {
+    "en": "Short rest day.",
+    "es": "Día corto de descanso."
+   },
+   "stops": [
+    {
+     "name": "Chandler / Tempe, AZ",
+     "lat": 33.3062,
+     "lng": -111.8413,
+     "r": 6000
+    },
+    {
+     "name": "Benson, AZ",
+     "lat": 31.9679,
+     "lng": -110.2945,
+     "r": 8000
+    },
+    {
+     "name": "Willcox, AZ",
+     "lat": 32.2529,
+     "lng": -109.832,
+     "r": 8000
+    },
+    {
+     "name": "Lordsburg, NM",
+     "lat": 32.3504,
+     "lng": -108.7087,
+     "r": 8000
+    },
+    {
+     "name": "Deming, NM",
+     "lat": 32.2687,
+     "lng": -107.7586,
+     "r": 8000
+    },
+    {
+     "name": "El Paso, TX",
+     "lat": 31.7619,
+     "lng": -106.485,
+     "r": 7000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Fill up in Phoenix.",
+     "es": "Llenar el tanque en Phoenix."
+    },
+    {
+     "en": "Refuel at Lordsburg or Deming, NM.",
+     "es": "Recargar en Lordsburg o Deming, NM."
+    }
+   ],
+   "fuelSearch": [
+    "Love's Travel Stop near Lordsburg NM",
+    "Pilot Flying J near Deming NM",
+    "TA Travel Center near Willcox AZ"
+   ],
+   "foodSearch": [
+    "restaurants near Benson AZ I-10",
+    "restaurants near Willcox AZ",
+    "restaurants near Deming NM"
+   ],
+   "overnightSearch": [
+    "hotels near I-10 El Paso TX",
+    "Hampton Inn El Paso",
+    "Holiday Inn Express El Paso"
+   ],
+   "id": "mwk8o31wdam84",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31we5hfw",
+     "text": {
+      "en": "Short day. Check AZ511 and NMRoads for wind or dust storm warnings on I-10.",
+      "es": "Día corto. Revisar AZ511 y NMRoads por alertas de viento o tormentas de polvo en la I-10."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wfanmm",
+     "text": {
+      "en": "Vehicle check: tires, oil, wipers, washer fluid. Laundry.",
+      "es": "Revisión del vehículo: llantas, aceite, limpiadores, líquido. Lavar ropa."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "out4",
+   "leg": "out",
+   "date": "2026-12-15",
+   "from": "El Paso, TX",
+   "to": "San Antonio, TX",
+   "fromLat": 31.7619,
+   "fromLng": -106.485,
+   "toLat": 29.4241,
+   "toLng": -98.4936,
+   "country": "US",
+   "startTz": "America/Denver",
+   "arriveTz": "America/Chicago",
+   "distanceMi": 550,
+   "distanceNote": "~550 mi",
+   "driveHours": "8 h (my estimate)",
+   "start": "06:00",
+   "arrive": "16:30",
+   "route": "I-10 E",
+   "tzNote": {
+    "en": "Clocks +1 h east of Van Horn, TX (Central time).",
+    "es": "Reloj +1 h al este de Van Horn, TX (hora del Centro)."
+   },
+   "notes": {
+    "en": "Border Patrol checkpoint on I-10 near Sierra Blanca.",
+    "es": "Revisión de la Patrulla Fronteriza en la I-10 cerca de Sierra Blanca."
+   },
+   "stops": [
+    {
+     "name": "El Paso, TX",
+     "lat": 31.7619,
+     "lng": -106.485,
+     "r": 7000
+    },
+    {
+     "name": "Van Horn, TX",
+     "lat": 31.0399,
+     "lng": -104.8307,
+     "r": 8000
+    },
+    {
+     "name": "Fort Stockton, TX",
+     "lat": 30.894,
+     "lng": -102.8793,
+     "r": 8000
+    },
+    {
+     "name": "Ozona, TX",
+     "lat": 30.711,
+     "lng": -101.2006,
+     "r": 8000
+    },
+    {
+     "name": "Junction, TX",
+     "lat": 30.4894,
+     "lng": -99.772,
+     "r": 8000
+    },
+    {
+     "name": "Kerrville, TX",
+     "lat": 30.0474,
+     "lng": -99.1403,
+     "r": 8000
+    },
+    {
+     "name": "San Antonio, TX",
+     "lat": 29.4241,
+     "lng": -98.4936,
+     "r": 7000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Fill up in El Paso.",
+     "es": "Llenar el tanque en El Paso."
+    },
+    {
+     "en": "Refuel at Fort Stockton, then Junction or Kerrville as needed.",
+     "es": "Recargar en Fort Stockton, luego Junction o Kerrville si hace falta."
+    }
+   ],
+   "fuelSearch": [
+    "Pilot Flying J near Fort Stockton TX",
+    "Love's Travel Stop near Van Horn TX",
+    "gas station near Junction TX"
+   ],
+   "foodSearch": [
+    "restaurants near Van Horn TX",
+    "restaurants near Fort Stockton TX",
+    "restaurants near Junction TX"
+   ],
+   "overnightSearch": [
+    "hotels near I-10 San Antonio TX",
+    "Hampton Inn San Antonio I-10",
+    "Holiday Inn Express San Antonio"
+   ],
+   "id": "mwk8o31wgnif4",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31wher8x",
+     "text": {
+      "en": "Longest US day. Clocks move +1 h after Van Horn, TX.",
+      "es": "El día más largo en EE. UU. El reloj se adelanta +1 h después de Van Horn, TX."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wijot2",
+     "text": {
+      "en": "Services are far apart in West Texas: refuel by the 300 mi rule.",
+      "es": "Los servicios están muy separados en el oeste de Texas: recargar con la regla de 300 mi."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wj6bcp",
+     "text": {
+      "en": "Have IDs ready for the Border Patrol checkpoint on I-10 near Sierra Blanca.",
+      "es": "Tener identificaciones listas para la revisión de la Patrulla Fronteriza en la I-10 cerca de Sierra Blanca."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "out5",
+   "leg": "out",
+   "date": "2026-12-16",
+   "from": "San Antonio, TX",
+   "to": "Saltillo, Coahuila",
+   "fromLat": 29.4241,
+   "fromLng": -98.4936,
+   "toLat": 25.4232,
+   "toLng": -101.0053,
+   "country": "BORDER",
+   "startTz": "America/Chicago",
+   "arriveTz": "America/Monterrey",
+   "distanceMi": 352,
+   "distanceNote": "~175 mi US + ~285 km MX",
+   "driveHours": "~6 h + 0.5–1 h border",
+   "start": "06:00",
+   "arrive": "14:00",
+   "route": "I-35 S, Mines Rd (FM 1472) to Puente Internacional Colombia (enters Nuevo León, avoids Tamaulipas), toll roads to Monterrey bypass, 40D to Saltillo",
+   "routeVia": "Puente Internacional Colombia, Nuevo León",
+   "notes": {
+    "en": "Border crossing day.",
+    "es": "Día de cruce fronterizo."
+   },
+   "stops": [
+    {
+     "name": "San Antonio, TX",
+     "lat": 29.4241,
+     "lng": -98.4936,
+     "r": 7000
+    },
+    {
+     "name": "Cotulla, TX",
+     "lat": 28.4369,
+     "lng": -99.235,
+     "r": 8000
+    },
+    {
+     "name": "Laredo, TX",
+     "lat": 27.5306,
+     "lng": -99.4803,
+     "r": 7000
+    },
+    {
+     "name": "Monterrey, N.L.",
+     "lat": 25.6866,
+     "lng": -100.3161,
+     "r": 6000
+    },
+    {
+     "name": "Saltillo, Coah.",
+     "lat": 25.4232,
+     "lng": -101.0053,
+     "r": 6000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Fill up in San Antonio; top off in Laredo before crossing.",
+     "es": "Llenar en San Antonio; completar en Laredo antes de cruzar."
+    },
+    {
+     "en": "Refuel in Saltillo.",
+     "es": "Recargar en Saltillo."
+    }
+   ],
+   "fuelSearch": [
+    "Love's Travel Stop near Laredo TX",
+    "Pilot Flying J near Laredo TX",
+    "Pemex Saltillo",
+    "OXXO Gas Saltillo"
+   ],
+   "foodSearch": [
+    "restaurants near Cotulla TX I-35",
+    "restaurants near Laredo TX I-35",
+    "VIPS Saltillo"
+   ],
+   "overnightSearch": [
+    "hotel con estacionamiento vigilado Saltillo",
+    "Fiesta Inn Saltillo",
+    "City Express Saltillo",
+    "Holiday Inn Express Saltillo"
+   ],
+   "id": "mwk8o31wkxugd",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31wl3nhr",
+     "text": {
+      "en": "Verify Puente Colombia hours today.",
+      "es": "Verificar hoy el horario del Puente Colombia."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wmo3ra",
+     "text": {
+      "en": "Have ready: passports, license, registration/title, TIP printout, Mexican insurance, USD cash for the bridge, MXN for casetas.",
+      "es": "Tener listo: pasaportes, licencia, tarjeta de circulación/título, TIP impreso, seguro mexicano, USD en efectivo para el puente, MXN para casetas."
+     },
+     "done": true
+    },
+    {
+     "id": "mwk8o31wnyeqv",
+     "text": {
+      "en": "Fill the tank in Laredo.",
+      "es": "Llenar el tanque en Laredo."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wo1xgk",
+     "text": {
+      "en": "Refresh Google Maps offline areas on hotel Wi-Fi.",
+      "es": "Actualizar las zonas sin conexión de Google Maps con el Wi-Fi del hotel."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wpkru3",
+     "text": {
+      "en": "Confirm the Saltillo hotel has secure parking.",
+      "es": "Confirmar que el hotel en Saltillo tenga estacionamiento seguro."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wq4n0x",
+     "text": {
+      "en": "Share the day's plan with family.",
+      "es": "Compartir el plan del día con la familia."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wr9vw8",
+     "text": {
+      "en": "Nothing visible in the car.",
+      "es": "Nada a la vista dentro del carro."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31ws90d7",
+     "text": {
+      "en": "FMM (tourist permit) for everyone: done online, or get it at the INM office at the bridge.",
+      "es": "FMM (permiso de turista) para todos: ya tramitado en línea, o sacarlo en la oficina del INM en el puente."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wtva7e",
+     "text": {
+      "en": "Declare goods over $300 at Mexican customs (gifts count). Copies of the kids' birth certificates at hand.",
+      "es": "Declarar mercancía de más de $300 en la aduana mexicana (los regalos cuentan). Copias de las actas de nacimiento de los niños a la mano."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "out6",
+   "leg": "out",
+   "date": "2026-12-17",
+   "from": "Saltillo, Coahuila",
+   "to": "Celaya, Guanajuato",
+   "fromLat": 25.4232,
+   "fromLng": -101.0053,
+   "toLat": 20.5235,
+   "toLng": -100.8157,
+   "country": "MX",
+   "startTz": "America/Monterrey",
+   "arriveTz": "America/Mexico_City",
+   "distanceMi": 438,
+   "distanceNote": "~705 km",
+   "driveHours": "~7.5 h",
+   "start": "07:25",
+   "arrive": "16:00",
+   "route": "Hwy 57 / 57D, 45D (Saltillo – Matehuala – San Luis Potosí – Querétaro – Celaya)",
+   "routeVia": "Matehuala, San Luis Potosí|Querétaro, Querétaro",
+   "notes": {
+    "en": "Fallback overnight: San Luis Potosí (~450 km). Last stretch Querétaro – Celaya on 45D (~45 km): fill up in Querétaro and drive it straight through in daylight, no stops.",
+    "es": "Plan B para dormir: San Luis Potosí (~450 km). Último tramo Querétaro – Celaya por la 45D (~45 km): cargar gasolina en Querétaro y hacerlo de corrido, de día y sin paradas."
+   },
+   "stops": [
+    {
+     "name": "Saltillo, Coah.",
+     "lat": 25.4232,
+     "lng": -101.0053,
+     "r": 6000
+    },
+    {
+     "name": "Matehuala, SLP",
+     "lat": 23.6497,
+     "lng": -100.644,
+     "r": 8000
+    },
+    {
+     "name": "San Luis Potosí, SLP",
+     "lat": 22.1565,
+     "lng": -100.9855,
+     "r": 6000
+    },
+    {
+     "name": "Querétaro, Qro.",
+     "lat": 20.5888,
+     "lng": -100.3899,
+     "r": 6000
+    },
+    {
+     "name": "Celaya, Gto.",
+     "lat": 20.5235,
+     "lng": -100.8157,
+     "r": 5000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Fill up in Saltillo.",
+     "es": "Llenar el tanque en Saltillo."
+    },
+    {
+     "en": "Refuel at Matehuala, then San Luis Potosí or Querétaro.",
+     "es": "Recargar en Matehuala, luego San Luis Potosí o Querétaro."
+    }
+   ],
+   "fuelSearch": [
+    "OXXO Gas Matehuala",
+    "Pemex Matehuala",
+    "Pemex San Luis Potosí carretera 57",
+    "OXXO Gas Querétaro"
+   ],
+   "foodSearch": [
+    "VIPS Matehuala",
+    "Sanborns San Luis Potosí",
+    "Toks Querétaro"
+   ],
+   "overnightSearch": [
+    "City Express Celaya",
+    "Fiesta Inn Celaya",
+    "hotel con estacionamiento vigilado Celaya",
+    "Fiesta Inn San Luis Potosí"
+   ],
+   "id": "mwk8o31wui8pn",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31wvkwgs",
+     "text": {
+      "en": "Leave at sunrise (~7:25 AM), not earlier.",
+      "es": "Salir al amanecer (~7:25 AM), no antes."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wwot27",
+     "text": {
+      "en": "Leave Saltillo with a full tank: the stretch to Matehuala is long desert with few services.",
+      "es": "Salir de Saltillo con tanque lleno: el tramo a Matehuala es desierto largo con pocos servicios."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wxh4tg",
+     "text": {
+      "en": "Expect fog on the high plains early and heavy trucks on 57D.",
+      "es": "Esperar neblina temprano en el altiplano y mucho tráiler en la 57D."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wysns3",
+     "text": {
+      "en": "If delayed, overnight in San Luis Potosí.",
+      "es": "Si hay retraso, dormir en San Luis Potosí."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31wzxois",
+     "text": {
+      "en": "Avoid Querétaro to Celaya rush hour.",
+      "es": "Evitar la hora pico de Querétaro a Celaya."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w10twen",
+     "text": {
+      "en": "Send the arrival message.",
+      "es": "Enviar el mensaje de llegada."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w11hxnd",
+     "text": {
+      "en": "Fill up in Querétaro, then drive Querétaro – Celaya (45D) straight through in daylight: no stops on 45D.",
+      "es": "Cargar gasolina en Querétaro y luego hacer Querétaro – Celaya (45D) de corrido y de día: sin paradas en la 45D."
+     },
+     "done": false
+    },
+    {
+     "id": "n1",
+     "text": "My own note",
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "ret1",
+   "leg": "return",
+   "date": "2027-01-02",
+   "from": "Celaya, Guanajuato",
+   "to": "Saltillo, Coahuila",
+   "fromLat": 20.5235,
+   "fromLng": -100.8157,
+   "toLat": 25.4232,
+   "toLng": -101.0053,
+   "country": "MX",
+   "startTz": "America/Mexico_City",
+   "arriveTz": "America/Monterrey",
+   "distanceMi": 438,
+   "distanceNote": "~705 km",
+   "driveHours": "~7.5 h",
+   "start": "07:30",
+   "arrive": "16:00",
+   "route": "45D to Querétaro, then 57D north (Querétaro – San Luis Potosí – Matehuala – Saltillo)",
+   "routeVia": "Querétaro, Querétaro|San Luis Potosí, San Luis Potosí|Matehuala, San Luis Potosí",
+   "notes": {
+    "en": "First stretch Celaya – Querétaro on 45D: leave at sunrise and drive it straight through, no stops. Fallback overnight: San Luis Potosí or Matehuala.",
+    "es": "Primer tramo Celaya – Querétaro por la 45D: salir al amanecer y hacerlo de corrido, sin paradas. Plan B para dormir: San Luis Potosí o Matehuala."
+   },
+   "stops": [
+    {
+     "name": "Celaya, Gto.",
+     "lat": 20.5235,
+     "lng": -100.8157,
+     "r": 5000
+    },
+    {
+     "name": "Querétaro, Qro.",
+     "lat": 20.5888,
+     "lng": -100.3899,
+     "r": 6000
+    },
+    {
+     "name": "San Luis Potosí, SLP",
+     "lat": 22.1565,
+     "lng": -100.9855,
+     "r": 6000
+    },
+    {
+     "name": "Matehuala, SLP",
+     "lat": 23.6497,
+     "lng": -100.644,
+     "r": 8000
+    },
+    {
+     "name": "Saltillo, Coah.",
+     "lat": 25.4232,
+     "lng": -101.0053,
+     "r": 6000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Fill up in Celaya the evening before.",
+     "es": "Llenar el tanque en Celaya la noche anterior."
+    },
+    {
+     "en": "Refuel at San Luis Potosí, then Matehuala (last good services before the desert stretch).",
+     "es": "Recargar en San Luis Potosí, luego Matehuala (últimos buenos servicios antes del desierto)."
+    }
+   ],
+   "fuelSearch": [
+    "OXXO Gas Celaya",
+    "Pemex San Luis Potosí carretera 57",
+    "OXXO Gas Matehuala",
+    "Pemex Matehuala"
+   ],
+   "foodSearch": [
+    "Toks Querétaro",
+    "Sanborns San Luis Potosí",
+    "VIPS Matehuala"
+   ],
+   "overnightSearch": [
+    "hotel con estacionamiento vigilado Saltillo",
+    "Fiesta Inn Saltillo",
+    "City Express Saltillo",
+    "Fiesta Inn San Luis Potosí"
+   ],
+   "id": "mwk8o31w12sb17",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31w13punq",
+     "text": {
+      "en": "Fill the tank in Celaya tonight.",
+      "es": "Llenar el tanque en Celaya esta noche."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w1481ni",
+     "text": {
+      "en": "Leave at sunrise (~7:20 AM): Celaya – Querétaro on 45D straight through, no stops.",
+      "es": "Salir al amanecer (~7:20 AM): Celaya – Querétaro por la 45D de corrido, sin paradas."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w15hc2o",
+     "text": {
+      "en": "Confirm the Saltillo hotel (secure parking) and refresh Google Maps offline areas.",
+      "es": "Confirmar el hotel en Saltillo (estacionamiento seguro) y actualizar las zonas sin conexión de Google Maps."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w16ttan",
+     "text": {
+      "en": "MXN cash for casetas; documents together: passports, TIP, FMM, insurance.",
+      "es": "Efectivo en MXN para casetas; documentos juntos: pasaportes, TIP, FMM, seguro."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w17mbkl",
+     "text": {
+      "en": "Check the Mexican insurance covers through the crossing date (Jan 3).",
+      "es": "Verificar que el seguro mexicano cubra hasta el día del cruce (3 de enero)."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w18lr8u",
+     "text": {
+      "en": "Share the day's plan with family.",
+      "es": "Compartir el plan del día con la familia."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "ret2",
+   "leg": "return",
+   "date": "2027-01-03",
+   "from": "Saltillo, Coahuila",
+   "to": "San Antonio, TX",
+   "fromLat": 25.4232,
+   "fromLng": -101.0053,
+   "toLat": 29.4241,
+   "toLng": -98.4936,
+   "country": "BORDER",
+   "startTz": "America/Monterrey",
+   "arriveTz": "America/Chicago",
+   "distanceMi": 352,
+   "distanceNote": "~285 km MX + ~175 mi US",
+   "driveHours": "~6 h + 1–2 h border",
+   "start": "07:35",
+   "arrive": "16:00",
+   "route": "40D Saltillo – Monterrey, Monterrey bypass, toll road to Puente Internacional Colombia, Mines Rd (FM 1472), I-35 N",
+   "routeVia": "Puente Internacional Colombia, Nuevo León|Laredo, TX",
+   "notes": {
+    "en": "Border day. Cancel the TIP at Banjercito at the bridge BEFORE crossing into the US, and keep the receipt.",
+    "es": "Día de frontera. Cancelar el TIP en Banjercito en el puente ANTES de cruzar a EE. UU. y guardar el comprobante."
+   },
+   "stops": [
+    {
+     "name": "Saltillo, Coah.",
+     "lat": 25.4232,
+     "lng": -101.0053,
+     "r": 6000
+    },
+    {
+     "name": "Monterrey, N.L.",
+     "lat": 25.6866,
+     "lng": -100.3161,
+     "r": 6000
+    },
+    {
+     "name": "Laredo, TX",
+     "lat": 27.5306,
+     "lng": -99.4803,
+     "r": 7000
+    },
+    {
+     "name": "Cotulla, TX",
+     "lat": 28.4369,
+     "lng": -99.235,
+     "r": 8000
+    },
+    {
+     "name": "San Antonio, TX",
+     "lat": 29.4241,
+     "lng": -98.4936,
+     "r": 7000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Leave Saltillo with enough fuel to reach Laredo (no need to fill up near the border).",
+     "es": "Salir de Saltillo con gasolina suficiente para llegar a Laredo (no hace falta cargar cerca de la frontera)."
+    },
+    {
+     "en": "Fill up in Laredo, TX.",
+     "es": "Llenar el tanque en Laredo, TX."
+    }
+   ],
+   "fuelSearch": [
+    "OXXO Gas Saltillo",
+    "Love's Travel Stop near Laredo TX",
+    "Pilot Flying J near Laredo TX"
+   ],
+   "foodSearch": [
+    "VIPS Saltillo",
+    "restaurants near Laredo TX I-35",
+    "restaurants near Cotulla TX I-35"
+   ],
+   "overnightSearch": [
+    "hotels near I-10 San Antonio TX",
+    "Hampton Inn San Antonio I-10",
+    "Holiday Inn Express San Antonio"
+   ],
+   "id": "mwk8o31w19tq5m",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31w1anann",
+     "text": {
+      "en": "CANCEL THE TIP at the Banjercito / Aduana module at Puente Colombia before crossing to the US. Keep the receipt (deposit refund).",
+      "es": "CANCELAR EL TIP en el módulo de Banjercito / Aduana en el Puente Colombia antes de cruzar a EE. UU. Guardar el comprobante (reembolso del depósito)."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w1blx5g",
+     "text": {
+      "en": "Verify Puente Colombia hours today. Cash for the bridge toll.",
+      "es": "Verificar hoy el horario del Puente Colombia. Efectivo para la cuota del puente."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w1cd68s",
+     "text": {
+      "en": "Ask INM at the bridge whether to hand in the FMM.",
+      "es": "Preguntar al INM en el puente si hay que entregar el FMM."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w1dgvvf",
+     "text": {
+      "en": "US customs: declare purchases; no fresh fruit, meat or plants.",
+      "es": "Aduana de EE. UU.: declarar compras; no traer fruta fresca, carne ni plantas."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w1e7696",
+     "text": {
+      "en": "Fuel: enough to reach Laredo, fill up there.",
+      "es": "Gasolina: suficiente para llegar a Laredo y llenar allá."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w1f8q53",
+     "text": {
+      "en": "Nothing visible in the car. Send the \"crossed\" message.",
+      "es": "Nada a la vista en el carro. Enviar el mensaje de \"ya cruzamos\"."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "ret3",
+   "leg": "return",
+   "date": "2027-01-04",
+   "from": "San Antonio, TX",
+   "to": "El Paso, TX",
+   "fromLat": 29.4241,
+   "fromLng": -98.4936,
+   "toLat": 31.7619,
+   "toLng": -106.485,
+   "country": "US",
+   "startTz": "America/Chicago",
+   "arriveTz": "America/Denver",
+   "distanceMi": 550,
+   "distanceNote": "~550 mi",
+   "driveHours": "~8 h",
+   "start": "06:00",
+   "arrive": "14:30",
+   "route": "I-10 W",
+   "tzNote": {
+    "en": "Clocks −1 h west of Van Horn, TX (Mountain time).",
+    "es": "Reloj −1 h al oeste de Van Horn, TX (hora de la Montaña)."
+   },
+   "notes": {
+    "en": "Longest US day. Border Patrol checkpoint on I-10 near Sierra Blanca.",
+    "es": "El día más largo en EE. UU. Revisión de la Patrulla Fronteriza en la I-10 cerca de Sierra Blanca."
+   },
+   "stops": [
+    {
+     "name": "San Antonio, TX",
+     "lat": 29.4241,
+     "lng": -98.4936,
+     "r": 7000
+    },
+    {
+     "name": "Kerrville, TX",
+     "lat": 30.0474,
+     "lng": -99.1403,
+     "r": 8000
+    },
+    {
+     "name": "Junction, TX",
+     "lat": 30.4894,
+     "lng": -99.772,
+     "r": 8000
+    },
+    {
+     "name": "Ozona, TX",
+     "lat": 30.711,
+     "lng": -101.2006,
+     "r": 8000
+    },
+    {
+     "name": "Fort Stockton, TX",
+     "lat": 30.894,
+     "lng": -102.8793,
+     "r": 8000
+    },
+    {
+     "name": "Van Horn, TX",
+     "lat": 31.0399,
+     "lng": -104.8307,
+     "r": 8000
+    },
+    {
+     "name": "El Paso, TX",
+     "lat": 31.7619,
+     "lng": -106.485,
+     "r": 7000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Fill up in San Antonio.",
+     "es": "Llenar el tanque en San Antonio."
+    },
+    {
+     "en": "Refuel at Junction or Ozona, then Fort Stockton (300 mi rule).",
+     "es": "Recargar en Junction u Ozona, luego Fort Stockton (regla de 300 mi)."
+    }
+   ],
+   "fuelSearch": [
+    "gas station near Junction TX",
+    "Pilot Flying J near Fort Stockton TX",
+    "Love's Travel Stop near Van Horn TX"
+   ],
+   "foodSearch": [
+    "restaurants near Junction TX",
+    "restaurants near Fort Stockton TX",
+    "restaurants near Van Horn TX"
+   ],
+   "overnightSearch": [
+    "hotels near I-10 El Paso TX",
+    "Hampton Inn El Paso",
+    "Holiday Inn Express El Paso"
+   ],
+   "id": "mwk8o31w1gxsr8",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31w1hzp1z",
+     "text": {
+      "en": "Longest US day. Clocks move −1 h west of Van Horn, TX.",
+      "es": "El día más largo en EE. UU. El reloj se atrasa −1 h al oeste de Van Horn, TX."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w1i4hy3",
+     "text": {
+      "en": "Services are far apart in West Texas: refuel by the 300 mi rule.",
+      "es": "Los servicios están muy separados en el oeste de Texas: recargar con la regla de 300 mi."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31w1j7yzg",
+     "text": {
+      "en": "Have IDs ready for the Border Patrol checkpoint near Sierra Blanca.",
+      "es": "Tener identificaciones listas para la revisión de la Patrulla Fronteriza cerca de Sierra Blanca."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "ret4",
+   "leg": "return",
+   "date": "2027-01-05",
+   "from": "El Paso, TX",
+   "to": "Phoenix, AZ (Chandler/Tempe)",
+   "fromLat": 31.7619,
+   "fromLng": -106.485,
+   "toLat": 33.3062,
+   "toLng": -111.8413,
+   "country": "US",
+   "startTz": "America/Denver",
+   "arriveTz": "America/Phoenix",
+   "distanceMi": 430,
+   "distanceNote": "~430 mi",
+   "driveHours": "~6.5 h",
+   "start": "06:00",
+   "arrive": "13:30",
+   "route": "I-10 W",
+   "notes": {
+    "en": "Short rest day.",
+    "es": "Día corto de descanso."
+   },
+   "stops": [
+    {
+     "name": "El Paso, TX",
+     "lat": 31.7619,
+     "lng": -106.485,
+     "r": 7000
+    },
+    {
+     "name": "Deming, NM",
+     "lat": 32.2687,
+     "lng": -107.7586,
+     "r": 8000
+    },
+    {
+     "name": "Lordsburg, NM",
+     "lat": 32.3504,
+     "lng": -108.7087,
+     "r": 8000
+    },
+    {
+     "name": "Willcox, AZ",
+     "lat": 32.2529,
+     "lng": -109.832,
+     "r": 8000
+    },
+    {
+     "name": "Benson, AZ",
+     "lat": 31.9679,
+     "lng": -110.2945,
+     "r": 8000
+    },
+    {
+     "name": "Chandler / Tempe, AZ",
+     "lat": 33.3062,
+     "lng": -111.8413,
+     "r": 6000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Fill up in El Paso.",
+     "es": "Llenar el tanque en El Paso."
+    },
+    {
+     "en": "Refuel at Deming or Lordsburg, NM.",
+     "es": "Recargar en Deming o Lordsburg, NM."
+    }
+   ],
+   "fuelSearch": [
+    "Pilot Flying J near Deming NM",
+    "Love's Travel Stop near Lordsburg NM",
+    "TA Travel Center near Willcox AZ"
+   ],
+   "foodSearch": [
+    "restaurants near Deming NM",
+    "restaurants near Willcox AZ",
+    "restaurants near Benson AZ I-10"
+   ],
+   "overnightSearch": [
+    "hotels near I-10 Chandler AZ",
+    "Holiday Inn Express Chandler AZ",
+    "Hampton Inn Tempe AZ"
+   ],
+   "id": "mwk8o31w1ketfb",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31x1l6k4p",
+     "text": {
+      "en": "Short day. Check NMRoads and AZ511 for wind or dust storm warnings on I-10.",
+      "es": "Día corto. Revisar NMRoads y AZ511 por alertas de viento o polvo en la I-10."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31x1mb2g8",
+     "text": {
+      "en": "Vehicle check: tires, oil, wipers, washer fluid.",
+      "es": "Revisión del vehículo: llantas, aceite, limpiadores, líquido."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "ret5",
+   "leg": "return",
+   "date": "2027-01-06",
+   "from": "Phoenix, AZ",
+   "to": "Bakersfield, CA",
+   "fromLat": 33.3062,
+   "fromLng": -111.8413,
+   "toLat": 35.3733,
+   "toLng": -119.0187,
+   "country": "US",
+   "startTz": "America/Phoenix",
+   "arriveTz": "America/Los_Angeles",
+   "distanceMi": 490,
+   "distanceNote": "~490 mi",
+   "driveHours": "~7.5 h",
+   "start": "06:00",
+   "arrive": "13:30",
+   "route": "I-10 W, I-210 W, I-5 N (Grapevine)",
+   "tzNote": {
+    "en": "Clocks −1 h at the California line (Pacific time).",
+    "es": "Reloj −1 h al entrar a California (hora del Pacífico)."
+   },
+   "notes": {
+    "en": "",
+    "es": ""
+   },
+   "stops": [
+    {
+     "name": "Chandler / Tempe, AZ",
+     "lat": 33.3062,
+     "lng": -111.8413,
+     "r": 6000
+    },
+    {
+     "name": "Tonopah, AZ",
+     "lat": 33.4934,
+     "lng": -112.9363,
+     "r": 8000
+    },
+    {
+     "name": "Quartzsite, AZ",
+     "lat": 33.6639,
+     "lng": -114.2299,
+     "r": 8000
+    },
+    {
+     "name": "Blythe, CA",
+     "lat": 33.6103,
+     "lng": -114.5964,
+     "r": 8000
+    },
+    {
+     "name": "Chiriaco Summit, CA",
+     "lat": 33.6614,
+     "lng": -115.7219,
+     "r": 8000
+    },
+    {
+     "name": "Banning, CA",
+     "lat": 33.9256,
+     "lng": -116.8764,
+     "r": 8000
+    },
+    {
+     "name": "Bakersfield, CA",
+     "lat": 35.3733,
+     "lng": -119.0187,
+     "r": 7000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Fill up in Phoenix (cheaper than CA).",
+     "es": "Llenar el tanque en Phoenix (más barato que CA)."
+    },
+    {
+     "en": "Top off at Quartzsite, AZ before the California line.",
+     "es": "Completar en Quartzsite, AZ antes de entrar a California."
+    }
+   ],
+   "fuelSearch": [
+    "TA Travel Center near Tonopah AZ",
+    "Love's Travel Stop near Quartzsite AZ",
+    "Pilot Flying J near Blythe CA"
+   ],
+   "foodSearch": [
+    "restaurants near Quartzsite AZ",
+    "rest area I-10 near Chiriaco Summit CA",
+    "restaurants near Banning CA I-10"
+   ],
+   "overnightSearch": [
+    "hotels near I-5 Bakersfield CA",
+    "Hampton Inn Bakersfield",
+    "Holiday Inn Express Bakersfield"
+   ],
+   "id": "mwk8o31x1nqlvy",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31x1odrz0",
+     "text": {
+      "en": "Clocks move −1 h in California.",
+      "es": "El reloj se atrasa −1 h en California."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31x1pbkoy",
+     "text": {
+      "en": "Fill up in Arizona: CA gas is expensive.",
+      "es": "Llenar en Arizona: la gasolina en CA es cara."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31x1qd0yq",
+     "text": {
+      "en": "Check Caltrans for Grapevine (I-5 Tejon Pass) closures.",
+      "es": "Revisar Caltrans por cierres en el Grapevine (I-5 Tejon Pass)."
+     },
+     "done": false
+    }
+   ]
+  },
+  {
+   "key": "ret6",
+   "leg": "return",
+   "date": "2027-01-07",
+   "from": "Bakersfield, CA",
+   "to": "Grants Pass, OR",
+   "fromLat": 35.3733,
+   "fromLng": -119.0187,
+   "toLat": 42.439,
+   "toLng": -123.3284,
+   "country": "US",
+   "startTz": "America/Los_Angeles",
+   "arriveTz": "America/Los_Angeles",
+   "distanceMi": 545,
+   "distanceNote": "~545 mi",
+   "driveHours": "~8.5 h",
+   "start": "06:00",
+   "arrive": "15:30",
+   "route": "I-5 N",
+   "notes": {
+    "en": "Home! Siskiyou Pass in January: check chain controls before leaving.",
+    "es": "¡A casa! Siskiyou Pass en enero: revisar control de cadenas antes de salir."
+   },
+   "stops": [
+    {
+     "name": "Bakersfield, CA",
+     "lat": 35.3733,
+     "lng": -119.0187,
+     "r": 7000
+    },
+    {
+     "name": "Buttonwillow, CA",
+     "lat": 35.4005,
+     "lng": -119.4696,
+     "r": 8000
+    },
+    {
+     "name": "Dunnigan, CA",
+     "lat": 38.8857,
+     "lng": -121.9694,
+     "r": 8000
+    },
+    {
+     "name": "Williams, CA",
+     "lat": 39.1546,
+     "lng": -122.1494,
+     "r": 8000
+    },
+    {
+     "name": "Redding, CA",
+     "lat": 40.5865,
+     "lng": -122.3917,
+     "r": 8000
+    },
+    {
+     "name": "Grants Pass, OR",
+     "lat": 42.439,
+     "lng": -123.3284,
+     "r": 8000
+    }
+   ],
+   "fuelStops": [
+    {
+     "en": "Buy only what you need in CA.",
+     "es": "En CA cargar solo lo necesario."
+    },
+    {
+     "en": "Refuel at Williams / Dunnigan, then Redding before the mountains.",
+     "es": "Recargar en Williams / Dunnigan, luego Redding antes de la sierra."
+    }
+   ],
+   "fuelSearch": [
+    "Pilot Flying J near Dunnigan CA",
+    "Love's Travel Stop near Williams CA",
+    "gas station Redding CA I-5"
+   ],
+   "foodSearch": [
+    "rest area I-5 near Buttonwillow CA",
+    "restaurants near Williams CA I-5",
+    "restaurants near Redding CA I-5"
+   ],
+   "overnightSearch": [],
+   "id": "mwk8o31x1ri2wh",
+   "status": "not_started",
+   "checkins": [],
+   "places": [],
+   "tomorrowNotes": [
+    {
+     "id": "mwk8o31x1sc56x",
+     "text": {
+      "en": "Check Caltrans QuickMap and ODOT TripCheck for snow and chain controls on Mt. Shasta / Siskiyou Pass. Carry chains.",
+      "es": "Revisar Caltrans QuickMap y ODOT TripCheck por nieve y control de cadenas en Mt. Shasta / Siskiyou Pass. Llevar cadenas."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31x1tgphz",
+     "text": {
+      "en": "If the pass is closed or chains are required late in the day, stop in Redding and finish in the morning.",
+      "es": "Si el paso está cerrado o piden cadenas tarde, dormir en Redding y terminar en la mañana."
+     },
+     "done": false
+    },
+    {
+     "id": "mwk8o31x1uak8k",
+     "text": {
+      "en": "Export a JSON backup of the trip (More → Data).",
+      "es": "Exportar un respaldo JSON del viaje (Más → Datos)."
+     },
+     "done": false
+    }
+   ]
+  }
+ ],
+ "expenses": [
+  {
+   "id": "u1",
+   "category": "food",
+   "payment": "cash",
+   "note": "Sample lunch",
+   "ts": "2026-12-12T12:30",
+   "date": "2026-12-12",
+   "amount": 25,
+   "currency": "USD",
+   "rateAtEntry": 18.5,
+   "usd": 25,
+   "mxn": 462.5
+  }
+ ],
+ "tolls": [
+  {
+   "id": "t1",
+   "name": "Monterrey – Saltillo",
+   "highway": "40D",
+   "payment": "cash",
+   "ts": "2026-12-16T12:00",
+   "date": "2026-12-16",
+   "expectedId": null,
+   "kind": "toll",
+   "lat": null,
+   "lng": null,
+   "amount": 150,
+   "currency": "MXN",
+   "rateAtEntry": 18.5,
+   "usd": 8.108108108108109,
+   "mxn": 150
+  }
+ ],
+ "expectedTolls": [
+  {
+   "key": "out-colombia",
+   "leg": "out",
+   "name": "Puente Internacional Colombia",
+   "highway": "Bridge",
+   "estAmount": null,
+   "currency": "USD",
+   "kind": "bridge",
+   "optional": false,
+   "note": {
+    "en": "Bridge toll, USD cash.",
+    "es": "Cuota del puente, efectivo en USD."
+   },
+   "id": "mwk8o31x1vj5p4",
+   "skipped": false
+  },
+  {
+   "key": "out-85d",
+   "leg": "out",
+   "name": "Monterrey – Nuevo Laredo",
+   "highway": "85D",
+   "estAmount": 366,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": true,
+   "note": {
+    "en": "Only if used.",
+    "es": "Solo si se usa."
+   },
+   "id": "mwk8o31x1w6erw",
+   "skipped": false
+  },
+  {
+   "key": "out-40d",
+   "leg": "out",
+   "name": "Monterrey – Saltillo",
+   "highway": "40D",
+   "estAmount": 150,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": false,
+   "note": {
+    "en": "",
+    "es": ""
+   },
+   "id": "mwk8o31x1xxyna",
+   "skipped": false
+  },
+  {
+   "key": "out-57d",
+   "leg": "out",
+   "name": "Saltillo – San Luis Potosí – Querétaro casetas",
+   "highway": "57D",
+   "matchHighway": "57",
+   "estAmount": null,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": false,
+   "note": {
+    "en": "Enter each caseta name as you pass it (highway 57/57D).",
+    "es": "Anotar el nombre de cada caseta al pasarla (carretera 57/57D)."
+   },
+   "id": "mwk8o31x1y3uw9",
+   "skipped": false
+  },
+  {
+   "key": "out-libqro",
+   "leg": "out",
+   "name": "Libramiento Noreste de Querétaro",
+   "highway": "Libramiento NE",
+   "estAmount": 65,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": true,
+   "note": {
+    "en": "If used.",
+    "es": "Si se usa."
+   },
+   "id": "mwk8o31x1zkkxu",
+   "skipped": false
+  },
+  {
+   "key": "out-45d",
+   "leg": "out",
+   "name": "Querétaro – Celaya",
+   "highway": "45D",
+   "estAmount": 105,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": false,
+   "note": {
+    "en": "",
+    "es": ""
+   },
+   "id": "mwk8o31x20hi03",
+   "skipped": false
+  },
+  {
+   "key": "ret-45d",
+   "leg": "return",
+   "name": "Celaya – Querétaro (return)",
+   "highway": "45D",
+   "estAmount": 105,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": false,
+   "note": {
+    "en": "",
+    "es": ""
+   },
+   "id": "mwk8o31x2198uu",
+   "skipped": false
+  },
+  {
+   "key": "ret-libqro",
+   "leg": "return",
+   "name": "Libramiento Noreste de Querétaro (return)",
+   "highway": "Libramiento NE",
+   "estAmount": 65,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": true,
+   "note": {
+    "en": "If used.",
+    "es": "Si se usa."
+   },
+   "id": "mwk8o31x226zju",
+   "skipped": false
+  },
+  {
+   "key": "ret-57d",
+   "leg": "return",
+   "name": "Querétaro – San Luis Potosí – Saltillo casetas (return)",
+   "highway": "57D",
+   "matchHighway": "57",
+   "estAmount": null,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": false,
+   "note": {
+    "en": "Enter each caseta name as you pass it (highway 57/57D).",
+    "es": "Anotar el nombre de cada caseta al pasarla (carretera 57/57D)."
+   },
+   "id": "mwk8o31x23i4gx",
+   "skipped": false
+  },
+  {
+   "key": "ret-40d",
+   "leg": "return",
+   "name": "Saltillo – Monterrey (return)",
+   "highway": "40D",
+   "estAmount": 150,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": false,
+   "note": {
+    "en": "",
+    "es": ""
+   },
+   "id": "mwk8o31x240hvn",
+   "skipped": false
+  },
+  {
+   "key": "ret-85d",
+   "leg": "return",
+   "name": "Monterrey – Nuevo Laredo (return)",
+   "highway": "85D",
+   "estAmount": 366,
+   "currency": "MXN",
+   "kind": "toll",
+   "optional": true,
+   "note": {
+    "en": "Only if used.",
+    "es": "Solo si se usa."
+   },
+   "id": "mwk8o31x257zvq",
+   "skipped": false
+  },
+  {
+   "key": "ret-colombia",
+   "leg": "return",
+   "name": "Puente Internacional Colombia (return)",
+   "highway": "Bridge",
+   "estAmount": null,
+   "currency": "MXN",
+   "kind": "bridge",
+   "optional": false,
+   "note": {
+    "en": "Northbound bridge toll, paid on the Mexican side. Have MXN and USD cash.",
+    "es": "Cuota del puente rumbo al norte, se paga del lado mexicano. Tener efectivo en MXN y USD."
+   },
+   "id": "mwk8o31x260ipq",
+   "skipped": false
+  }
+ ],
+ "fuel": [],
+ "odometer": [],
+ "docs": [
+  {
+   "id": "mwk8o31x27fuwf",
+   "key": "passports",
+   "text": {
+    "en": "Passports (everyone)",
+    "es": "Pasaportes (todos)"
+   },
+   "done": true
+  },
+  {
+   "id": "mwk8o31x280liv",
+   "key": "license",
+   "text": {
+    "en": "Driver's license",
+    "es": "Licencia de manejo"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x294ea9",
+   "key": "registration",
+   "text": {
+    "en": "Vehicle registration / title",
+    "es": "Tarjeta de circulación / título del vehículo"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2anzqv",
+   "key": "tip",
+   "text": {
+    "en": "TIP (Banjercito, available online up to 60 days ahead)",
+    "es": "Permiso de importación temporal TIP (Banjercito, en línea hasta 60 días antes)"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2b6ro0",
+   "key": "insurance",
+   "text": {
+    "en": "Mexican auto insurance (covers Dec 16 – Jan 3)",
+    "es": "Seguro de auto mexicano (cubre del 16 de dic. al 3 de ene.)"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2ciul4",
+   "key": "usd",
+   "text": {
+    "en": "USD cash",
+    "es": "Efectivo en USD"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2d3yr4",
+   "key": "mxn",
+   "text": {
+    "en": "MXN cash",
+    "es": "Efectivo en MXN"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2e6ud4",
+   "key": "tag",
+   "text": {
+    "en": "TAG for tolls",
+    "es": "TAG para casetas"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2fsvaw",
+   "key": "charger",
+   "text": {
+    "en": "Phone charger",
+    "es": "Cargador de teléfono"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2g7kk6",
+   "key": "papermap",
+   "text": {
+    "en": "Paper map",
+    "es": "Mapa de papel"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2heg7t",
+   "key": "fmm",
+   "text": {
+    "en": "FMM tourist permit for everyone who needs one (apply online at inm.gob.mx or at the INM office at the bridge)",
+    "es": "FMM (permiso de turista) para quien lo necesite (en línea en inm.gob.mx o en la oficina del INM en el puente)"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2i636q",
+   "key": "kids",
+   "text": {
+    "en": "Copies of each child's birth certificate; notarized permission if a Mexican/dual-citizen minor travels without a parent",
+    "es": "Copias de las actas de nacimiento de los niños; permiso notariado si un menor mexicano/doble nacionalidad viaja sin uno de sus padres"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2jwnz5",
+   "key": "customs",
+   "text": {
+    "en": "List of gifts/goods: declare over $300 entering Mexico by land (one laptop per person is tax-free)",
+    "es": "Lista de regalos/mercancía: declarar más de $300 al entrar a México por tierra (una laptop por persona sin impuesto)"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2k0ngn",
+   "key": "step",
+   "text": {
+    "en": "Enroll in STEP (mytravel.state.gov) for embassy alerts",
+    "es": "Inscribirse en STEP (mytravel.state.gov) para alertas de la embajada"
+   },
+   "done": false
+  },
+  {
+   "id": "mwk8o31x2lpvj0",
+   "key": "tipcancel",
+   "text": {
+    "en": "Return trip: cancel the TIP at the border before leaving Mexico (keep the receipt)",
+    "es": "Regreso: cancelar el TIP en la frontera antes de salir de México (guardar el comprobante)"
+   },
+   "done": false
+  }
+ ],
+ "notified": {},
+ "migration": null
+}

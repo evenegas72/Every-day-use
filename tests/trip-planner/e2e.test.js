@@ -124,14 +124,17 @@ async function allViewsClean(page, label) {
   ok((await page.inputValue('#share-text')).includes('Saltillo'), 'share message names the destination and has a Maps link');
   await page.click('#modal [data-act="closeModal"]');
 
-  // Tolls: log the expected 40D toll by name → auto-marked paid
+  // Tolls: log the expected 45D toll by name → auto-marked paid
   await page.click('[data-nav="tolls"]');
-  await page.fill('form[data-form="toll"] [name=name]', 'Monterrey – Saltillo');
+  await page.fill('form[data-form="toll"] [name=name]', 'Querétaro – Celaya');
   await page.dispatchEvent('form[data-form="toll"] [name=name]', 'change');
-  ok(await page.inputValue('form[data-form="toll"] [name=amount]') === '150', 'expected toll autocomplete fills highway/amount');
+  ok(await page.inputValue('form[data-form="toll"] [name=amount]') === '105', 'expected toll autocomplete fills highway/amount');
   await page.click('form[data-form="toll"] [type=submit]');
   await page.waitForFunction(() => S.tolls.length === 1);
-  ok(await page.evaluate(() => expectedStatus().find((x) => x.exp.highway === '40D').paid), 'expected toll auto-marked paid');
+  ok(await page.evaluate(() => expectedStatus().find((x) => x.exp.key === 'out-45d').paid), 'expected toll auto-marked paid');
+  const route = await page.evaluate(() => S.days.map((d) => d.to.split(',')[0]).join(' → '));
+  ok(route.includes('Eagle Pass → Saltillo') && !route.includes('San Antonio'), 'route crosses at Eagle Pass / Piedras Negras: ' + route);
+  ok(await page.evaluate(() => S.days[4].links.length === 5 && S.days[7].links.length === 5), 'both border days have wait-time and backup-bridge links');
 
   // Fuel: two full fills → mpg
   await page.click('[data-nav="fuel"]');
@@ -212,7 +215,100 @@ async function allViewsClean(page, label) {
   ok(await p2.evaluate(() => JSON.parse(localStorage.getItem('mexico-trip-v2')).expenses.length) === 1, 'can add entries while offline (default rate ' + (await p2.evaluate(() => rate())) + ')');
   await ctx2.close();
 
-  const realErrors = errors.filter((e) => !/net::ERR_INTERNET_DISCONNECTED|Failed to fetch|frankfurter|jsdelivr|ERR_TUNNEL|ERR_PROXY|status of 40/i.test(e));
+  // ── 3. Upgrade a phone that has data from the first release ──
+  console.log('Upgrade from first release (fixtures/first-release-state.json)');
+  const FIRST = fs.readFileSync(path.join(__dirname, 'fixtures/first-release-state.json'), 'utf8');
+  const ctx3 = await browser.newContext({ viewport: { width: 412, height: 915 }, timezoneId: 'America/Mexico_City', locale: 'es-MX' });
+  await ctx3.clock.install({ time: new Date('2026-12-25T10:00:00-06:00') });
+  const p3 = await ctx3.newPage();
+  p3.on('pageerror', (e) => errors.push(e.message));
+  p3.on('dialog', (d) => d.accept());
+  await p3.goto(BASE + 'manifest.webmanifest');
+  await p3.evaluate((s) => { localStorage.clear(); localStorage.setItem('mexico-trip-v2', s); }, FIRST);
+  await p3.goto(BASE);
+  await p3.waitForSelector('.day-num');
+  const up = await p3.evaluate(() => ({
+    v: S.seedVersion, days: S.days.length, keys: S.days.map((d) => d.key).join(','),
+    exp: S.expenses.length, tolls: S.tolls.length, route1: S.days[0].route, start6: S.days[5].start,
+    food: S.budget.find((b) => b.cat === 'food').amount, fuel: S.budget.find((b) => b.cat === 'fuel').amount,
+    docs: S.docs.length, doc0: S.docs[0].done, ownNote: S.days[5].tomorrowNotes.some((n) => n.text === 'My own note'),
+    stops: S.days.every((d) => d.stops.length > 0), backup: !!localStorage.getItem('mexico-trip-v2-backup'),
+    retTolls: S.expectedTolls.filter((e) => e.leg === 'return').length, lang: S.settings.lang,
+    paid40out: expectedStatus().find((x) => x.exp.key === 'out-40d').paid, ret40: S.expectedTolls.some((e) => e.key === 'ret-40d'),
+    colombia: S.expectedTolls.some((e) => e.key === 'out-colombia'), to1: S.days[0].to, from5: S.days[4].from,
+  }));
+  ok(up.v === 3 && up.days === 12, `plan upgraded to 12 days (out1–6 + ret1–6): ${up.keys}`);
+  ok(up.to1 === 'Buttonwillow, CA (I-5)' && up.from5 === 'Eagle Pass, TX', 'untouched days moved to the Eagle Pass route');
+  ok(up.exp === 1 && up.tolls === 1, 'existing expenses and tolls kept');
+  ok(up.route1 === 'I-5 S (user edit)' && up.food === 400, 'user edits kept (day route, food budget)');
+  ok(up.start6 === '07:25' && up.fuel === 1140, 'untouched seed values updated (Day 6 start 7:25, round-trip fuel budget)');
+  ok(up.docs === 17 && up.doc0 === true && up.ownNote, 'new documents added, checked items and own notes kept');
+  ok(up.stops && up.retTolls === 4 && up.backup && up.lang === 'es', 'stop towns, return tolls, backup copy and settings in place' + ' ' + JSON.stringify({ stops: up.stops, ret: up.retTolls, backup: up.backup, lang: up.lang }));
+  ok(up.paid40out && !up.ret40 && !up.colombia, 'old-route toll kept only where a toll was logged against it (40D); unused Colombia items removed');
+  const famTxt = await visibleText(p3);
+  ok(famTxt.includes('Con la familia') && famTxt.includes('El regreso empieza'), 'Today shows family time on Dec 25 (in Spanish)');
+  await p3.reload();
+  await p3.waitForSelector('.day-num');
+  ok(await p3.evaluate(() => S.days.length === 12 && S.expenses.length === 1), 'upgrade runs once (no duplicates after reload)');
+
+  // Real places: mock the Overpass API with a tiny response
+  const OVERPASS_MOCK = { elements: [
+    { type: 'node', id: 1, lat: 20.53, lon: -100.80, tags: { tourism: 'hotel', name: 'Small Local Inn' } },
+    { type: 'way', id: 2, center: { lat: 20.52, lon: -100.82 }, tags: { tourism: 'hotel', name: 'City Express Celaya', brand: 'City Express', 'addr:street': 'Av. Ejemplo', phone: '+52 461 000 0000' } },
+    { type: 'node', id: 3, lat: 20.525, lon: -100.81, tags: { amenity: 'fuel', name: 'OXXO Gas', brand: 'OXXO Gas' } },
+  ] };
+  let overpassCalls = 0;
+  await ctx3.route(/overpass/, (route) => { overpassCalls++; route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(OVERPASS_MOCK) }); });
+  await p3.click('[data-nav="plan"]');
+  await p3.evaluate(() => { const d = [...document.querySelectorAll('details.day-card')][5]; d.open = true; });
+  ok((await visibleText(p3)).includes('De regreso') && (await visibleText(p3)).includes('De ida'), 'Plan is grouped into going down / coming back');
+  await p3.click('details.day-card[open] [data-act="osmOpen"]');
+  await p3.waitForFunction(() => document.querySelector('#modal-body') && document.querySelector('#modal-body').innerText.includes('City Express Celaya'));
+  const firstHotel = await p3.evaluate(() => document.querySelector('#modal-body .list .entry b').textContent);
+  ok(firstHotel === 'City Express Celaya', 'real places load, chain hotels listed first');
+  await p3.click('#modal-body [data-act="osmSavePlace"]');
+  ok(await p3.evaluate(() => S.days[5].places.some((p) => p.osmId === 'w2')), 'a real place can be saved to My places');
+  await p3.click('[data-name="osmKind"][data-val="fuel"]');
+  ok((await p3.evaluate(() => document.querySelector('#modal-body').innerText)).includes('OXXO Gas'), 'fuel tab lists gas stations');
+  await p3.click('#modal-body [data-act="closeModal"]');
+  // Offline: cached results still show, no network call
+  const before = overpassCalls;
+  await ctx3.setOffline(true);
+  await p3.click('details.day-card[open] [data-act="osmOpen"]');
+  ok((await p3.evaluate(() => document.querySelector('#modal-body').innerText)).includes('City Express Celaya') && overpassCalls === before, 'saved places work offline');
+  await p3.click('#modal-body [data-act="closeModal"]');
+  await ctx3.setOffline(false);
+  await allViewsClean(p3, 'Spanish after upgrade');
+  await p3.screenshot({ path: path.join(process.env.SHOT_DIR || '/tmp', 'plan-upgraded-es.png') });
+  await ctx3.close();
+
+  // ── 4. Upgrade a phone that has the round-trip-via-Colombia version (seed v2) ──
+  console.log('Upgrade from the Colombia round-trip version (fixtures/v2-state.json)');
+  const V2 = fs.readFileSync(path.join(__dirname, 'fixtures/v2-state.json'), 'utf8');
+  const ctx4 = await browser.newContext({ viewport: { width: 412, height: 915 }, timezoneId: 'America/Chicago' });
+  const p4 = await ctx4.newPage();
+  p4.on('pageerror', (e) => errors.push(e.message));
+  await p4.goto(BASE + 'manifest.webmanifest');
+  await p4.evaluate((s) => { localStorage.clear(); localStorage.setItem('mexico-trip-v2', s); }, V2);
+  await p4.goto(BASE);
+  await p4.waitForSelector('.day-num');
+  const u4 = await p4.evaluate(() => ({
+    v: S.seedVersion, n: S.days.length, out4: S.days[3].to, ret2: S.days[7].to, ret5: S.days[10].to,
+    hours4: S.days[3].driveHours, route1: S.days[0].route,
+    notes5: S.days[4].tomorrowNotes.map((n) => (typeof n.text === 'object' ? n.text.en : n.text)),
+    done5: S.days[4].tomorrowNotes.find((n) => (n.text.en || '').startsWith('Have ready')).done,
+    own: S.days[5].tomorrowNotes.some((n) => n.text === 'My own note'),
+    tollKeys: S.expectedTolls.map((e) => e.key).join(','), exp: S.expenses.length, tolls: S.tolls.length,
+  }));
+  ok(u4.v === 3 && u4.n === 12 && u4.out4 === 'Eagle Pass, TX' && u4.ret2 === 'Eagle Pass, TX' && u4.ret5 === 'Kettleman City, CA (I-5)', 'Colombia days rerouted via Eagle Pass, both directions');
+  ok(u4.hours4 === '8 h (my estimate)' && u4.route1 === 'I-5 S (user edit)', 'fields the user edited are kept');
+  ok(u4.notes5.some((x) => x.startsWith('Check Puente 2')) && !u4.notes5.some((x) => x.includes('Puente Colombia hours')) && u4.done5, 'border-day notes switched to Puente 2; checked notes stay checked');
+  ok(u4.own && u4.exp === 1 && u4.tolls === 1, "user's own notes, expenses and tolls kept");
+  ok(u4.tollKeys.includes('out-bridge2') && u4.tollKeys.includes('ret-bridge2') && !u4.tollKeys.includes('ret-colombia') && u4.tollKeys.includes('out-40d'), 'expected tolls: Puente II added, unused Colombia ones removed, paid 40D kept');
+  await allViewsClean(p4, 'English after v2 upgrade');
+  await ctx4.close();
+
+  const realErrors = errors.filter((e) => !/net::ERR_INTERNET_DISCONNECTED|net::ERR_FAILED|Failed to fetch|frankfurter|jsdelivr|ERR_TUNNEL|ERR_PROXY|status of 40/i.test(e));
   ok(realErrors.length === 0, 'no JavaScript errors' + (realErrors.length ? ' → ' + realErrors.join(' | ') : ''));
 
   await browser.close();
