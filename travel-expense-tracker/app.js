@@ -55,8 +55,14 @@ function tx(v) {
 }
 const mapsSearch = (q) => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
 const mapsPoint = (lat, lng) => 'https://www.google.com/maps/search/?api=1&query=' + lat.toFixed(6) + ',' + lng.toFixed(6);
+/** Exact coordinates when known (Google can't misread them); otherwise the name without "(…)" notes. */
+function mapsPlace(lat, lng, name) {
+  if (num(lat) != null && num(lng) != null) return (+lat).toFixed(5) + ',' + (+lng).toFixed(5);
+  return String(name || '').replace(/\s*\([^)]*\)/g, '').trim();
+}
 function mapsRoute(day) {
-  let u = 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + encodeURIComponent(day.from) + '&destination=' + encodeURIComponent(day.to);
+  let u = 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + encodeURIComponent(mapsPlace(day.fromLat, day.fromLng, day.from)) +
+    '&destination=' + encodeURIComponent(mapsPlace(day.toLat, day.toLng, day.to));
   if (day.routeVia) u += '&waypoints=' + encodeURIComponent(day.routeVia);
   return u;
 }
@@ -1857,6 +1863,14 @@ function boot() {
     if (ui.view === 'today' && !typing && !$('#modal').classList.contains('open')) render();
   }, 60000);
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    // When an updated version takes over, reload once so it shows on the first open.
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || reloading) return;
+      reloading = true;
+      window.location.reload();
+    });
     navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW registration failed', e));
   }
 }
