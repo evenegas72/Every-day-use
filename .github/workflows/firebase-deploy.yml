@@ -13,11 +13,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Deploy only the sites whose folder changed in this push.
+      # Manual runs, first pushes and changes to firebase.json/.firebaserc deploy all sites (previous behavior).
+      - name: Decide which sites to deploy
+        id: sites
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          all() { echo "only=hosting" >> "$GITHUB_OUTPUT"; echo "Deploying all sites ($1)"; exit 0; }
+          [ "$EVENT" = "workflow_dispatch" ] && all "manual run"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            all "no previous commit to compare"
+          fi
+          CHANGED="$(git diff --name-only "$BEFORE" "$AFTER")"
+          echo "Changed files:"; echo "$CHANGED"
+          echo "$CHANGED" | grep -qE '^(firebase\.json|\.firebaserc)$' && all "hosting config changed"
+          TARGETS=""
+          echo "$CHANGED" | grep -q '^travel-expense-tracker/' && TARGETS="$TARGETS,hosting:trip-planner"
+          echo "$CHANGED" | grep -q '^a1c-roadmap/' && TARGETS="$TARGETS,hosting:a1c-roadmap"
+          echo "$CHANGED" | grep -q '^hub/' && TARGETS="$TARGETS,hosting:hub"
+          TARGETS="${TARGETS#,}"
+          echo "only=$TARGETS" >> "$GITHUB_OUTPUT"
+          echo "Deploying: ${TARGETS:-nothing (no site folders changed)}"
 
       - name: Authenticate to Google Cloud
+        if: steps.sites.outputs.only != ''
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
-      - name: Deploy all sites to Firebase Hosting
-        run: npx firebase-tools@latest deploy --only hosting --project rks-family-apps --non-interactive
+      - name: Deploy changed sites to Firebase Hosting
+        if: steps.sites.outputs.only != ''
+        run: npx firebase-tools@latest deploy --only "${{ steps.sites.outputs.only }}" --project rks-family-apps --non-interactive
