@@ -4,6 +4,7 @@
  */
 'use strict';
 
+const APP_VERSION = '2.5'; // keep in step with CACHE in sw.js ('mexico-trip-v2-5')
 const STORE_KEY = 'mexico-trip-v2';
 const LEGACY_KEY = 'travel-tracker-v1';
 const LEGACY_RATE_KEY = 'travel-tracker-rate';
@@ -276,14 +277,18 @@ function applySeedUpdates(st) {
     });
     ['stops', 'fuelStops', 'fuelSearch', 'foodSearch', 'overnightSearch'].forEach((k) => { if (!Array.isArray(d[k])) d[k] = []; });
     // Tomorrow notes: seed notes in seed order (keeping done/ids), then the user's own notes.
+    // oldSeedEn: every note any earlier version shipped (outdated ones get removed).
+    // phoneHadEn: notes this phone's version (or older) shipped — missing ones were deleted by the user.
     const oldSeedEn = new Set(H.notes[sd.key] || []);
+    const phoneHadEn = new Set();
+    Object.keys(H.notesByVersion || {}).forEach((v) => { if (+v <= from) ((H.notesByVersion[v] || {})[sd.key] || []).forEach((en) => phoneHadEn.add(en)); });
     const seedNotes = window.SEED.tomorrow[i] || [];
     const seedEn = new Set(seedNotes.map((n) => n.en));
     const next = [];
     seedNotes.forEach((text) => {
       const ex = d.tomorrowNotes.find((n) => enOf(n.text) === text.en);
       if (ex) next.push(ex);
-      else if (!oldSeedEn.has(text.en)) next.push({ id: uid(), text: clone(text), done: false });
+      else if (!phoneHadEn.has(text.en)) next.push({ id: uid(), text: clone(text), done: false });
     });
     d.tomorrowNotes.forEach((n) => {
       const en = enOf(n.text);
@@ -1177,7 +1182,8 @@ function moreSettings() {
   </div>
   <div class="card ${deferredInstall ? '' : 'hidden'}" id="install-card"><h2>📲 ${t('install_title')}</h2>
     <button class="btn btn-primary btn-block" data-act="install">${t('install_btn')}</button></div>
-  <div class="card"><h2>📲 ${t('offline_title')}</h2><div class="small">${t('offline_desc')}</div></div>`;
+  <div class="card"><h2>📲 ${t('offline_title')}</h2><div class="small">${t('offline_desc')}</div>
+    <div class="small muted" style="margin-top:8px">${t('app_version', { v: APP_VERSION, p: S.seedVersion || 1 })}</div></div>`;
 }
 function notifyStateLabel() {
   if (!('Notification' in window)) return t('notify_unsupported');

@@ -12,7 +12,7 @@
  * Bump `version` whenever this file changes in a way existing phones should get.
  */
 window.SEED = (function () {
-  const version = 3;
+  const version = 4;
 
   const S = (name, lat, lng, r) => ({ name, lat, lng, r: r || 8000 });
   const GP = S('Grants Pass, OR', 42.4390, -123.3284);
@@ -35,6 +35,7 @@ window.SEED = (function () {
   const FST = S('Fort Stockton, TX', 30.8940, -102.8793);
   const SAN = S('Sanderson, TX', 30.1424, -102.3940);
   const VHN = S('Van Horn, TX', 31.0399, -104.8307);
+  const GYR = S('Goodyear, AZ (I-10)', 33.4353, -112.3577, 6000);
   // Border-day links: live bridge waits and backup crossings.
   const BORDER_LINKS = [
     { label: { en: 'Bridge wait times (filadepuentes)', es: 'Tiempos de espera (filadepuentes)' }, url: 'https://filadepuentes.com/cruces' },
@@ -47,53 +48,53 @@ window.SEED = (function () {
   const days = [
     {
       key: 'out1', leg: 'out', date: '2026-12-12',
-      from: 'Grants Pass, OR', to: 'Buttonwillow, CA (I-5)',
-      fromLat: 42.4390, fromLng: -123.3284, toLat: 35.4005, toLng: -119.4696,
+      from: 'Grants Pass, OR', to: 'Kettleman City, CA (I-5)',
+      fromLat: 42.4390, fromLng: -123.3284, toLat: 36.0083, toLng: -119.9618,
       country: 'US', startTz: 'America/Los_Angeles', arriveTz: 'America/Los_Angeles',
-      distanceMi: 565, distanceNote: '~565 mi (est.; Google to downtown Bakersfield: 614 mi, 9 h 40)',
+      distanceMi: 540, distanceNote: '~540 mi (est.; Google to Buttonwillow: 595 mi, 9 h 38)',
       driveHours: '~8 h 45', start: '06:00', arrive: '15:45',
-      route: 'I-5 S all the way (stays on I-5 past Bakersfield, no city detour)',
-      notes: { en: 'Longest day of the trip: keep stops short (combine fuel + food). Overnight right on I-5 so Day 2 starts on the highway. Bakersfield (~25 mi further) has more hotels if needed.', es: 'El día más largo del viaje: paradas cortas (juntar gasolina + comida). Dormir junto a la I-5 para que el Día 2 empiece en la carretera. Bakersfield (~25 mi más) tiene más hoteles si hace falta.' },
-      stops: [GP, S('Redding, CA', 40.5865, -122.3917), S('Williams, CA', 39.1546, -122.1494), S('Dunnigan, CA', 38.8857, -121.9694), KET, BTW],
+      route: 'I-5 S all the way to Kettleman City (CA-41 exit)',
+      notes: { en: 'Kettleman City is a classic I-5 stop: hotels, In-N-Out, gas. Arrive with time to eat and rest.', es: 'Kettleman City es una parada clásica de la I-5: hoteles, In-N-Out, gasolina. Llegar con tiempo para comer y descansar.' },
+      stops: [GP, S('Redding, CA', 40.5865, -122.3917), S('Williams, CA', 39.1546, -122.1494), S('Dunnigan, CA', 38.8857, -121.9694), KET],
       fuelStops: [
         { en: 'Fill up in Grants Pass (cheaper than CA).', es: 'Llenar el tanque en Grants Pass (más barato que CA).' },
         { en: 'Refuel at Williams / Dunnigan, CA (~290 mi).', es: 'Recargar en Williams / Dunnigan, CA (~290 mi).' },
       ],
       fuelSearch: ['gas station Grants Pass OR', "Love's Travel Stop near Williams CA", 'Pilot Flying J near Dunnigan CA'],
       foodSearch: ['rest area I-5 near Redding CA', 'restaurants near Williams CA I-5', 'restaurants Kettleman City CA'],
-      overnightSearch: ['hotels Buttonwillow CA I-5', 'hotels Kettleman City CA', 'hotels near I-5 Bakersfield CA'],
+      overnightSearch: ['hotels Kettleman City CA', 'Best Western Kettleman City', 'hotels Lost Hills CA I-5'],
     },
     {
       key: 'out2', leg: 'out', date: '2026-12-13',
-      from: 'Buttonwillow, CA (I-5)', to: 'Phoenix, AZ (Chandler/Tempe)',
-      fromLat: 35.4005, fromLng: -119.4696, toLat: 33.3062, toLng: -111.8413,
+      from: 'Kettleman City, CA (I-5)', to: 'Goodyear, AZ (west Phoenix, I-10)',
+      fromLat: 36.0083, fromLng: -119.9618, toLat: 33.4353, toLng: -112.3577,
       country: 'US', startTz: 'America/Los_Angeles', arriveTz: 'America/Phoenix',
-      distanceMi: 520, distanceNote: '~520 mi (Google, from Bakersfield: 507 mi, 7 h 43)',
-      driveHours: '~8 h', start: '06:00', arrive: '16:00',
-      route: 'I-5 S (Grapevine), I-210 E, I-10 E',
+      distanceMi: 540, distanceNote: '~540 mi (est.)',
+      driveHours: '~8 h 10', start: '06:00', arrive: '16:20',
+      route: 'I-5 S (Grapevine), I-210 E, I-10 E to Goodyear (stop before Phoenix traffic)',
       tzNote: { en: 'Clocks +1 h at the Arizona line (Arizona MST, no DST).', es: 'Reloj +1 h al entrar a Arizona (MST, sin horario de verano).' },
       notes: { en: '', es: '' },
-      stops: [BTW, S('Banning, CA', 33.9256, -116.8764), S('Chiriaco Summit, CA', 33.6614, -115.7219), S('Blythe, CA', 33.6103, -114.5964), S('Quartzsite, AZ', 33.6639, -114.2299), S('Tonopah, AZ', 33.4934, -112.9363), PHX],
+      stops: [KET, BTW, S('Banning, CA', 33.9256, -116.8764), S('Chiriaco Summit, CA', 33.6614, -115.7219), S('Blythe, CA', 33.6103, -114.5964), S('Quartzsite, AZ', 33.6639, -114.2299), S('Tonopah, AZ', 33.4934, -112.9363), GYR],
       fuelStops: [
         { en: 'Buy only what you need in CA.', es: 'En CA cargar solo lo necesario.' },
         { en: 'Refuel at Blythe / Quartzsite at the AZ line.', es: 'Recargar en Blythe / Quartzsite en la línea con AZ.' },
       ],
       fuelSearch: ["Love's Travel Stop near Quartzsite AZ", 'Pilot Flying J near Blythe CA', 'TA Travel Center near Tonopah AZ'],
       foodSearch: ['restaurants near Banning CA I-10', 'rest area I-10 near Chiriaco Summit CA', 'restaurants near Quartzsite AZ'],
-      overnightSearch: ['hotels near I-10 Chandler AZ', 'Holiday Inn Express Chandler AZ', 'Hampton Inn Tempe AZ'],
+      overnightSearch: ['hotels Goodyear AZ I-10', 'Hampton Inn Goodyear AZ', 'Holiday Inn Express Goodyear AZ'],
     },
     {
       key: 'out3', leg: 'out', date: '2026-12-14',
-      from: 'Phoenix, AZ', to: 'El Paso, TX',
-      fromLat: 33.3062, fromLng: -111.8413, toLat: 31.7619, toLng: -106.4850,
+      from: 'Goodyear, AZ (west Phoenix, I-10)', to: 'El Paso, TX',
+      fromLat: 33.4353, fromLng: -112.3577, toLat: 31.7619, toLng: -106.4850,
       country: 'US', startTz: 'America/Phoenix', arriveTz: 'America/Denver',
-      distanceMi: 413, distanceNote: '413 mi (Google)',
-      driveHours: '6 h 10', start: '06:00', arrive: '14:00',
-      route: 'I-10 E',
+      distanceMi: 448, distanceNote: '~448 mi (Google from Chandler: 413 mi, 6 h 10)',
+      driveHours: '~6 h 45', start: '06:00', arrive: '14:00',
+      route: 'I-10 E through Phoenix (early, before Monday traffic)',
       notes: { en: 'Short rest day.', es: 'Día corto de descanso.' },
-      stops: [PHX, S('Benson, AZ', 31.9679, -110.2945), S('Willcox, AZ', 32.2529, -109.8320), S('Lordsburg, NM', 32.3504, -108.7087), S('Deming, NM', 32.2687, -107.7586), ELP],
+      stops: [GYR, PHX, S('Benson, AZ', 31.9679, -110.2945), S('Willcox, AZ', 32.2529, -109.8320), S('Lordsburg, NM', 32.3504, -108.7087), S('Deming, NM', 32.2687, -107.7586), ELP],
       fuelStops: [
-        { en: 'Fill up in Phoenix.', es: 'Llenar el tanque en Phoenix.' },
+        { en: 'Fill up in Goodyear.', es: 'Llenar el tanque en Goodyear.' },
         { en: 'Refuel at Lordsburg or Deming, NM.', es: 'Recargar en Lordsburg o Deming, NM.' },
       ],
       fuelSearch: ["Love's Travel Stop near Lordsburg NM", 'Pilot Flying J near Deming NM', 'TA Travel Center near Willcox AZ'],
@@ -223,35 +224,35 @@ window.SEED = (function () {
     },
     {
       key: 'ret4', leg: 'return', date: '2027-01-05',
-      from: 'El Paso, TX', to: 'Phoenix, AZ (Chandler/Tempe)',
-      fromLat: 31.7619, fromLng: -106.4850, toLat: 33.3062, toLng: -111.8413,
+      from: 'El Paso, TX', to: 'Goodyear, AZ (west Phoenix, I-10)',
+      fromLat: 31.7619, fromLng: -106.4850, toLat: 33.4353, toLng: -112.3577,
       country: 'US', startTz: 'America/Denver', arriveTz: 'America/Phoenix',
-      distanceMi: 413, distanceNote: '413 mi (Google)',
-      driveHours: '6 h 10', start: '06:00', arrive: '13:30',
-      route: 'I-10 W',
+      distanceMi: 448, distanceNote: '~448 mi (Google to Chandler: 413 mi, 6 h 10)',
+      driveHours: '~6 h 45', start: '06:00', arrive: '14:00',
+      route: 'I-10 W through Phoenix to Goodyear',
       notes: { en: 'Short rest day.', es: 'Día corto de descanso.' },
-      stops: [ELP, S('Deming, NM', 32.2687, -107.7586), S('Lordsburg, NM', 32.3504, -108.7087), S('Willcox, AZ', 32.2529, -109.8320), S('Benson, AZ', 31.9679, -110.2945), PHX],
+      stops: [ELP, S('Deming, NM', 32.2687, -107.7586), S('Lordsburg, NM', 32.3504, -108.7087), S('Willcox, AZ', 32.2529, -109.8320), S('Benson, AZ', 31.9679, -110.2945), PHX, GYR],
       fuelStops: [
         { en: 'Fill up in El Paso.', es: 'Llenar el tanque en El Paso.' },
         { en: 'Refuel at Deming or Lordsburg, NM.', es: 'Recargar en Deming o Lordsburg, NM.' },
       ],
       fuelSearch: ['Pilot Flying J near Deming NM', "Love's Travel Stop near Lordsburg NM", 'TA Travel Center near Willcox AZ'],
       foodSearch: ['restaurants near Deming NM', 'restaurants near Willcox AZ', 'restaurants near Benson AZ I-10'],
-      overnightSearch: ['hotels near I-10 Chandler AZ', 'Holiday Inn Express Chandler AZ', 'Hampton Inn Tempe AZ'],
+      overnightSearch: ['hotels Goodyear AZ I-10', 'Hampton Inn Goodyear AZ', 'Holiday Inn Express Goodyear AZ'],
     },
     {
       key: 'ret5', leg: 'return', date: '2027-01-06',
-      from: 'Phoenix, AZ', to: 'Kettleman City, CA (I-5)',
-      fromLat: 33.3062, fromLng: -111.8413, toLat: 36.0083, toLng: -119.9618,
+      from: 'Goodyear, AZ (west Phoenix, I-10)', to: 'Kettleman City, CA (I-5)',
+      fromLat: 33.4353, fromLng: -112.3577, toLat: 36.0083, toLng: -119.9618,
       country: 'US', startTz: 'America/Phoenix', arriveTz: 'America/Los_Angeles',
-      distanceMi: 565, distanceNote: '~565 mi (est.)',
-      driveHours: '~8 h 30', start: '06:00', arrive: '14:45',
+      distanceMi: 540, distanceNote: '~540 mi (est.)',
+      driveHours: '~8 h 10', start: '06:00', arrive: '14:30',
       route: 'I-10 W, I-210 W, I-5 N (Grapevine), stay on I-5 to Kettleman City',
       tzNote: { en: 'Clocks −1 h at the California line (Pacific time).', es: 'Reloj −1 h al entrar a California (hora del Pacífico).' },
       notes: { en: 'Going past Bakersfield to Kettleman City leaves more daylight for the mountains tomorrow.', es: 'Pasar Bakersfield hasta Kettleman City deja más luz de día para la sierra mañana.' },
-      stops: [PHX, S('Tonopah, AZ', 33.4934, -112.9363), S('Quartzsite, AZ', 33.6639, -114.2299), S('Blythe, CA', 33.6103, -114.5964), S('Chiriaco Summit, CA', 33.6614, -115.7219), S('Banning, CA', 33.9256, -116.8764), BTW, KET],
+      stops: [GYR, S('Tonopah, AZ', 33.4934, -112.9363), S('Quartzsite, AZ', 33.6639, -114.2299), S('Blythe, CA', 33.6103, -114.5964), S('Chiriaco Summit, CA', 33.6614, -115.7219), S('Banning, CA', 33.9256, -116.8764), BTW, KET],
       fuelStops: [
-        { en: 'Fill up in Phoenix (cheaper than CA).', es: 'Llenar el tanque en Phoenix (más barato que CA).' },
+        { en: 'Fill up in Goodyear (cheaper than CA).', es: 'Llenar el tanque en Goodyear (más barato que CA).' },
         { en: 'Top off at Quartzsite, AZ before the California line; buy only what you need in CA.', es: 'Completar en Quartzsite, AZ antes de entrar a California; en CA cargar solo lo necesario.' },
       ],
       fuelSearch: ['TA Travel Center near Tonopah AZ', "Love's Travel Stop near Quartzsite AZ", 'gas station Kettleman City CA'],
@@ -263,8 +264,8 @@ window.SEED = (function () {
       from: 'Kettleman City, CA (I-5)', to: 'Grants Pass, OR',
       fromLat: 36.0083, fromLng: -119.9618, toLat: 42.4390, toLng: -123.3284,
       country: 'US', startTz: 'America/Los_Angeles', arriveTz: 'America/Los_Angeles',
-      distanceMi: 520, distanceNote: '~520 mi (est.)',
-      driveHours: '~8 h', start: '06:00', arrive: '15:15',
+      distanceMi: 540, distanceNote: '~540 mi (est.; Google Buttonwillow – Grants Pass: 595 mi, 9 h 38)',
+      driveHours: '~8 h 45', start: '06:00', arrive: '15:45',
       route: 'I-5 N',
       notes: { en: 'Home! Siskiyou Pass in January: check chain controls before leaving.', es: '¡A casa! Siskiyou Pass en enero: revisar control de cadenas antes de salir.' },
       stops: [KET, S('Dunnigan, CA', 38.8857, -121.9694), S('Williams, CA', 39.1546, -122.1494), S('Redding, CA', 40.5865, -122.3917), GP],
@@ -292,6 +293,7 @@ window.SEED = (function () {
     [ // before out2
       { en: 'Check Caltrans for Grapevine (I-5 Tejon Pass) closures from snow or wind.', es: 'Revisar Caltrans por cierres en el Grapevine (I-5 Tejon Pass) por nieve o viento.' },
       { en: 'Leave at 6 AM to clear LA on Sunday morning.', es: 'Salir a las 6 AM para pasar LA el domingo temprano.' },
+      { en: 'Tule fog is common in the San Joaquin Valley on December mornings: if visibility is very low, wait at the hotel until it lifts (check Caltrans QuickMap).', es: 'La neblina (tule fog) es común en el Valle de San Joaquín en las mañanas de diciembre: si casi no se ve, esperar en el hotel a que se levante (revisar Caltrans QuickMap).' },
       { en: 'Clocks move +1 h in Arizona.', es: 'El reloj se adelanta +1 h en Arizona.' },
       { en: 'CA gas is expensive: buy only enough to reach Blythe/Quartzsite.', es: 'La gasolina en CA es cara: cargar solo lo necesario para llegar a Blythe/Quartzsite.' },
     ],
@@ -357,6 +359,7 @@ window.SEED = (function () {
     ],
     [ // before ret6
       { en: 'Check Caltrans QuickMap and ODOT TripCheck for snow and chain controls on Mt. Shasta / Siskiyou Pass. Carry chains.', es: 'Revisar Caltrans QuickMap y ODOT TripCheck por nieve y control de cadenas en Mt. Shasta / Siskiyou Pass. Llevar cadenas.' },
+      { en: 'Tule fog is common in the valley on January mornings: if visibility is very low, wait at the hotel until it lifts.', es: 'La neblina (tule fog) es común en el valle en las mañanas de enero: si casi no se ve, esperar en el hotel a que se levante.' },
       { en: 'If the pass is closed or chains are required late in the day, stop in Redding and finish in the morning.', es: 'Si el paso está cerrado o piden cadenas tarde, dormir en Redding y terminar en la mañana.' },
       { en: 'Export a JSON backup of the trip (More → Data).', es: 'Exportar un respaldo JSON del viaje (Más → Datos).' },
     ],
