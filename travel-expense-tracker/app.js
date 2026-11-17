@@ -146,15 +146,19 @@ function fmtEconomy(mpg) {
 function defaultSettings() {
   return { lang: 'en', units: 'mi', theme: 'dark', travelerName: '', manualRate: null, tankGal: 19.4, mpg: 23, usWarnMi: 300, notify: false };
 }
-function seedDays() {
-  return window.SEED.days.map((d, i) => Object.assign(clone(d), {
+function seedDay(d, i) {
+  return Object.assign(clone(d), {
     id: uid(), status: 'not_started', checkins: [], places: [],
     tomorrowNotes: (window.SEED.tomorrow[i] || []).map((text) => ({ id: uid(), text: clone(text), done: false })),
-  }));
+  });
 }
+function seedDays() { return window.SEED.days.map(seedDay); }
+const seedDoc = (d) => ({ id: uid(), key: d.key, text: clone(d.text), done: false });
+const seedToll = (e) => Object.assign(clone(e), { id: uid(), skipped: false });
 function defaultState() {
   return {
     schema: SCHEMA,
+    seedVersion: window.SEED.version,
     createdAt: new Date().toISOString(),
     settings: defaultSettings(),
     rate: { value: null, date: null, source: 'default' },
@@ -163,10 +167,10 @@ function defaultState() {
     days: seedDays(),
     expenses: [],
     tolls: [],
-    expectedTolls: window.SEED.expectedTolls.map((e) => Object.assign(clone(e), { id: uid(), skipped: false })),
+    expectedTolls: window.SEED.expectedTolls.map(seedToll),
     fuel: [],
     odometer: [],          // manual odometer readings {id, ts, value, unit}
-    docs: window.SEED.docs.map((text) => ({ id: uid(), text: clone(text), done: false })),
+    docs: window.SEED.docs.map(seedDoc),
     notified: {},
     migration: null,
   };
@@ -214,7 +218,7 @@ function upgrade(st) {
   if (typeof st.budgetOverallUSD !== 'number') st.budgetOverallUSD = num(st.budgetOverallUSD) || 0;
   st.days.forEach((day) => {
     day.id = day.id || uid();
-    ['checkins', 'places', 'tomorrowNotes', 'fuelStops', 'fuelSearch', 'foodSearch', 'overnightSearch'].forEach((k) => { if (!Array.isArray(day[k])) day[k] = []; });
+    ['checkins', 'places', 'tomorrowNotes', 'fuelStops', 'fuelSearch', 'foodSearch', 'overnightSearch', 'stops'].forEach((k) => { if (!Array.isArray(day[k])) day[k] = []; });
     day.status = day.status || 'not_started';
     day.startTz = day.startTz || 'America/Chicago';
     day.arriveTz = day.arriveTz || day.startTz;
@@ -223,10 +227,98 @@ function upgrade(st) {
   st.schema = SCHEMA;
   return st;
 }
+/* ── Seed updates for phones that already have data ──────────────────────────
+ * Version 1 (first release) had only the 6 outbound days. Version 2 adds the
+ * return trip, stop towns, return tolls, round-trip budget and new documents.
+ * Rules: only ADD missing seed items; only CHANGE a value if it still equals
+ * what version 1 shipped (i.e. the user never edited it). Nothing is deleted,
+ * and a backup copy is saved first.
+ */
+const V1 = {
+  tomorrowLen: { out1: 7, out2: 4, out3: 2, out4: 3, out5: 7, out6: 6 },
+  out6Start: '07:15',
+  out6NotesEn: 'Fallback overnight: San Luis Potosí (~450 km).',
+  out6SunriseEn: 'Leave at sunrise (~7:15 AM), not earlier.',
+  budget: {
+    fuel: [570, '~$570 one way'], toll: [1400, 'Mexican tolls ~MX$1,400'], hotel: [650, '$100–130/night × 5 nights'],
+    food: [360, '$40–60/day × 6 days'], bridge: [0, 'Bridge toll (cash)'], permits: [355, 'TIP ~$55 + Mexican insurance $150–300'],
+  },
+  docsEn: {
+    passports: 'Passports (everyone)', license: "Driver's license", registration: 'Vehicle registration / title',
+    tip: 'TIP (Banjercito, available online up to 60 days ahead)', insurance: 'Mexican auto insurance', usd: 'USD cash',
+    mxn: 'MXN cash', tag: 'TAG for tolls', charger: 'Phone charger', papermap: 'Paper map',
+  },
+  tollNames: ['Puente Internacional Colombia', 'Monterrey – Nuevo Laredo', 'Monterrey – Saltillo', 'Saltillo – San Luis Potosí – Querétaro casetas', 'Libramiento Noreste de Querétaro', 'Querétaro – Celaya'],
+};
+const enOf = (v) => (v && typeof v === 'object' ? v.en : v);
+function applySeedUpdates(st) {
+  const SEED = window.SEED;
+  const from = st.seedVersion || 1;
+  if (from >= SEED.version) return null;
+  try { localStorage.setItem(BACKUP_KEY, JSON.stringify(st)); } catch (e) { /* ignore */ }
+  const added = { days: 0, tolls: 0, docs: 0 };
+
+  SEED.days.forEach((sd, i) => {
+    const d = st.days.find((x) => x.key === sd.key) || st.days.find((x) => !x.key && x.date === sd.date);
+    if (d) {
+      d.key = sd.key;
+      d.leg = d.leg || sd.leg;
+      if (!Array.isArray(d.stops) || !d.stops.length) d.stops = clone(sd.stops);
+      if (sd.key === 'out6') {
+        if (d.start === V1.out6Start) d.start = sd.start;
+        if (enOf(d.notes) === V1.out6NotesEn) d.notes = clone(sd.notes);
+        d.tomorrowNotes.forEach((n) => { if (enOf(n.text) === V1.out6SunriseEn) n.text = clone(SEED.tomorrow[i][0]); });
+      }
+      const oldLen = V1.tomorrowLen[sd.key];
+      if (oldLen != null) {
+        (SEED.tomorrow[i] || []).slice(oldLen).forEach((text) => {
+          if (!d.tomorrowNotes.some((n) => enOf(n.text) === text.en)) d.tomorrowNotes.push({ id: uid(), text: clone(text), done: false });
+        });
+      }
+    } else if (sd.leg === 'return') {
+      st.days.push(seedDay(sd, i)); added.days++;
+    }
+  });
+  st.days.forEach((d) => { if (!d.leg) d.leg = 'out'; });
+  st.days.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+  st.expectedTolls.forEach((e) => {
+    if (!e.key) { const k = V1.tollNames.indexOf(e.name); if (k >= 0) e.key = SEED.expectedTolls[k].key; }
+    if (!e.leg) e.leg = 'out';
+  });
+  SEED.expectedTolls.forEach((se) => {
+    if (se.leg === 'return' && !st.expectedTolls.some((e) => e.key === se.key)) { st.expectedTolls.push(seedToll(se)); added.tolls++; }
+  });
+
+  SEED.budget.forEach((sb) => {
+    const b = st.budget.find((x) => x.cat === sb.cat), old = V1.budget[sb.cat];
+    if (b && old && num(b.amount) === old[0] && enOf(b.note) === old[1] && b.currency === sb.currency) { b.amount = sb.amount; b.note = clone(sb.note); }
+  });
+
+  st.docs.forEach((d) => {
+    if (d.key) return;
+    const k = Object.keys(V1.docsEn).find((key) => V1.docsEn[key] === enOf(d.text));
+    if (k) { d.key = k; if (k === 'insurance') d.text = clone(SEED.docs.find((x) => x.key === k).text); }
+  });
+  SEED.docs.forEach((sd) => {
+    if (!V1.docsEn[sd.key] && !st.docs.some((d) => d.key === sd.key)) { st.docs.push(seedDoc(sd)); added.docs++; }
+  });
+
+  st.seedVersion = SEED.version;
+  st.seedUpdate = { from, to: SEED.version, at: new Date().toISOString(), added };
+  return added;
+}
+function runSeedUpdates() {
+  try {
+    const next = clone(S);
+    const added = applySeedUpdates(next);
+    if (added) { S = next; save(); ui.notice = t('plan_updated', { d: added.days, t: added.tolls, c: added.docs }); }
+  } catch (e) { console.warn('Seed update skipped', e); }
+}
 function load() {
   const raw = localStorage.getItem(STORE_KEY);
   if (raw) {
-    try { S = upgrade(JSON.parse(raw)); return; } catch (e) {
+    try { S = upgrade(JSON.parse(raw)); runSeedUpdates(); return; } catch (e) {
       // Never discard: keep the unreadable copy aside and rebuild.
       try { localStorage.setItem(STORE_KEY + '-unreadable-' + Date.now(), raw); } catch (e2) { /* ignore */ }
     }
@@ -343,9 +435,7 @@ function fuelStats() {
 function rangeInfo() {
   const st = fuelStats();
   const rangeMi = (num(S.settings.tankGal) || 19.4) * (num(S.settings.mpg) || 23);
-  const idx = currentDayIdx();
-  const day = S.days[idx];
-  const inMexico = day && day.country !== 'US' && localDateStr() >= day.date;
+  const inMexico = countryOn() === 'MX';
   if (!st.lastFull) return { known: false, rangeMi, inMexico };
   const odo = currentOdoMi();
   const since = odo != null ? Math.max(0, odo - st.lastFull.mi) : 0;
@@ -379,7 +469,7 @@ function dayChecks(day) {
   }
   if (latestMin != null && arriveMin != null && arriveMin > latestMin) warnings.push(t('warn_after_sunset', { arrive: fmtHHMM(day.arrive), latest }));
   if (isUS && arriveMin != null && arriveMin > 17 * 60) warnings.push(t('warn_us_late'));
-  if (day.country === 'MX' && sunriseMin != null && startMin != null && startMin < sunriseMin) warnings.push(t('warn_before_sunrise', { start: fmtHHMM(day.start), sunrise: fmtClock(sun.startSunrise, day.startTz) }));
+  if (day.country !== 'US' && MX_TZ.includes(day.startTz) && sunriseMin != null && startMin != null && startMin < sunriseMin) warnings.push(t('warn_before_sunrise', { start: fmtHHMM(day.start), sunrise: fmtClock(sun.startSunrise, day.startTz) }));
   if (day.date) {
     const diff = (tzOffsetMin(day.arriveTz, day.date) - tzOffsetMin(day.startTz, day.date)) / 60;
     const note = tx(day.tzNote) ? ' ' + tx(day.tzNote) : '';
@@ -426,11 +516,28 @@ function dueTomorrowDays(now = new Date()) {
     return now >= from && now < until;
   });
 }
+const MX_TZ = ['America/Monterrey', 'America/Mexico_City', 'America/Matamoros', 'America/Chihuahua', 'America/Hermosillo', 'America/Mazatlan', 'America/Tijuana', 'America/Ojinaga', 'America/Bahia_Banderas', 'America/Merida', 'America/Cancun'];
+function returnStartDate() {
+  const r = S.days.filter((d) => d.leg === 'return' && d.date).map((d) => d.date).sort();
+  return r[0] || null;
+}
+function legOfDate(date) { const r = returnStartDate(); return r && date >= r ? 'return' : 'out'; }
+const legOf = (day) => day.leg || legOfDate(day.date);
+/** 'MX' or 'US' for a date: based on the last plan day on or before it (border days count as Mexico, to be safe). */
+function countryOn(date = localDateStr()) {
+  const past = S.days.filter((d) => d.date && d.date <= date).sort((a, b) => a.date.localeCompare(b.date));
+  const d = past[past.length - 1];
+  if (!d) return 'US';
+  return d.country === 'US' ? 'US' : 'MX';
+}
+const normName = (s) => String(s || '').replace(/\(return\)|\(regreso\)/gi, '').trim().toLowerCase();
 function tollMatches(exp, entry) {
   if (entry.expectedId) return entry.expectedId === exp.id;
+  if ((exp.leg || 'out') !== legOfDate(entry.date)) return false;
   const n = (s) => String(s || '').trim().toLowerCase();
-  if (n(entry.name) && n(entry.name) === n(exp.name)) return true;
-  return !!(exp.matchHighway && n(entry.highway).includes(n(exp.matchHighway)));
+  if (normName(entry.name) && normName(entry.name) === normName(exp.name)) return true;
+  if (exp.matchHighway) return n(entry.highway).includes(n(exp.matchHighway));
+  return !!(exp.highway && exp.highway !== 'Bridge' && n(entry.highway) === n(exp.highway));
 }
 function expectedStatus() {
   const assigned = new Set();
@@ -595,11 +702,27 @@ function dayFullCard(day, i) {
     <div class="link-list" style="margin-bottom:10px">${day.overnightSearch.map((q) => mapsBtn(q, '🏨')).join('')}</div>
     ${safetyChecklist()}
   </div>
+  <div class="section"><h3>🔎 ${t('osm_title')}</h3>
+    <div class="small muted" style="margin-bottom:8px">${t('osm_desc')}</div>
+    <button class="btn btn-block" data-act="osmOpen" data-day="${day.id}">🏨 ⛽ 🍽️ ${t('osm_btn')}</button>
+  </div>
   <div class="section"><h3>📌 ${t('my_places')}</h3>${placesList(day)}</div>
   <div class="section"><h3>🌙 ${t('tomorrow_notes_for', { n: i + 1 })}</h3>
     <div class="small muted" style="margin-bottom:6px">${t('tomorrow_explain')}</div>
     ${tomorrowList(day)}
   </div>`;
+}
+
+/** Days between the last outbound day and the first return day. */
+function familyWindow() {
+  const outs = S.days.filter((d) => legOf(d) === 'out' && d.date).map((d) => d.date).sort();
+  const ret = returnStartDate();
+  if (!outs.length || !ret) return null;
+  const add = (date, n) => { const x = new Date(date + 'T12:00:00'); x.setDate(x.getDate() + n); return localDateStr(x); };
+  const from = add(outs[outs.length - 1], 1), to = add(ret, -1);
+  if (from > to) return null;
+  const nights = Math.round((new Date(ret + 'T12:00:00') - new Date(outs[outs.length - 1] + 'T12:00:00')) / 86400e3);
+  return { from, to, returnDate: ret, nights };
 }
 
 // ─── TODAY ────────────────────────────────────────────────────────────────────
@@ -619,9 +742,17 @@ function viewToday() {
       ${tomorrowList(d)}</div>`;
   });
 
+  const daysUntil = (date) => Math.round((new Date(date + 'T12:00:00') - new Date(today + 'T12:00:00')) / 86400e3);
   if (today < S.days[0].date) {
-    const daysLeft = Math.round((new Date(S.days[0].date + 'T12:00:00') - new Date(today + 'T12:00:00')) / 86400e3);
-    html += `<div class="card accent"><div class="kicker">${t('countdown_kicker')}</div><div class="huge">${t('countdown', { n: daysLeft })}</div></div>`;
+    html += `<div class="card accent"><div class="kicker">${t('countdown_kicker')}</div><div class="huge">${t('countdown', { n: daysUntil(S.days[0].date) })}</div></div>`;
+  }
+  const fam = familyWindow();
+  if (fam && today >= fam.from && today <= fam.to) {
+    html += `<div class="card ok"><div class="kicker">${t('family_kicker')}</div><div class="big">🏡 ${t('family_title')}</div>
+      <div class="small" style="margin-top:4px">${t('family_return', { date: fmtDate(fam.returnDate), n: daysUntil(fam.returnDate) })}</div></div>`;
+  }
+  if (today > S.days[S.days.length - 1].date) {
+    html += `<div class="card ok"><div class="big">🏁 ${t('trip_done')}</div><div class="small">${t('trip_done_sub')}</div></div>`;
   }
 
   const prog = dayProgress(day, i);
@@ -649,7 +780,10 @@ function viewToday() {
     <a class="btn" href="${esc(mapsSearch(day.country === 'US' ? 'restaurant' : 'restaurante VIPS Sanborns Toks'))}" target="_blank" rel="noopener">🍽️ ${t('near_food')}</a>
     <a class="btn" href="${esc(mapsSearch(day.country === 'US' ? 'hotel' : 'hotel con estacionamiento vigilado'))}" target="_blank" rel="noopener">🏨 ${t('near_hotel')}</a>
   </div>
-  <a class="btn btn-block" style="margin-bottom:14px" href="${esc(mapsRoute(day))}" target="_blank" rel="noopener">🧭 ${t('open_route')}</a>
+  <div class="btn-grid" style="margin-bottom:14px">
+    <a class="btn" href="${esc(mapsRoute(day))}" target="_blank" rel="noopener">🧭 ${t('open_route')}</a>
+    <button class="btn" data-act="osmOpen" data-day="${day.id}">🏨 ${t('osm_btn')}</button>
+  </div>
   ${rangeCard(rg, true)}
   <div class="card"><div class="card-title"><h2>🕑 ${t('checkins_title')}</h2></div>
     ${day.checkins.length ? `<ul class="timeline">${day.checkins.slice().reverse().map((c) => `
@@ -686,9 +820,18 @@ function viewPlan() {
   let html = `<div class="card"><div class="card-title"><h2>🗺️ ${t('plan_title')}</h2></div>
     <div class="small muted">${t('plan_summary', { days: S.days.length, dist: fmtDist(total) })}</div>
     <div class="small" style="margin-top:6px">${t('maps_offline_tip')}</div></div>`;
+  const fam = familyWindow();
+  let lastLeg = null;
   html += S.days.map((day, i) => {
     const open = ui.openDays[day.id] != null ? ui.openDays[day.id] : i === cur;
-    return `<details class="card day-card" data-day-card="${day.id}" ${open ? 'open' : ''}>
+    const leg = legOf(day);
+    let head = '';
+    if (leg !== lastLeg) {
+      if (leg === 'return' && fam) head += `<div class="card ok"><div class="big">🏡 ${t('family_title')}</div><div class="small">${esc(fmtDate(fam.from))} – ${esc(fmtDate(fam.to))} · ${t('nights', { n: fam.nights })}</div></div>`;
+      head += `<h2 style="margin:18px 4px 10px">${leg === 'return' ? '⬆️ ' + t('leg_return') : '⬇️ ' + t('leg_out')}</h2>`;
+      lastLeg = leg;
+    }
+    return head + `<details class="card day-card" data-day-card="${day.id}" ${open ? 'open' : ''}>
       <summary>${dayHeader(day, i)}</summary>
       <div style="margin-top:10px">${dayFullCard(day, i)}</div>
       <div class="btn-grid" style="margin-top:14px">
@@ -800,10 +943,7 @@ function expenseForm(e) {
       <button class="btn btn-primary" type="submit" ${['fuel', 'toll', 'bridge'].includes(cat) && !isEdit ? 'disabled' : ''}>${isEdit ? t('save') : t('add_expense')}</button></div>
   </form>`;
 }
-function defaultCurrency() {
-  const d = S.days[currentDayIdx()];
-  return d && d.country === 'MX' && localDateStr() >= d.date ? 'MXN' : 'USD';
-}
+function defaultCurrency() { return countryOn() === 'MX' ? 'MXN' : 'USD'; }
 
 // ─── TOLLS ────────────────────────────────────────────────────────────────────
 function viewTolls() {
@@ -920,8 +1060,7 @@ function viewFuel() {
 }
 function fuelForm(f) {
   const isEdit = !!f.id;
-  const d = S.days[currentDayIdx()];
-  const mx = d && d.country !== 'US' && localDateStr() >= d.date;
+  const mx = countryOn() === 'MX';
   return `<form data-form="fuel" data-id="${esc(f.id || '')}">
     <div class="form-grid">
       <div class="field full"><label>${t('location')}</label><input name="location" value="${esc(f.location || '')}" placeholder="${esc(t('location_ph'))}"></div>
@@ -961,10 +1100,12 @@ function rulesCard() {
 }
 function moreEmergency() {
   const nums = [
-    ['911', t('em_911')], ['078', t('em_078')], ['088', t('em_088')], ['+528180473100', t('em_consulate'), true],
+    ['911', t('em_911'), false, '911'], ['078', t('em_078'), false, '078'], ['088', t('em_088'), false, '088'],
+    ['+525525792000', t('em_embassy'), false, '+52 55 2579 2000'],
+    ['+528180473100', t('em_consulate'), true, '+52 81 8047 3100'],
   ];
   return `<div class="card danger"><h2>🆘 ${t('emergency_title')}</h2><div class="stack">
-    ${nums.map(([n, label, verify]) => `<a class="btn btn-xl btn-block" href="tel:${n}" style="justify-content:space-between"><span>📞 ${esc(label)}</span><b>${esc(n === '+528180473100' ? '+52 81 8047 3100' : n)}</b></a>
+    ${nums.map(([n, label, verify, shown]) => `<a class="btn btn-xl btn-block" href="tel:${n}" style="justify-content:space-between"><span>📞 ${esc(label)}</span><b>${esc(shown)}</b></a>
       ${verify ? `<div class="hint">⚠️ ${t('verify_before_trip')}</div>` : ''}`).join('')}
   </div></div>${rulesCard()}`;
 }
@@ -1019,6 +1160,11 @@ function moreData() {
     <button class="btn btn-block" data-act="exportCsv" data-kind="tolls">⬇️ ${t('export_csv_tolls')}</button>
     <button class="btn btn-block" data-act="exportCsv" data-kind="fuel">⬇️ ${t('export_csv_fuel')}</button>
   </div></div>
+  <div class="card"><h2>🔎 ${t('osm_title')}</h2>
+    <div class="small muted" style="margin-bottom:8px">${t('osm_bulk_desc', { n: allStops().length, c: Object.keys(osmCache()).length })}</div>
+    <button class="btn btn-block" data-act="osmBulk" ${navigator.onLine ? '' : 'disabled'}>⬇️ ${t('osm_bulk_btn')}</button>
+    <div class="small" id="osm-progress" style="margin-top:6px"></div>
+  </div>
   <div class="card"><h2>⬆️ ${t('import_title')}</h2>
     <div class="small muted" style="margin-bottom:8px">${t('import_desc')}</div>
     <label class="btn btn-block">📂 ${t('import_btn')}<input type="file" accept="application/json,.json" data-change="importFile" class="hidden"></label>
@@ -1027,6 +1173,7 @@ function moreData() {
     <div class="small">${t('storage_used', { kb: (used / 1024).toFixed(1) })}</div>
     <div class="small">${t('counts', { e: S.expenses.length, t: S.tolls.length, f: S.fuel.length, d: S.days.length })}</div>
     ${m ? `<div class="small" style="margin-top:6px">${t('migration_info', { n: m.expenses, date: fmtDateTime(m.at) })}</div>` : ''}
+    ${S.seedUpdate ? `<div class="small" style="margin-top:6px">${t('plan_updated_info', { date: fmtDateTime(S.seedUpdate.at), d: S.seedUpdate.added.days, t: S.seedUpdate.added.tolls, c: S.seedUpdate.added.docs })}</div>` : ''}
     ${localStorage.getItem(BACKUP_KEY) ? `<div class="small" style="margin-top:6px">${t('backup_exists')}</div>
       <button class="btn btn-sm" style="margin-top:6px" data-act="restoreBackup">↩️ ${t('restore_backup')}</button>` : ''}
   </div>`;
@@ -1166,10 +1313,156 @@ function expectedModal(exp) {
   </div><div class="modal-actions"><button type="button" class="btn" data-act="closeModal">${t('cancel')}</button><button class="btn btn-primary" type="submit">${t('save')}</button></div></form>`);
 }
 
+// ─── Real places from OpenStreetMap (Overpass API) ────────────────────────────
+// Real, community-maintained data: names, brands, addresses, phone (when mapped).
+// Results are cached on the phone so they work offline. Only town-center
+// coordinates from the plan are sent, never the user's own location.
+const OSM_CACHE_KEY = 'mexico-trip-osm';
+const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
+const CHAIN_RE = /fiesta (inn|americana)|city express|holiday inn|hampton|best western|la quinta|comfort (inn|suites)|courtyard|fairfield|one hotel|gamma|hilton|marriott|wyndham|days inn|super 8|motel 6|quality inn|sleep inn|microtel|camino real|pemex|oxxo|love'?s|pilot|flying j|travelcenters|\bta\b|petro|shell|chevron|exxon|valero|bp\b|g500|mobil|vips|sanborns|toks|denny|ihop|subway|mcdonald|carl'?s|burger king|wendy|starbucks|whataburger|cracker barrel|panda express|chick-fil-a|taco bell|domino|little caesars|kfc/i;
+const OSM_KINDS = ['hotel', 'fuel', 'food'];
+const stopKey = (s) => (+s.lat).toFixed(3) + ',' + (+s.lng).toFixed(3);
+function osmCache() { try { return JSON.parse(localStorage.getItem(OSM_CACHE_KEY) || '{}') || {}; } catch (e) { return {}; } }
+function osmStore(key, entry) {
+  const c = osmCache(); c[key] = entry;
+  try { localStorage.setItem(OSM_CACHE_KEY, JSON.stringify(c)); } catch (e) { toast(t('err_storage'), 'error'); }
+}
+function stopsFor(day) {
+  if (Array.isArray(day.stops) && day.stops.length) return day.stops;
+  return num(day.toLat) != null ? [{ name: day.to, lat: +day.toLat, lng: +day.toLng, r: 8000 }] : [];
+}
+function allStops() {
+  const seen = new Map();
+  S.days.forEach((d) => stopsFor(d).forEach((s) => { if (!seen.has(stopKey(s))) seen.set(stopKey(s), s); }));
+  return Array.from(seen.values());
+}
+function overpassQuery(s) {
+  const a = `(around:${Math.round(s.r || 8000)},${s.lat},${s.lng})`;
+  return `[out:json][timeout:25];nwr${a}[tourism~"^(hotel|motel)$"];out center tags 80;nwr${a}[amenity=fuel];out center tags 80;nwr${a}[amenity~"^(restaurant|fast_food)$"][brand];out center tags 80;`;
+}
+function parseOsm(json, stop) {
+  const seen = new Set();
+  return (json.elements || []).map((el) => {
+    const tg = el.tags || {};
+    const lat = el.lat != null ? el.lat : el.center && el.center.lat;
+    const lng = el.lon != null ? el.lon : el.center && el.center.lon;
+    const name = tg.name || tg.brand;
+    if (lat == null || lng == null || !name) return null;
+    const id = el.type.charAt(0) + el.id;
+    if (seen.has(id)) return null; seen.add(id);
+    const kind = tg.amenity === 'fuel' ? 'fuel' : tg.tourism ? 'hotel' : 'food';
+    const street = [tg['addr:street'], tg['addr:housenumber']].filter(Boolean).join(' ');
+    const addr = [street, tg['addr:city']].filter(Boolean).join(', ');
+    return {
+      id, kind, name, brand: tg.brand || '', lat: +(+lat).toFixed(6), lng: +(+lng).toFixed(6), addr,
+      phone: tg.phone || tg['contact:phone'] || '', stars: tg.stars || '', parking: !!(tg.parking || tg['parking:fee']),
+      chain: CHAIN_RE.test(name + ' ' + (tg.brand || '')), dist: haversineMi(stop, { lat: +lat, lng: +lng }),
+    };
+  }).filter(Boolean);
+}
+async function fetchOsm(stop) {
+  for (const url of OVERPASS) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 35000);
+      const res = await fetch(url, { method: 'POST', body: 'data=' + encodeURIComponent(overpassQuery(stop)), headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, signal: ctrl.signal });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error('http ' + res.status);
+      const items = parseOsm(await res.json(), stop);
+      osmStore(stopKey(stop), { at: new Date().toISOString(), name: stop.name, items });
+      return items;
+    } catch (e) { /* try the next server */ }
+  }
+  throw new Error('overpass');
+}
+function osmModal() {
+  const o = ui.osm; if (!o) return;
+  const day = findDay(o.dayId); if (!day) return;
+  const stops = stopsFor(day);
+  if (!stops.length) { openModal(`<h2>🔎 ${t('osm_title')}</h2><div class="small">${t('osm_no_coords')}</div><div class="modal-actions"><button class="btn" data-act="closeModal">${t('close')}</button></div>`); return; }
+  const stop = stops[clamp(o.stopIdx, 0, stops.length - 1)];
+  const cached = osmCache()[stopKey(stop)];
+  const items = cached ? cached.items.filter((x) => x.kind === o.kind)
+    .sort((a, b) => (b.chain - a.chain) || (a.dist - b.dist)).slice(0, o.all ? 60 : 15) : [];
+  const total = cached ? cached.items.filter((x) => x.kind === o.kind).length : 0;
+  const icon = { hotel: '🏨', fuel: '⛽', food: '🍽️' };
+  let body;
+  if (o.loading) body = `<div class="muted" style="padding:16px 0">⏳ ${t('osm_loading', { name: esc(stop.name) })}</div>`;
+  else if (!cached) body = `<div class="small muted" style="padding:10px 0">${navigator.onLine ? t('osm_not_loaded') : t('osm_offline_none')}</div>`;
+  else if (!items.length) body = `<div class="small muted" style="padding:10px 0">${t('osm_none')}</div>`;
+  else body = `<ul class="list">${items.map((x) => `
+    <li class="entry"><div style="font-size:1.3rem">${icon[x.kind]}</div>
+      <div class="grow"><b>${esc(x.name)}</b> ${x.chain ? `<span class="badge ok">${t('osm_chain')}</span>` : ''}
+        ${x.parking ? `<span class="badge">🅿️ ${t('osm_parking')}</span>` : ''} ${x.stars ? `<span class="badge">${'★'.repeat(Math.min(5, parseInt(x.stars, 10) || 0))}</span>` : ''}
+        <div class="sub">${fmtDist(x.dist)} ${t('osm_from', { name: esc(stop.name) })}${x.addr ? ' · ' + esc(x.addr) : ''}</div>
+        ${x.phone ? `<a class="small" href="tel:${esc(x.phone.replace(/[^+\d]/g, ''))}">📞 ${esc(x.phone)}</a>` : ''}
+        <div class="row" style="gap:6px;margin-top:6px">
+          <a class="btn btn-sm" href="${esc(mapsSearch(x.name + ', ' + (x.addr || stop.name)))}" target="_blank" rel="noopener">🗺️ Maps</a>
+          <button class="btn btn-sm" data-act="osmSavePlace" data-id="${esc(x.id)}">📌 ${t('save')}</button>
+        </div></div></li>`).join('')}</ul>
+    ${total > items.length ? `<button class="btn btn-sm btn-block" data-act="osmAll">${t('osm_show_all', { n: total })}</button>` : ''}`;
+  openModal(`<h2>🔎 ${t('osm_title')}</h2>
+    <div class="label" style="margin-bottom:6px">${t('osm_town')}</div>
+    <div class="chips" style="margin-bottom:10px">${stops.map((s, i) => `<button class="fchip ${i === o.stopIdx ? 'on' : ''}" data-act="osmStop" data-i="${i}">${esc(s.name)}</button>`).join('')}</div>
+    ${seg('osmKind', OSM_KINDS.map((k) => [k, icon[k] + ' ' + t('osm_kind_' + k)]), o.kind)}
+    <div class="row between small muted" style="margin:8px 0">
+      <span>${cached ? t('osm_saved_at', { date: fmtDateTime(cached.at) }) : ''}</span>
+      <button class="btn btn-sm" data-act="osmRefresh" ${navigator.onLine && !o.loading ? '' : 'disabled'}>🔄 ${cached ? t('osm_refresh') : t('osm_load')}</button>
+    </div>
+    ${o.kind === 'hotel' ? `<div class="small hint" style="margin-bottom:6px">${t('osm_hotel_tip')}</div>` : ''}
+    ${body}
+    <div class="small muted" style="margin-top:10px">${t('osm_attrib')}</div>
+    <div class="modal-actions"><button class="btn" data-act="closeModal">${t('close')}</button></div>`);
+}
+async function osmLoad() {
+  const o = ui.osm; const day = findDay(o.dayId); const stop = stopsFor(day)[o.stopIdx];
+  if (!stop) return;
+  o.loading = true; osmModal();
+  try { await fetchOsm(stop); } catch (e) { toast(t('osm_failed'), 'error'); }
+  o.loading = false;
+  if (ui.osm === o && $('#modal').classList.contains('open')) osmModal();
+}
+
 // ─── Actions (click delegation) ───────────────────────────────────────────────
 const findDay = (id) => S.days.find((d) => d.id === id);
+const findDayIndex = (day) => S.days.indexOf(day);
 const actions = {
   closeModal,
+  osmOpen(ds) {
+    const day = findDay(ds.day);
+    ui.osm = { dayId: ds.day, stopIdx: Math.max(0, stopsFor(day).length - 1), kind: 'hotel', all: false, loading: false };
+    osmModal();
+    const stop = stopsFor(day)[ui.osm.stopIdx];
+    if (stop && !osmCache()[stopKey(stop)] && navigator.onLine) osmLoad();
+  },
+  osmStop(ds) {
+    ui.osm.stopIdx = +ds.i; ui.osm.all = false; osmModal();
+    const stop = stopsFor(findDay(ui.osm.dayId))[ui.osm.stopIdx];
+    if (stop && !osmCache()[stopKey(stop)] && navigator.onLine) osmLoad();
+  },
+  osmAll() { ui.osm.all = true; osmModal(); },
+  osmRefresh() { osmLoad(); },
+  osmSavePlace(ds) {
+    const day = findDay(ui.osm.dayId), stop = stopsFor(day)[ui.osm.stopIdx];
+    const x = ((osmCache()[stopKey(stop)] || {}).items || []).find((i) => i.id === ds.id);
+    if (!x) return;
+    if (day.places.some((p) => p.osmId === x.id)) { toast(t('osm_already')); return; }
+    day.places.push({ id: uid(), osmId: x.id, name: x.name, type: x.kind, notes: [x.addr, x.phone].filter(Boolean).join(' · '), url: mapsSearch(x.name + ', ' + (x.addr || stop.name)) });
+    save(); toast(t('osm_saved_place', { n: findDayIndex(day) + 1 }));
+  },
+  async osmBulk(ds, el) {
+    const stops = allStops();
+    el.disabled = true;
+    let ok = 0, fail = 0;
+    for (let i = 0; i < stops.length; i++) {
+      const prog = $('#osm-progress');
+      if (prog) prog.textContent = t('osm_bulk_progress', { i: i + 1, n: stops.length, name: stops[i].name });
+      try { await fetchOsm(stops[i]); ok++; } catch (e) { fail++; }
+      await new Promise((r) => setTimeout(r, 1200)); // be gentle with the free public servers
+    }
+    toast(t('osm_bulk_done', { ok, fail }), fail ? 'error' : 'ok');
+    if (ui.view === 'more') render();
+  },
   toggleLang() { S.settings.lang = lang() === 'es' ? 'en' : 'es'; save(); render(); },
   toggleTheme() { S.settings.theme = S.settings.theme === 'sun' ? 'dark' : 'sun'; save(); render(); },
   openRate: rateModal,
@@ -1177,6 +1470,7 @@ const actions = {
   clearManualRate() { S.settings.manualRate = null; save(); closeModal(); render(); toast(t('rate_using_live')); },
   seg(ds) {
     const v = ds.val;
+    if (ds.name === 'osmKind') { ui.osm.kind = v; ui.osm.all = false; osmModal(); return; }
     if (ds.name === 'status') { S.days[ui.dayIdx].status = v; save(); }
     else if (ds.name === 'moreTab') ui.moreTab = v;
     else if (ds.name === 'lang' || ds.name === 'units' || ds.name === 'theme') { S.settings[ds.name] = v; save(); }
@@ -1292,10 +1586,9 @@ const forms = {
     if (!amount || amount <= 0) return toast(t('err_amount'), 'error');
     const ts = v.ts || localDateTimeInput();
     const name = v.name.trim();
-    let expectedId = v.expectedId || null;
-    const match = S.expectedTolls.find((e) => e.name.trim().toLowerCase() === name.toLowerCase());
-    if (match) expectedId = match.id;
-    const exp = S.expectedTolls.find((e) => e.id === expectedId);
+    const expectedId = v.expectedId || null;
+    const probe = { name, highway: v.highway.trim(), date: ts.slice(0, 10), expectedId };
+    const exp = S.expectedTolls.find((e) => tollMatches(e, probe));
     const kind = (exp && exp.kind) || (/puente|bridge/i.test(name + ' ' + v.highway) ? 'bridge' : 'toll');
     const rec = Object.assign({ name, highway: v.highway.trim(), payment: v.payment, ts, date: ts.slice(0, 10), expectedId, kind }, money(amount, v.currency));
     if (id) {
@@ -1442,7 +1735,7 @@ function importFile(input) {
       if (!data || !Array.isArray(data.days)) throw new Error('invalid');
       if (!confirm(t('confirm_import'))) return;
       localStorage.setItem(BACKUP_KEY, JSON.stringify(S));
-      S = upgrade(data); save(); ui.dayIdx = null; render(); toast(t('import_ok'));
+      S = upgrade(data); runSeedUpdates(); save(); ui.dayIdx = null; render(); toast(t('import_ok'));
     } catch (e) { toast(t('import_failed'), 'error'); }
     input.value = '';
   };
@@ -1527,6 +1820,7 @@ window.addEventListener('storage', (e) => { if (e.key === STORE_KEY && e.newValu
 function boot() {
   load();
   render();
+  if (ui.notice) { toast(ui.notice); ui.notice = null; }
   maybeFetchRate();
   checkTomorrowNotify();
   setInterval(() => {

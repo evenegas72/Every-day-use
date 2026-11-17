@@ -19,6 +19,16 @@ driving rules, check-ins and status sharing, spending in USD/MXN, a toll (caseta
 a fuel log with range alerts, heads-up notes for tomorrow, documents and emergency info.
 English/Spanish, miles/km, dark and high-contrast sunlight themes.
 
+The seeded plan is a round trip:
+- **Going down:** Dec 12–17, 2026, Grants Pass → Celaya via Puente Colombia.
+- **With family:** Dec 18 – Jan 1.
+- **Coming back:** Jan 2–7, 2027, the same route in reverse.
+
+**Real places:** each day lists towns along the route. "Real places nearby" looks up hotels, gas
+stations and branded restaurants around those towns from OpenStreetMap (Overpass API), lists
+chains first, and caches the results on the phone for offline use. Only the plan's town-center
+coordinates are sent, never the phone's location. Data © OpenStreetMap contributors.
+
 ### Files
 
 | File | Purpose |
@@ -26,7 +36,7 @@ English/Spanish, miles/km, dark and high-contrast sunlight themes.
 | `index.html` | App shell (header, bottom nav, modal) |
 | `app.js` | All app logic: state, migration, views, actions |
 | `i18n.js` | Every UI string, English and Spanish (same keys in both) |
-| `seed.js` | Seed itinerary, fuel stops, expected tolls, budget, notes, documents. **No personal data**: the repo is public. |
+| `seed.js` | Seed itinerary (both directions, with stop towns), fuel stops, expected tolls, budget, notes, documents. Has a `version` and stable `key`s. **No personal data**: the repo is public. |
 | `styles.css` | Styles (dark default, `sun` theme) |
 | `sw.js` | Service worker: precaches the app for offline use |
 | `manifest.webmanifest`, `icons/` | Install (PWA) metadata |
@@ -45,7 +55,15 @@ There is no server, Firestore or login.
   - transport, activities, shopping and other → Other (the original category is shown on each entry)
 
   The original key is **never modified or deleted**. Its cached exchange rate is reused too.
-- **Backups:** importing a backup or clearing expenses saves a copy under `mexico-trip-v2-backup`.
+- **Plan updates for phones that already have data:** when `seed.js` gets a higher `version`,
+  `applySeedUpdates()` in `app.js` merges it in on the next launch. It follows three rules:
+  - It only adds missing items: return days, tolls and documents.
+  - It only changes a value that still matches what the previous version shipped, so anything you edited is kept.
+  - It never deletes anything, and it saves a backup copy first.
+
+  The upgrade is tested against `tests/trip-planner/fixtures/first-release-state.json`, a snapshot taken from the first release.
+- **Real-places cache:** stored separately under `mexico-trip-osm`.
+- **Backups:** importing a backup, clearing expenses or applying a plan update saves a copy under `mexico-trip-v2-backup`.
   You can restore it from More → Data.
 - **Exports:** More → Data exports everything as JSON, plus CSV files for expenses, tolls and fuel.
   Importing a JSON backup asks before it replaces anything.
@@ -99,6 +117,8 @@ The test runs headless Chromium and covers:
 - time-zone changes
 - installability
 - loading with the network off
+- upgrading first-release data to the round-trip plan without losing edits
+- real places, using a mocked Overpass response
 
 ### Releasing a new version
 
