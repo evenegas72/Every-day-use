@@ -228,91 +228,112 @@ function upgrade(st) {
   return st;
 }
 /* ── Seed updates for phones that already have data ──────────────────────────
- * Version 1 (first release) had only the 6 outbound days. Version 2 adds the
- * return trip, stop towns, return tolls, round-trip budget and new documents.
- * Rules: only ADD missing seed items; only CHANGE a value if it still equals
- * what version 1 shipped (i.e. the user never edited it). Nothing is deleted,
- * and a backup copy is saved first.
+ * When seed.js gets a higher `version`, saved data is brought up to date using
+ * seed-history.js (every value previous versions shipped). Rules:
+ *  - a field is replaced only if its current value equals something a previous
+ *    version shipped (the user never edited it);
+ *  - only items that are new since the phone's version are added (so things the
+ *    user deleted do not come back);
+ *  - old seed items are removed only if untouched; expected tolls are kept when
+ *    a logged toll matches them. Expenses, tolls, fuel, check-ins, places and
+ *    the user's own notes are never touched. A backup copy is saved first.
  */
-const V1 = {
-  tomorrowLen: { out1: 7, out2: 4, out3: 2, out4: 3, out5: 7, out6: 6 },
-  out6Start: '07:15',
-  out6NotesEn: 'Fallback overnight: San Luis Potosí (~450 km).',
-  out6SunriseEn: 'Leave at sunrise (~7:15 AM), not earlier.',
-  budget: {
-    fuel: [570, '~$570 one way'], toll: [1400, 'Mexican tolls ~MX$1,400'], hotel: [650, '$100–130/night × 5 nights'],
-    food: [360, '$40–60/day × 6 days'], bridge: [0, 'Bridge toll (cash)'], permits: [355, 'TIP ~$55 + Mexican insurance $150–300'],
-  },
-  docsEn: {
-    passports: 'Passports (everyone)', license: "Driver's license", registration: 'Vehicle registration / title',
-    tip: 'TIP (Banjercito, available online up to 60 days ahead)', insurance: 'Mexican auto insurance', usd: 'USD cash',
-    mxn: 'MXN cash', tag: 'TAG for tolls', charger: 'Phone charger', papermap: 'Paper map',
-  },
-  tollNames: ['Puente Internacional Colombia', 'Monterrey – Nuevo Laredo', 'Monterrey – Saltillo', 'Saltillo – San Luis Potosí – Querétaro casetas', 'Libramiento Noreste de Querétaro', 'Querétaro – Celaya'],
-};
+const SEED_DAY_FIELDS = ['from', 'to', 'fromLat', 'fromLng', 'toLat', 'toLng', 'country', 'startTz', 'arriveTz', 'distanceMi',
+  'distanceNote', 'driveHours', 'start', 'arrive', 'route', 'routeVia', 'tzNote', 'notes', 'stops', 'fuelStops',
+  'fuelSearch', 'foodSearch', 'overnightSearch', 'links'];
+const SEED_TOLL_FIELDS = ['name', 'highway', 'estAmount', 'currency', 'kind', 'optional', 'note', 'matchHighway', 'leg'];
 const enOf = (v) => (v && typeof v === 'object' ? v.en : v);
+const jsonOf = (v) => JSON.stringify(v === undefined ? null : v);
 function applySeedUpdates(st) {
   const SEED = window.SEED;
+  const H = window.SEED_HISTORY || { versions: {}, days: {}, notes: {}, tolls: {}, budget: {}, docs: {}, v1TollNames: {}, v1Docs: {} };
   const from = st.seedVersion || 1;
   if (from >= SEED.version) return null;
   try { localStorage.setItem(BACKUP_KEY, JSON.stringify(st)); } catch (e) { /* ignore */ }
+  const had = H.versions[from] || { days: [], tolls: [], docs: [] };
+  const untouched = (hist, cur) => cur === undefined || cur === null || cur === '' || (Array.isArray(cur) && !cur.length) || (hist || []).includes(jsonOf(cur));
   const added = { days: 0, tolls: 0, docs: 0 };
+  let changed = 0;
 
+  // Days
   SEED.days.forEach((sd, i) => {
     const d = st.days.find((x) => x.key === sd.key) || st.days.find((x) => !x.key && x.date === sd.date);
-    if (d) {
-      d.key = sd.key;
-      d.leg = d.leg || sd.leg;
-      if (!Array.isArray(d.stops) || !d.stops.length) d.stops = clone(sd.stops);
-      if (sd.key === 'out6') {
-        if (d.start === V1.out6Start) d.start = sd.start;
-        if (enOf(d.notes) === V1.out6NotesEn) d.notes = clone(sd.notes);
-        d.tomorrowNotes.forEach((n) => { if (enOf(n.text) === V1.out6SunriseEn) n.text = clone(SEED.tomorrow[i][0]); });
-      }
-      const oldLen = V1.tomorrowLen[sd.key];
-      if (oldLen != null) {
-        (SEED.tomorrow[i] || []).slice(oldLen).forEach((text) => {
-          if (!d.tomorrowNotes.some((n) => enOf(n.text) === text.en)) d.tomorrowNotes.push({ id: uid(), text: clone(text), done: false });
-        });
-      }
-    } else if (sd.leg === 'return') {
-      st.days.push(seedDay(sd, i)); added.days++;
+    if (!d) {
+      if (!had.days.includes(sd.key)) { st.days.push(seedDay(sd, i)); added.days++; }
+      return;
     }
+    d.key = sd.key;
+    d.leg = d.leg || sd.leg;
+    const hist = H.days[sd.key] || {};
+    SEED_DAY_FIELDS.forEach((f) => {
+      if (jsonOf(d[f]) !== jsonOf(sd[f]) && untouched(hist[f], d[f])) { d[f] = clone(sd[f] === undefined ? null : sd[f]); changed++; }
+    });
+    ['stops', 'fuelStops', 'fuelSearch', 'foodSearch', 'overnightSearch'].forEach((k) => { if (!Array.isArray(d[k])) d[k] = []; });
+    // Tomorrow notes: seed notes in seed order (keeping done/ids), then the user's own notes.
+    const oldSeedEn = new Set(H.notes[sd.key] || []);
+    const seedNotes = window.SEED.tomorrow[i] || [];
+    const seedEn = new Set(seedNotes.map((n) => n.en));
+    const next = [];
+    seedNotes.forEach((text) => {
+      const ex = d.tomorrowNotes.find((n) => enOf(n.text) === text.en);
+      if (ex) next.push(ex);
+      else if (!oldSeedEn.has(text.en)) next.push({ id: uid(), text: clone(text), done: false });
+    });
+    d.tomorrowNotes.forEach((n) => {
+      const en = enOf(n.text);
+      if (next.includes(n) || (oldSeedEn.has(en) && !seedEn.has(en))) return; // already placed, or an outdated seed note
+      next.push(n);
+    });
+    d.tomorrowNotes = next;
   });
   st.days.forEach((d) => { if (!d.leg) d.leg = 'out'; });
   st.days.sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
-  st.expectedTolls.forEach((e) => {
-    if (!e.key) { const k = V1.tollNames.indexOf(e.name); if (k >= 0) e.key = SEED.expectedTolls[k].key; }
-    if (!e.leg) e.leg = 'out';
+  // Expected tolls
+  st.expectedTolls.forEach((e) => { if (!e.key && H.v1TollNames[e.name]) e.key = H.v1TollNames[e.name]; if (!e.leg) e.leg = 'out'; });
+  const seedTollKeys = new Set(SEED.expectedTolls.map((e) => e.key));
+  st.expectedTolls = st.expectedTolls.filter((e) => {
+    if (!e.key || seedTollKeys.has(e.key) || !H.tolls[e.key]) return true;           // user's own, or still in the plan
+    const edited = SEED_TOLL_FIELDS.some((f) => !untouched(H.tolls[e.key][f], e[f]));
+    const used = st.tolls.some((x) => x.expectedId === e.id) || stTollsMatch(st, e);
+    return edited || used;                                                         // keep if edited or paid
   });
   SEED.expectedTolls.forEach((se) => {
-    if (se.leg === 'return' && !st.expectedTolls.some((e) => e.key === se.key)) { st.expectedTolls.push(seedToll(se)); added.tolls++; }
+    const e = st.expectedTolls.find((x) => x.key === se.key);
+    if (e) SEED_TOLL_FIELDS.forEach((f) => { if (jsonOf(e[f]) !== jsonOf(se[f]) && untouched((H.tolls[se.key] || {})[f], e[f])) e[f] = clone(se[f] === undefined ? null : se[f]); });
+    else if (!had.tolls.includes(se.key)) { st.expectedTolls.push(seedToll(se)); added.tolls++; }
   });
 
+  // Budget lines
   SEED.budget.forEach((sb) => {
-    const b = st.budget.find((x) => x.cat === sb.cat), old = V1.budget[sb.cat];
-    if (b && old && num(b.amount) === old[0] && enOf(b.note) === old[1] && b.currency === sb.currency) { b.amount = sb.amount; b.note = clone(sb.note); }
+    const b = st.budget.find((x) => x.cat === sb.cat), h = H.budget[sb.cat];
+    if (b && h && untouched(h.amount, num(b.amount)) && untouched(h.note, b.note) && untouched(h.currency, b.currency)) {
+      b.amount = sb.amount; b.currency = sb.currency; b.note = clone(sb.note);
+    }
   });
 
-  st.docs.forEach((d) => {
-    if (d.key) return;
-    const k = Object.keys(V1.docsEn).find((key) => V1.docsEn[key] === enOf(d.text));
-    if (k) { d.key = k; if (k === 'insurance') d.text = clone(SEED.docs.find((x) => x.key === k).text); }
-  });
+  // Documents
+  st.docs.forEach((d) => { if (!d.key && H.v1Docs[enOf(d.text)]) d.key = H.v1Docs[enOf(d.text)]; });
   SEED.docs.forEach((sd) => {
-    if (!V1.docsEn[sd.key] && !st.docs.some((d) => d.key === sd.key)) { st.docs.push(seedDoc(sd)); added.docs++; }
+    const d = st.docs.find((x) => x.key === sd.key);
+    if (d) { if (jsonOf(d.text) !== jsonOf(sd.text) && untouched((H.docs[sd.key] || {}).text, d.text)) d.text = clone(sd.text); }
+    else if (!had.docs.includes(sd.key)) { st.docs.push(seedDoc(sd)); added.docs++; }
   });
 
   st.seedVersion = SEED.version;
-  st.seedUpdate = { from, to: SEED.version, at: new Date().toISOString(), added };
+  st.seedUpdate = { from, to: SEED.version, at: new Date().toISOString(), added, changed };
   return added;
+}
+/** Whether any logged toll in `st` matches an expected toll (used before S is set). */
+function stTollsMatch(st, exp) {
+  const prev = S; S = st;
+  try { return st.tolls.some((x) => tollMatches(exp, x)); } finally { S = prev; }
 }
 function runSeedUpdates() {
   try {
     const next = clone(S);
     const added = applySeedUpdates(next);
-    if (added) { S = next; save(); ui.notice = t('plan_updated', { d: added.days, t: added.tolls, c: added.docs }); }
+    if (added) { S = next; save(); ui.notice = t('plan_updated', { d: added.days, t: added.tolls, c: added.docs, r: next.seedUpdate.changed }); }
   } catch (e) { console.warn('Seed update skipped', e); }
 }
 function load() {
@@ -673,6 +694,11 @@ function tomorrowList(day) {
       <button class="btn btn-sm" type="submit">＋</button>
     </form>`;
 }
+function borderLinks(day, bare) {
+  if (!Array.isArray(day.links) || !day.links.length) return '';
+  const body = `<h3 style="margin-top:0">🛂 ${t('border_title')}</h3><div class="link-list">${day.links.map((l) => `<a class="btn maps-btn" href="${esc(l.url)}" target="_blank" rel="noopener">🔗 ${esc(tx(l.label))}</a>`).join('')}</div>`;
+  return bare ? body : `<div class="section">${body}</div>`;
+}
 function placesList(day) {
   return `${day.places.length ? `<ul class="list">${day.places.map((p) => `
     <li class="entry">
@@ -690,6 +716,7 @@ function dayFullCard(day, i) {
     <a class="btn" href="${esc(mapsRoute(day))}" target="_blank" rel="noopener">🧭 ${t('open_route')}</a>
     <button class="btn" data-act="editDay" data-day="${day.id}">✏️ ${t('edit_day')}</button>
   </div>
+  ${borderLinks(day)}
   <div class="section"><h3>⛽ ${t('sec_fuel')}</h3>
     <ul class="list small">${day.fuelStops.map((s) => `<li>${esc(tx(s))}</li>`).join('')}</ul>
     <div class="link-list">${day.fuelSearch.map((q) => mapsBtn(q, '⛽')).join('')}</div>
@@ -737,7 +764,7 @@ function viewToday() {
   dueTomorrowDays().forEach((d) => {
     const n = S.days.indexOf(d) + 1;
     const pending = d.tomorrowNotes.filter((x) => !x.done).length;
-    html += `<div class="banner"><h2>🌙 ${t('banner_title', { n, date: fmtDate(d.date) })}</h2>
+    html += `<div class="banner"><h2>🌙 ${t(d.date === today ? 'banner_today' : 'banner_title', { n, date: fmtDate(d.date) })}</h2>
       <div class="small" style="margin-bottom:6px">${pending ? t('banner_pending', { n: pending }) : t('banner_all_done')}</div>
       ${tomorrowList(d)}</div>`;
   });
@@ -784,6 +811,7 @@ function viewToday() {
     <a class="btn" href="${esc(mapsRoute(day))}" target="_blank" rel="noopener">🧭 ${t('open_route')}</a>
     <button class="btn" data-act="osmOpen" data-day="${day.id}">🏨 ${t('osm_btn')}</button>
   </div>
+  ${day.links && day.links.length ? `<div class="card warn">${borderLinks(day, true)}</div>` : ''}
   ${rangeCard(rg, true)}
   <div class="card"><div class="card-title"><h2>🕑 ${t('checkins_title')}</h2></div>
     ${day.checkins.length ? `<ul class="timeline">${day.checkins.slice().reverse().map((c) => `
