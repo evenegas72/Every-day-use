@@ -134,7 +134,7 @@ async function allViewsClean(page, label) {
   ok(await page.evaluate(() => expectedStatus().find((x) => x.exp.key === 'out-45d').paid), 'expected toll auto-marked paid');
   const route = await page.evaluate(() => S.days.map((d) => d.to.split(',')[0]).join(' → '));
   ok(route.includes('Eagle Pass → Saltillo') && !route.includes('San Antonio'), 'route crosses at Eagle Pass / Piedras Negras: ' + route);
-  ok(await page.evaluate(() => S.days[4].links.length === 4 && S.days[7].links.length === 4), 'both border days have wait-time and backup-bridge links');
+  ok(await page.evaluate(() => S.days[4].links.length === 5 && S.days[7].links.length === 5), 'both border days have wait-time and backup-bridge links');
 
   // Fuel: two full fills → mpg
   await page.click('[data-nav="fuel"]');

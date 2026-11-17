@@ -39,6 +39,7 @@ window.SEED = (function () {
   const BORDER_LINKS = [
     { label: { en: 'Bridge wait times (filadepuentes)', es: 'Tiempos de espera (filadepuentes)' }, url: 'https://filadepuentes.com/cruces' },
     { label: { en: 'US CBP official wait times', es: 'Tiempos oficiales CBP (EE. UU.)' }, url: 'https://bwt.cbp.gov/' },
+    { label: { en: 'Banjercito (TIP) 24/7 – Km 53.4, Hwy 57 near Allende', es: 'Banjercito (TIP) 24 h – Km 53.4, Carr. 57 cerca de Allende' }, url: 'https://www.google.com/maps/search/?api=1&query=Banjercito%20Km%2053%20Carretera%2057%20Allende%20Coahuila' },
     { label: { en: 'Backup: Del Rio – Ciudad Acuña bridge (~1 h north)', es: 'Respaldo: puente Del Rio – Ciudad Acuña (~1 h al norte)' }, url: 'https://www.google.com/maps/search/?api=1&query=Del%20Rio%20International%20Bridge%20Del%20Rio%20TX' },
     { label: { en: 'Backup: Puente Colombia (Laredo, ~2.5 h south)', es: 'Respaldo: Puente Colombia (Laredo, ~2.5 h al sur)' }, url: 'https://www.google.com/maps/search/?api=1&query=Puente%20Internacional%20Solidaridad%20Colombia' },
   ];
@@ -129,7 +130,7 @@ window.SEED = (function () {
       driveHours: '~5 h + 0.5–1 h border', start: '07:45', arrive: '14:30',
       route: 'Puente Internacional II "Camino Real" (Puente 2) into Piedras Negras, Hwy 57 S via Allende and Monclova, Castaños, Saltillo',
       routeVia: 'Puente Internacional Piedras Negras II, Piedras Negras, Coahuila|Monclova, Coahuila',
-      notes: { en: 'Border day. Cross at Puente 2 after sunrise. TIP and FMM ideally done online beforehand. Backup bridges: Del Rio – Ciudad Acuña (~1 h north) or Puente Colombia (~2.5 h south).', es: 'Día de frontera. Cruzar por el Puente 2 después del amanecer. TIP y FMM de preferencia tramitados en línea antes. Puentes de respaldo: Del Rio – Ciudad Acuña (~1 h al norte) o Puente Colombia (~2.5 h al sur).' },
+      notes: { en: 'Border day. Cross at Puente 2 (passenger lanes 24/7) after sunrise. TIP: ideally bought online beforehand; if not, Banjercito at Puente II (Mon–Fri 8 AM–4 PM) or the 24/7 module at Km 53.4 on Hwy 57 near Allende, on the way. Backup bridges: Del Rio – Ciudad Acuña (~1 h north, Banjercito 6 AM–10 PM) or Puente Colombia (~2.5 h south, bridge 8 AM–11 PM).', es: 'Día de frontera. Cruzar por el Puente 2 (carriles de pasajeros 24 h) después del amanecer. TIP: de preferencia comprado en línea antes; si no, Banjercito en el Puente II (lun–vie 8 AM–4 PM) o el módulo 24 h en el Km 53.4 de la Carr. 57 cerca de Allende, de paso. Puentes de respaldo: Del Rio – Ciudad Acuña (~1 h al norte, Banjercito 6 AM–10 PM) o Puente Colombia (~2.5 h al sur, puente 8 AM–11 PM).' },
       links: BORDER_LINKS,
       stops: [EGP, PNG, S('Allende, Coah.', 28.3445, -100.8530), MCL, S('Castaños, Coah.', 26.7840, -101.4290), SAL],
       fuelStops: [
@@ -189,7 +190,7 @@ window.SEED = (function () {
       driveHours: '~5 h + 1–2 h border', start: '07:35', arrive: '15:00',
       route: 'Hwy 57 N via Castaños, Monclova and Allende to Piedras Negras, Puente Internacional II "Camino Real" (Puente 2) into Eagle Pass',
       routeVia: 'Monclova, Coahuila|Puente Internacional Piedras Negras II, Piedras Negras, Coahuila',
-      notes: { en: 'Border day. Cancel the TIP at Banjercito BEFORE crossing into the US, and keep the receipt. Check bridge wait times in the morning.', es: 'Día de frontera. Cancelar el TIP en Banjercito ANTES de cruzar a EE. UU. y guardar el comprobante. Revisar los tiempos de espera en la mañana.' },
+      notes: { en: 'Border day (Sunday). Cancel the TIP at the 24/7 Banjercito module at Km 53.4 on Hwy 57 near Allende, on the way north, BEFORE the bridge (the Puente II office is closed on Sundays). Keep the receipt. Check bridge wait times in the morning.', es: 'Día de frontera (domingo). Cancelar el TIP en el módulo de Banjercito 24 h del Km 53.4 de la Carr. 57 cerca de Allende, de paso rumbo al norte, ANTES del puente (la oficina del Puente II cierra en domingo). Guardar el comprobante. Revisar los tiempos de espera en la mañana.' },
       links: BORDER_LINKS,
       stops: [SAL, S('Castaños, Coah.', 26.7840, -101.4290), MCL, S('Allende, Coah.', 28.3445, -100.8530), PNG, EGP],
       fuelStops: [
@@ -333,7 +334,7 @@ window.SEED = (function () {
       { en: "Share the day's plan with family.", es: 'Compartir el plan del día con la familia.' },
     ],
     [ // before ret2 (border day, northbound)
-      { en: 'CANCEL THE TIP at the Banjercito / Aduana module in Piedras Negras (Puente 2) before crossing to the US. Keep the receipt (deposit refund).', es: 'CANCELAR EL TIP en el módulo de Banjercito / Aduana en Piedras Negras (Puente 2) antes de cruzar a EE. UU. Guardar el comprobante (reembolso del depósito).' },
+      { en: 'CANCEL THE TIP at Banjercito Km 53.4, Hwy 57 near Allende (open 24/7), on the way north before the bridge. The Puente II office is closed on Sunday. Keep the receipt (deposit refund).', es: 'CANCELAR EL TIP en Banjercito Km 53.4, Carr. 57 cerca de Allende (abierto 24 h), de paso rumbo al norte antes del puente. La oficina del Puente II cierra en domingo. Guardar el comprobante (reembolso del depósito).' },
       { en: 'Check Puente 2 hours and the wait time in the morning. Cash for the bridge toll.', es: 'Revisar en la mañana el horario y el tiempo de espera del Puente 2. Efectivo para la cuota del puente.' },
       { en: 'Ask INM at the bridge whether to hand in the FMM.', es: 'Preguntar al INM en el puente si hay que entregar el FMM.' },
       { en: 'US customs: declare purchases; no fresh fruit, meat or plants.', es: 'Aduana de EE. UU.: declarar compras; no traer fruta fresca, carne ni plantas.' },
@@ -394,7 +395,7 @@ window.SEED = (function () {
     { key: 'passports', text: { en: 'Passports (everyone)', es: 'Pasaportes (todos)' } },
     { key: 'license', text: { en: "Driver's license", es: 'Licencia de manejo' } },
     { key: 'registration', text: { en: 'Vehicle registration / title', es: 'Tarjeta de circulación / título del vehículo' } },
-    { key: 'tip', text: { en: 'TIP (Banjercito, available online up to 60 days ahead)', es: 'Permiso de importación temporal TIP (Banjercito, en línea hasta 60 días antes)' } },
+    { key: 'tip', text: { en: 'TIP: buy online from Banjercito 10–60 days before crossing. For Dec 16: between Oct 17 and Dec 6', es: 'TIP: comprar en línea con Banjercito de 10 a 60 días antes de cruzar. Para el 16 de dic.: entre el 17 de oct. y el 6 de dic.' } },
     { key: 'insurance', text: { en: 'Mexican auto insurance (covers Dec 16 – Jan 3)', es: 'Seguro de auto mexicano (cubre del 16 de dic. al 3 de ene.)' } },
     { key: 'usd', text: { en: 'USD cash', es: 'Efectivo en USD' } },
     { key: 'mxn', text: { en: 'MXN cash', es: 'Efectivo en MXN' } },
@@ -405,7 +406,7 @@ window.SEED = (function () {
     { key: 'kids', text: { en: "Copies of each child's birth certificate; notarized permission if a Mexican/dual-citizen minor travels without a parent", es: 'Copias de las actas de nacimiento de los niños; permiso notariado si un menor mexicano/doble nacionalidad viaja sin uno de sus padres' } },
     { key: 'customs', text: { en: 'List of gifts/goods: declare over $300 entering Mexico by land (one laptop per person is tax-free)', es: 'Lista de regalos/mercancía: declarar más de $300 al entrar a México por tierra (una laptop por persona sin impuesto)' } },
     { key: 'step', text: { en: 'Enroll in STEP (mytravel.state.gov) for embassy alerts', es: 'Inscribirse en STEP (mytravel.state.gov) para alertas de la embajada' } },
-    { key: 'banjercito', text: { en: 'Ask Banjercito (Contacto on gob.mx/banjercito): "¿Puedo cancelar mi permiso de importación temporal en Piedras Negras, Puente Internacional II, al salir de México? ¿Qué horario tiene el módulo?"', es: 'Preguntar a Banjercito (Contacto en gob.mx/banjercito): "¿Puedo cancelar mi permiso de importación temporal en Piedras Negras, Puente Internacional II, al salir de México? ¿Qué horario tiene el módulo?"' } },
+    { key: 'banjercito', text: { en: 'Ask Banjercito (Contacto on gob.mx/banjercito): "¿El módulo del Km 53.4 de la carretera 57 (Allende, Piedras Negras) cancela permisos de importación temporal un domingo?"', es: 'Preguntar a Banjercito (Contacto en gob.mx/banjercito): "¿El módulo del Km 53.4 de la carretera 57 (Allende, Piedras Negras) cancela permisos de importación temporal un domingo?"' } },
     { key: 'inm', text: { en: 'FMM: apply online, or confirm the INM office hours at Piedras Negras Puente II', es: 'FMM: tramitar en línea, o confirmar el horario de la oficina del INM en Piedras Negras Puente II' } },
     { key: 'tipcancel', text: { en: 'Return trip: cancel the TIP at the border before leaving Mexico (keep the receipt)', es: 'Regreso: cancelar el TIP en la frontera antes de salir de México (guardar el comprobante)' } },
   ];
