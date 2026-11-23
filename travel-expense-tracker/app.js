@@ -4,7 +4,7 @@
  */
 'use strict';
 
-const APP_VERSION = '2.6'; // keep in step with CACHE in sw.js ('mexico-trip-v2-6')
+const APP_VERSION = '2.7'; // keep in step with CACHE in sw.js ('mexico-trip-v2-7')
 const STORE_KEY = 'mexico-trip-v2';
 const LEGACY_KEY = 'travel-tracker-v1';
 const LEGACY_RATE_KEY = 'travel-tracker-rate';
