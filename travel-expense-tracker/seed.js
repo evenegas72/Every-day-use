@@ -12,7 +12,7 @@
  * Bump `version` whenever this file changes in a way existing phones should get.
  */
 window.SEED = (function () {
-  const version = 5;
+  const version = 6;
 
   const S = (name, lat, lng, r) => ({ name, lat, lng, r: r || 8000 });
   const GP = S('Grants Pass, OR', 42.4390, -123.3284);
@@ -51,7 +51,7 @@ window.SEED = (function () {
       from: 'Grants Pass, OR', to: 'Kettleman City, CA (I-5)',
       fromLat: 42.4390, fromLng: -123.3284, toLat: 36.0083, toLng: -119.9618,
       country: 'US', startTz: 'America/Los_Angeles', arriveTz: 'America/Los_Angeles',
-      distanceMi: 540, distanceNote: '~540 mi (est.; Google to Buttonwillow: 595 mi, 9 h 38)',
+      distanceMi: 540, distanceNote: '~540 mi (est.)',
       driveHours: '~8 h 45', start: '06:00', arrive: '15:45',
       route: 'I-5 S all the way to Kettleman City (CA-41 exit)',
       notes: { en: 'Kettleman City is a classic I-5 stop: hotels, In-N-Out, gas. Arrive with time to eat and rest.', es: 'Kettleman City es una parada clásica de la I-5: hoteles, In-N-Out, gasolina. Llegar con tiempo para comer y descansar.' },
@@ -88,7 +88,7 @@ window.SEED = (function () {
       from: 'Goodyear, AZ (west Phoenix, I-10)', to: 'El Paso, TX',
       fromLat: 33.4353, fromLng: -112.3577, toLat: 31.7619, toLng: -106.4850,
       country: 'US', startTz: 'America/Phoenix', arriveTz: 'America/Denver',
-      distanceMi: 448, distanceNote: '~448 mi (Google from Chandler: 413 mi, 6 h 10)',
+      distanceMi: 448, distanceNote: '~448 mi (est.)',
       driveHours: '~6 h 45', start: '06:00', arrive: '14:00',
       route: 'I-10 E through Phoenix (early, before Monday traffic)',
       notes: { en: 'Short rest day.', es: 'Día corto de descanso.' },
@@ -223,7 +223,7 @@ window.SEED = (function () {
       from: 'El Paso, TX', to: 'Goodyear, AZ (west Phoenix, I-10)',
       fromLat: 31.7619, fromLng: -106.4850, toLat: 33.4353, toLng: -112.3577,
       country: 'US', startTz: 'America/Denver', arriveTz: 'America/Phoenix',
-      distanceMi: 448, distanceNote: '~448 mi (Google to Chandler: 413 mi, 6 h 10)',
+      distanceMi: 448, distanceNote: '~448 mi (est.)',
       driveHours: '~6 h 45', start: '06:00', arrive: '14:00',
       route: 'I-10 W through Phoenix to Goodyear',
       notes: { en: 'Short rest day.', es: 'Día corto de descanso.' },
@@ -260,7 +260,7 @@ window.SEED = (function () {
       from: 'Kettleman City, CA (I-5)', to: 'Grants Pass, OR',
       fromLat: 36.0083, fromLng: -119.9618, toLat: 42.4390, toLng: -123.3284,
       country: 'US', startTz: 'America/Los_Angeles', arriveTz: 'America/Los_Angeles',
-      distanceMi: 540, distanceNote: '~540 mi (est.; Google Buttonwillow – Grants Pass: 595 mi, 9 h 38)',
+      distanceMi: 540, distanceNote: '~540 mi (est.)',
       driveHours: '~8 h 45', start: '06:00', arrive: '15:45',
       route: 'I-5 N',
       notes: { en: 'Home! Siskiyou Pass in January: check chain controls before leaving.', es: '¡A casa! Siskiyou Pass en enero: revisar control de cadenas antes de salir.' },

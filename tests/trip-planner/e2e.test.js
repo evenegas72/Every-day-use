@@ -240,7 +240,7 @@ async function allViewsClean(page, label) {
     paid40out: expectedStatus().find((x) => x.exp.key === 'out-40d').paid, ret40: S.expectedTolls.some((e) => e.key === 'ret-40d'),
     colombia: S.expectedTolls.some((e) => e.key === 'out-colombia'), to1: S.days[0].to, from5: S.days[4].from,
   }));
-  ok(up.v === 5 && up.days === 12, `plan upgraded to 12 days (out1–6 + ret1–6): ${up.keys}`);
+  ok(up.v === 6 && up.days === 12, `plan upgraded to 12 days (out1–6 + ret1–6): ${up.keys}`);
   ok(up.to1 === 'Kettleman City, CA (I-5)' && up.from5 === 'Eagle Pass, TX', 'untouched days moved to the current route (Kettleman City, Eagle Pass)');
   ok(up.exp === 1 && up.tolls === 1, 'existing expenses and tolls kept');
   ok(up.route1 === 'I-5 S (user edit)' && up.food === 400, 'user edits kept (day route, food budget)');
@@ -303,7 +303,7 @@ async function allViewsClean(page, label) {
     own: S.days[5].tomorrowNotes.some((n) => n.text === 'My own note'),
     tollKeys: S.expectedTolls.map((e) => e.key).join(','), exp: S.expenses.length, tolls: S.tolls.length,
   }));
-  ok(u4.v === 5 && u4.n === 12 && u4.out4 === 'Eagle Pass, TX' && u4.ret2 === 'Eagle Pass, TX' && u4.ret5 === 'Kettleman City, CA (I-5)', 'Colombia days rerouted via Eagle Pass, both directions');
+  ok(u4.v === 6 && u4.n === 12 && u4.out4 === 'Eagle Pass, TX' && u4.ret2 === 'Eagle Pass, TX' && u4.ret5 === 'Kettleman City, CA (I-5)', 'Colombia days rerouted via Eagle Pass, both directions');
   ok(u4.hours4 === '8 h (my estimate)' && u4.route1 === 'I-5 S (user edit)', 'fields the user edited are kept');
   ok(u4.notes5.some((x) => x.startsWith('Check Puente 2')) && !u4.notes5.some((x) => x.includes('Puente Colombia hours')) && u4.done5, 'border-day notes switched to Puente 2; checked notes stay checked');
   ok(u4.own && u4.exp === 1 && u4.tolls === 1, "user's own notes, expenses and tolls kept");
@@ -325,16 +325,18 @@ async function allViewsClean(page, label) {
     v: S.seedVersion, to: S.days.map((d) => d.to.split(' (')[0]).join(' | '), route1: S.days[0].route, hours4: S.days[3].driveHours,
     fog: S.days[1].tomorrowNotes.some((n) => (n.text.en || '').startsWith('Tule fog')), exp: S.expenses.length,
   }));
-  ok(u5.v === 5 && u5.to.startsWith('Kettleman City, CA | Goodyear, AZ | El Paso, TX | Eagle Pass, TX') && u5.to.includes('Goodyear, AZ | Kettleman City, CA | Grants Pass, OR'), 'Day 1 → Kettleman City, Day 2 → Goodyear, mirrored on the return: ' + u5.to);
+  ok(u5.v === 6 && u5.to.startsWith('Kettleman City, CA | Goodyear, AZ | El Paso, TX | Eagle Pass, TX') && u5.to.includes('Goodyear, AZ | Kettleman City, CA | Grants Pass, OR'), 'Day 1 → Kettleman City, Day 2 → Goodyear, mirrored on the return: ' + u5.to);
   ok(u5.route1 === 'I-5 S (user edit)' && u5.hours4 === '8 h (my estimate)' && u5.exp === 1, 'user edits and expenses kept');
   ok(u5.fog, 'tule fog heads-up added before Day 2');
+  const stale = await p5.evaluate(() => S.days.filter((d) => /Buttonwillow|Chandler/.test(d.distanceNote || '')).map((d) => d.key));
+  ok(stale.length === 0, 'distance notes no longer mention old stops (Buttonwillow / Chandler)' + (stale.length ? ': ' + stale.join(',') : ''));
   const via = await p5.evaluate(() => S.days.map((d) => mapsRoute(d)));
   ok(via.filter((u) => u.includes('waypoints=')).length === 2 && via[4].includes('Camino%20Real') && via[7].includes('Camino%20Real'),
     'old saved stops trimmed: only the two border days add one stop (Camino Real bridge)');
   await p5.click('[data-nav="more"]');
   await p5.click('[data-name="moreTab"][data-val="settings"]');
   const setTxt = await visibleText(p5);
-  ok(setTxt.includes('App version 2.6 · trip plan v5') || setTxt.includes('Versión de la app 2.6 · plan del viaje v5'), 'app version shown in Settings');
+  ok(setTxt.includes('App version 2.7 · trip plan v6') || setTxt.includes('Versión de la app 2.7 · plan del viaje v6'), 'app version shown in Settings');
   await ctx5.close();
 
   const realErrors = errors.filter((e) => !/net::ERR_INTERNET_DISCONNECTED|net::ERR_FAILED|Failed to fetch|frankfurter|jsdelivr|ERR_TUNNEL|ERR_PROXY|status of 40/i.test(e));
