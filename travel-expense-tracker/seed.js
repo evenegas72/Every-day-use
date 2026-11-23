@@ -12,7 +12,7 @@
  * Bump `version` whenever this file changes in a way existing phones should get.
  */
 window.SEED = (function () {
-  const version = 4;
+  const version = 5;
 
   const S = (name, lat, lng, r) => ({ name, lat, lng, r: r || 8000 });
   const GP = S('Grants Pass, OR', 42.4390, -123.3284);
@@ -109,7 +109,6 @@ window.SEED = (function () {
       distanceMi: 480, distanceNote: '~480 mi (est.)',
       driveHours: '~7 h 15', start: '06:00', arrive: '15:30',
       route: 'I-10 E to Fort Stockton, US-285 S to Sanderson, US-90 E to Del Rio, US-277 S to Eagle Pass (follow Google if it picks a faster link)',
-      routeVia: 'Fort Stockton, TX|Del Rio, TX',
       tzNote: { en: 'Clocks +1 h east of Van Horn, TX (Central time).', es: 'Reloj +1 h al este de Van Horn, TX (hora del Centro).' },
       notes: { en: 'Overnight on the US side; cross at Puente 2 tomorrow after sunrise. Border Patrol checkpoints near Sierra Blanca (I-10) and on highways near the border: IDs ready.', es: 'Dormir del lado de EE. UU.; cruzar mañana por el Puente 2 después del amanecer. Revisiones de la Patrulla Fronteriza cerca de Sierra Blanca (I-10) y en carreteras cerca de la frontera: identificaciones listas.' },
       stops: [ELP, VHN, FST, SAN, DRT, EGP],
@@ -130,7 +129,7 @@ window.SEED = (function () {
       distanceMi: 275, distanceNote: '~440 km (est.)',
       driveHours: '~5 h + 0.5–1 h border', start: '07:45', arrive: '14:30',
       route: 'Puente Internacional II "Camino Real" (Puente 2) into Piedras Negras, Hwy 57 S via Allende and Monclova, Castaños, Saltillo',
-      routeVia: 'Puente Internacional Piedras Negras II, Piedras Negras, Coahuila|Monclova, Coahuila',
+      routeVia: 'Camino Real International Bridge, Eagle Pass, TX',
       notes: { en: 'Border day. Cross at Puente 2 (passenger lanes 24/7) after sunrise. TIP: ideally bought online beforehand; if not, Banjercito at Puente II (Mon–Fri 8 AM–4 PM) or the 24/7 module at Km 53.4 on Hwy 57 near Allende, on the way. Backup bridges: Del Rio – Ciudad Acuña (~1 h north, Banjercito 6 AM–10 PM) or Puente Colombia (~2.5 h south, bridge 8 AM–11 PM).', es: 'Día de frontera. Cruzar por el Puente 2 (carriles de pasajeros 24 h) después del amanecer. TIP: de preferencia comprado en línea antes; si no, Banjercito en el Puente II (lun–vie 8 AM–4 PM) o el módulo 24 h en el Km 53.4 de la Carr. 57 cerca de Allende, de paso. Puentes de respaldo: Del Rio – Ciudad Acuña (~1 h al norte, Banjercito 6 AM–10 PM) o Puente Colombia (~2.5 h al sur, puente 8 AM–11 PM).' },
       links: BORDER_LINKS,
       stops: [EGP, PNG, S('Allende, Coah.', 28.3445, -100.8530), MCL, S('Castaños, Coah.', 26.7840, -101.4290), SAL],
@@ -150,8 +149,7 @@ window.SEED = (function () {
       distanceMi: 438, distanceNote: '~705 km',
       driveHours: '~7.5 h', start: '07:25', arrive: '16:00',
       route: 'Hwy 57 / 57D, 45D (Saltillo – Matehuala – San Luis Potosí – Querétaro – Celaya)',
-      routeVia: 'Matehuala, San Luis Potosí|Querétaro, Querétaro',
-      notes: { en: 'Fallback overnight: San Luis Potosí (~450 km). Last stretch Querétaro – Celaya on 45D (~45 km): fill up in Querétaro and drive it straight through in daylight, no stops.', es: 'Plan B para dormir: San Luis Potosí (~450 km). Último tramo Querétaro – Celaya por la 45D (~45 km): cargar gasolina en Querétaro y hacerlo de corrido, de día y sin paradas.' },
+      notes: { en: 'Fallback overnight: San Luis Potosí (~450 km). Last stretch Querétaro – Celaya on 45D (~45 km): fill up in Querétaro and drive it straight through in daylight, no stops. In Google Maps, if it suggests the Dolores Hidalgo road, tap the grey alternative via Querétaro (57D/45D) before Start.', es: 'Plan B para dormir: San Luis Potosí (~450 km). Último tramo Querétaro – Celaya por la 45D (~45 km): cargar gasolina en Querétaro y hacerlo de corrido, de día y sin paradas. En Google Maps, si sugiere el camino por Dolores Hidalgo, tocar la ruta alterna gris por Querétaro (57D/45D) antes de Iniciar.' },
       stops: [SAL, MAT, SLP, QRO, CEL],
       fuelStops: [
         { en: 'Fill up in Saltillo.', es: 'Llenar el tanque en Saltillo.' },
@@ -171,8 +169,7 @@ window.SEED = (function () {
       distanceMi: 438, distanceNote: '~705 km',
       driveHours: '~7.5 h', start: '07:30', arrive: '16:00',
       route: '45D to Querétaro, then 57D north (Querétaro – San Luis Potosí – Matehuala – Saltillo)',
-      routeVia: 'Querétaro, Querétaro|San Luis Potosí, San Luis Potosí|Matehuala, San Luis Potosí',
-      notes: { en: 'First stretch Celaya – Querétaro on 45D: leave at sunrise and drive it straight through, no stops. Fallback overnight: San Luis Potosí or Matehuala.', es: 'Primer tramo Celaya – Querétaro por la 45D: salir al amanecer y hacerlo de corrido, sin paradas. Plan B para dormir: San Luis Potosí o Matehuala.' },
+      notes: { en: 'First stretch Celaya – Querétaro on 45D: leave at sunrise and drive it straight through, no stops. In Google Maps, if it suggests the Dolores Hidalgo road, tap the grey alternative via Querétaro (45D/57D) before Start. Fallback overnight: San Luis Potosí or Matehuala.', es: 'Primer tramo Celaya – Querétaro por la 45D: salir al amanecer y hacerlo de corrido, sin paradas. En Google Maps, si sugiere el camino por Dolores Hidalgo, tocar la ruta alterna gris por Querétaro (45D/57D) antes de Iniciar. Plan B para dormir: San Luis Potosí o Matehuala.' },
       stops: [CEL, QRO, SLP, MAT, SAL],
       fuelStops: [
         { en: 'Fill up in Celaya the evening before.', es: 'Llenar el tanque en Celaya la noche anterior.' },
@@ -190,7 +187,7 @@ window.SEED = (function () {
       distanceMi: 275, distanceNote: '~440 km (est.)',
       driveHours: '~5 h + 1–2 h border', start: '07:35', arrive: '15:00',
       route: 'Hwy 57 N via Castaños, Monclova and Allende to Piedras Negras, Puente Internacional II "Camino Real" (Puente 2) into Eagle Pass',
-      routeVia: 'Monclova, Coahuila|Puente Internacional Piedras Negras II, Piedras Negras, Coahuila',
+      routeVia: 'Camino Real International Bridge, Eagle Pass, TX',
       notes: { en: 'Border day (Sunday). Cancel the TIP at the 24/7 Banjercito module at Km 53.4 on Hwy 57 near Allende, on the way north, BEFORE the bridge (the Puente II office is closed on Sundays). Keep the receipt. Check bridge wait times in the morning.', es: 'Día de frontera (domingo). Cancelar el TIP en el módulo de Banjercito 24 h del Km 53.4 de la Carr. 57 cerca de Allende, de paso rumbo al norte, ANTES del puente (la oficina del Puente II cierra en domingo). Guardar el comprobante. Revisar los tiempos de espera en la mañana.' },
       links: BORDER_LINKS,
       stops: [SAL, S('Castaños, Coah.', 26.7840, -101.4290), MCL, S('Allende, Coah.', 28.3445, -100.8530), PNG, EGP],
@@ -210,7 +207,6 @@ window.SEED = (function () {
       distanceMi: 480, distanceNote: '~480 mi (est.)',
       driveHours: '~7 h 15', start: '06:00', arrive: '13:30',
       route: 'US-277 N to Del Rio, US-90 W to Sanderson, US-285 N to Fort Stockton, I-10 W to El Paso',
-      routeVia: 'Del Rio, TX|Fort Stockton, TX',
       tzNote: { en: 'Clocks −1 h west of Van Horn, TX (Mountain time).', es: 'Reloj −1 h al oeste de Van Horn, TX (hora de la Montaña).' },
       notes: { en: 'Border Patrol checkpoints on highways near the border and near Sierra Blanca (I-10): IDs ready.', es: 'Revisiones de la Patrulla Fronteriza en carreteras cerca de la frontera y cerca de Sierra Blanca (I-10): identificaciones listas.' },
       stops: [EGP, DRT, SAN, FST, VHN, ELP],
