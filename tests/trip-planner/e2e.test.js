@@ -126,12 +126,15 @@ async function allViewsClean(page, label) {
 
   // Tolls: log the expected 45D toll by name → auto-marked paid
   await page.click('[data-nav="tolls"]');
-  await page.fill('form[data-form="toll"] [name=name]', 'Querétaro – Celaya');
+  await page.fill('form[data-form="toll"] [name=name]', 'Hwy 57 / 57D casetas (Piedras Negras – Saltillo – San Luis Potosí)');
   await page.dispatchEvent('form[data-form="toll"] [name=name]', 'change');
-  ok(await page.inputValue('form[data-form="toll"] [name=amount]') === '105', 'expected toll autocomplete fills highway/amount');
+  ok(await page.inputValue('form[data-form="toll"] [name=highway]') === '57D', 'expected toll autocomplete fills the highway');
+  await page.fill('form[data-form="toll"] [name=amount]', '120');
   await page.click('form[data-form="toll"] [type=submit]');
   await page.waitForFunction(() => S.tolls.length === 1);
-  ok(await page.evaluate(() => expectedStatus().find((x) => x.exp.key === 'out-45d').paid), 'expected toll auto-marked paid');
+  ok(await page.evaluate(() => expectedStatus().find((x) => x.exp.key === 'out-57d').paid), 'expected toll auto-marked paid');
+  const d6 = await page.evaluate(() => ({ r: S.days[5].route, r7: S.days[6].route, t: S.expectedTolls.map((e) => e.highway).join(',') }));
+  ok(d6.r.includes('San Miguel de Allende') && d6.r7.includes('San Miguel de Allende') && !d6.t.includes('45D'), 'Days 6–7 go via San Miguel de Allende; no 45D tolls expected');
   const route = await page.evaluate(() => S.days.map((d) => d.to.split(',')[0]).join(' → '));
   ok(route.includes('Eagle Pass → Saltillo') && !route.includes('San Antonio'), 'route crosses at Eagle Pass / Piedras Negras: ' + route);
   const r1 = await page.evaluate(() => mapsRoute(S.days[0]));
@@ -240,13 +243,13 @@ async function allViewsClean(page, label) {
     paid40out: expectedStatus().find((x) => x.exp.key === 'out-40d').paid, ret40: S.expectedTolls.some((e) => e.key === 'ret-40d'),
     colombia: S.expectedTolls.some((e) => e.key === 'out-colombia'), to1: S.days[0].to, from5: S.days[4].from,
   }));
-  ok(up.v === 6 && up.days === 12, `plan upgraded to 12 days (out1–6 + ret1–6): ${up.keys}`);
+  ok(up.v === 7 && up.days === 12, `plan upgraded to 12 days (out1–6 + ret1–6): ${up.keys}`);
   ok(up.to1 === 'Kettleman City, CA (I-5)' && up.from5 === 'Eagle Pass, TX', 'untouched days moved to the current route (Kettleman City, Eagle Pass)');
   ok(up.exp === 1 && up.tolls === 1, 'existing expenses and tolls kept');
   ok(up.route1 === 'I-5 S (user edit)' && up.food === 400, 'user edits kept (day route, food budget)');
   ok(up.start6 === '07:25' && up.fuel === 1140, 'untouched seed values updated (Day 6 start 7:25, round-trip fuel budget)');
   ok(up.docs === 17 && up.doc0 === true && up.ownNote, 'new documents added, checked items and own notes kept');
-  ok(up.stops && up.retTolls === 4 && up.backup && up.lang === 'es', 'stop towns, return tolls, backup copy and settings in place' + ' ' + JSON.stringify({ stops: up.stops, ret: up.retTolls, backup: up.backup, lang: up.lang }));
+  ok(up.stops && up.retTolls === 2 && up.backup && up.lang === 'es', 'stop towns, return tolls, backup copy and settings in place' + ' ' + JSON.stringify({ stops: up.stops, ret: up.retTolls, backup: up.backup, lang: up.lang }));
   ok(up.paid40out && !up.ret40 && !up.colombia, 'old-route toll kept only where a toll was logged against it (40D); unused Colombia items removed');
   const famTxt = await visibleText(p3);
   ok(famTxt.includes('Con la familia') && famTxt.includes('El regreso empieza'), 'Today shows family time on Dec 25 (in Spanish)');
@@ -303,7 +306,7 @@ async function allViewsClean(page, label) {
     own: S.days[5].tomorrowNotes.some((n) => n.text === 'My own note'),
     tollKeys: S.expectedTolls.map((e) => e.key).join(','), exp: S.expenses.length, tolls: S.tolls.length,
   }));
-  ok(u4.v === 6 && u4.n === 12 && u4.out4 === 'Eagle Pass, TX' && u4.ret2 === 'Eagle Pass, TX' && u4.ret5 === 'Kettleman City, CA (I-5)', 'Colombia days rerouted via Eagle Pass, both directions');
+  ok(u4.v === 7 && u4.n === 12 && u4.out4 === 'Eagle Pass, TX' && u4.ret2 === 'Eagle Pass, TX' && u4.ret5 === 'Kettleman City, CA (I-5)', 'Colombia days rerouted via Eagle Pass, both directions');
   ok(u4.hours4 === '8 h (my estimate)' && u4.route1 === 'I-5 S (user edit)', 'fields the user edited are kept');
   ok(u4.notes5.some((x) => x.startsWith('Check Puente 2')) && !u4.notes5.some((x) => x.includes('Puente Colombia hours')) && u4.done5, 'border-day notes switched to Puente 2; checked notes stay checked');
   ok(u4.own && u4.exp === 1 && u4.tolls === 1, "user's own notes, expenses and tolls kept");
@@ -325,7 +328,7 @@ async function allViewsClean(page, label) {
     v: S.seedVersion, to: S.days.map((d) => d.to.split(' (')[0]).join(' | '), route1: S.days[0].route, hours4: S.days[3].driveHours,
     fog: S.days[1].tomorrowNotes.some((n) => (n.text.en || '').startsWith('Tule fog')), exp: S.expenses.length,
   }));
-  ok(u5.v === 6 && u5.to.startsWith('Kettleman City, CA | Goodyear, AZ | El Paso, TX | Eagle Pass, TX') && u5.to.includes('Goodyear, AZ | Kettleman City, CA | Grants Pass, OR'), 'Day 1 → Kettleman City, Day 2 → Goodyear, mirrored on the return: ' + u5.to);
+  ok(u5.v === 7 && u5.to.startsWith('Kettleman City, CA | Goodyear, AZ | El Paso, TX | Eagle Pass, TX') && u5.to.includes('Goodyear, AZ | Kettleman City, CA | Grants Pass, OR'), 'Day 1 → Kettleman City, Day 2 → Goodyear, mirrored on the return: ' + u5.to);
   ok(u5.route1 === 'I-5 S (user edit)' && u5.hours4 === '8 h (my estimate)' && u5.exp === 1, 'user edits and expenses kept');
   ok(u5.fog, 'tule fog heads-up added before Day 2');
   const stale = await p5.evaluate(() => S.days.filter((d) => /Buttonwillow|Chandler/.test(d.distanceNote || '')).map((d) => d.key));
@@ -336,7 +339,7 @@ async function allViewsClean(page, label) {
   await p5.click('[data-nav="more"]');
   await p5.click('[data-name="moreTab"][data-val="settings"]');
   const setTxt = await visibleText(p5);
-  ok(setTxt.includes('App version 2.7 · trip plan v6') || setTxt.includes('Versión de la app 2.7 · plan del viaje v6'), 'app version shown in Settings');
+  ok(setTxt.includes('App version 2.8 · trip plan v7') || setTxt.includes('Versión de la app 2.8 · plan del viaje v7'), 'app version shown in Settings');
   await ctx5.close();
 
   const realErrors = errors.filter((e) => !/net::ERR_INTERNET_DISCONNECTED|net::ERR_FAILED|Failed to fetch|frankfurter|jsdelivr|ERR_TUNNEL|ERR_PROXY|status of 40/i.test(e));

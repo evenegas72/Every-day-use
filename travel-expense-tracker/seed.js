@@ -12,7 +12,7 @@
  * Bump `version` whenever this file changes in a way existing phones should get.
  */
 window.SEED = (function () {
-  const version = 6;
+  const version = 7;
 
   const S = (name, lat, lng, r) => ({ name, lat, lng, r: r || 8000 });
   const GP = S('Grants Pass, OR', 42.4390, -123.3284);
@@ -22,7 +22,8 @@ window.SEED = (function () {
   const SAT = S('San Antonio, TX', 29.4241, -98.4936, 7000);
   const SAL = S('Saltillo, Coah.', 25.4232, -101.0053, 6000);
   const CEL = S('Celaya, Gto.', 20.5235, -100.8157, 5000);
-  const QRO = S('Querétaro, Qro.', 20.5888, -100.3899, 6000);
+  const DOL = S('Dolores Hidalgo, Gto.', 21.1561, -100.9311, 5000);
+  const SMA = S('San Miguel de Allende, Gto.', 20.9144, -100.7452, 5000);
   const SLP = S('San Luis Potosí, SLP', 22.1565, -100.9855, 6000);
   const MAT = S('Matehuala, SLP', 23.6497, -100.6440);
   const LRD = S('Laredo, TX', 27.5306, -99.4803, 7000);
@@ -146,18 +147,18 @@ window.SEED = (function () {
       from: 'Saltillo, Coahuila', to: 'Celaya, Guanajuato',
       fromLat: 25.4232, fromLng: -101.0053, toLat: 20.5235, toLng: -100.8157,
       country: 'MX', startTz: 'America/Monterrey', arriveTz: 'America/Mexico_City',
-      distanceMi: 438, distanceNote: '~705 km',
-      driveHours: '~7.5 h', start: '07:25', arrive: '16:00',
-      route: 'Hwy 57 / 57D, 45D (Saltillo – Matehuala – San Luis Potosí – Querétaro – Celaya)',
-      notes: { en: 'Fallback overnight: San Luis Potosí (~450 km). Last stretch Querétaro – Celaya on 45D (~45 km): fill up in Querétaro and drive it straight through in daylight, no stops. In Google Maps, if it suggests the Dolores Hidalgo road, tap the grey alternative via Querétaro (57D/45D) before Start.', es: 'Plan B para dormir: San Luis Potosí (~450 km). Último tramo Querétaro – Celaya por la 45D (~45 km): cargar gasolina en Querétaro y hacerlo de corrido, de día y sin paradas. En Google Maps, si sugiere el camino por Dolores Hidalgo, tocar la ruta alterna gris por Querétaro (57D/45D) antes de Iniciar.' },
-      stops: [SAL, MAT, SLP, QRO, CEL],
+      distanceMi: 404, distanceNote: '404 mi (Google)',
+      driveHours: '7 h 45', start: '07:25', arrive: '16:15',
+      route: 'Hwy 57 to Matehuala, 57D past San Luis Potosí to the Dolores Hidalgo exit (near Villa de Reyes), then two-lane roads via Dolores Hidalgo and San Miguel de Allende (Hwy 51) into Celaya. Avoids Hwy 45D.',
+      notes: { en: 'This route avoids Hwy 45D, the road the US advisory restricts. The last ~150 km are two-lane roads with topes through Dolores Hidalgo and San Miguel de Allende: daylight only, no roadside stops, fuel only at big stations. Fallback overnight: San Luis Potosí or San Miguel de Allende.', es: 'Esta ruta evita la carretera 45D, la que restringe el aviso de EE. UU. Los últimos ~150 km son carreteras de dos carriles con topes por Dolores Hidalgo y San Miguel de Allende: solo de día, sin paradas en el acotamiento, gasolina solo en estaciones grandes. Plan B para dormir: San Luis Potosí o San Miguel de Allende.' },
+      stops: [SAL, MAT, SLP, DOL, SMA, CEL],
       fuelStops: [
         { en: 'Fill up in Saltillo.', es: 'Llenar el tanque en Saltillo.' },
-        { en: 'Refuel at Matehuala, then San Luis Potosí or Querétaro.', es: 'Recargar en Matehuala, luego San Luis Potosí o Querétaro.' },
+        { en: 'Refuel at Matehuala, then fill up in San Luis Potosí before leaving 57D.', es: 'Recargar en Matehuala y llenar en San Luis Potosí antes de salir de la 57D.' },
       ],
-      fuelSearch: ['OXXO Gas Matehuala', 'Pemex Matehuala', 'Pemex San Luis Potosí carretera 57', 'OXXO Gas Querétaro'],
-      foodSearch: ['VIPS Matehuala', 'Sanborns San Luis Potosí', 'Toks Querétaro'],
-      overnightSearch: ['City Express Celaya', 'Fiesta Inn Celaya', 'hotel con estacionamiento vigilado Celaya', 'Fiesta Inn San Luis Potosí'],
+      fuelSearch: ['OXXO Gas Matehuala', 'Pemex Matehuala', 'Pemex San Luis Potosí carretera 57', 'Pemex San Miguel de Allende'],
+      foodSearch: ['VIPS Matehuala', 'Sanborns San Luis Potosí', 'restaurantes San Miguel de Allende'],
+      overnightSearch: ['City Express Celaya', 'Fiesta Inn Celaya', 'hotel con estacionamiento vigilado Celaya', 'hotel con estacionamiento San Miguel de Allende'],
     },
 
     // ── Return trip ──
@@ -166,17 +167,17 @@ window.SEED = (function () {
       from: 'Celaya, Guanajuato', to: 'Saltillo, Coahuila',
       fromLat: 20.5235, fromLng: -100.8157, toLat: 25.4232, toLng: -101.0053,
       country: 'MX', startTz: 'America/Mexico_City', arriveTz: 'America/Monterrey',
-      distanceMi: 438, distanceNote: '~705 km',
-      driveHours: '~7.5 h', start: '07:30', arrive: '16:00',
-      route: '45D to Querétaro, then 57D north (Querétaro – San Luis Potosí – Matehuala – Saltillo)',
-      notes: { en: 'First stretch Celaya – Querétaro on 45D: leave at sunrise and drive it straight through, no stops. In Google Maps, if it suggests the Dolores Hidalgo road, tap the grey alternative via Querétaro (45D/57D) before Start. Fallback overnight: San Luis Potosí or Matehuala.', es: 'Primer tramo Celaya – Querétaro por la 45D: salir al amanecer y hacerlo de corrido, sin paradas. En Google Maps, si sugiere el camino por Dolores Hidalgo, tocar la ruta alterna gris por Querétaro (45D/57D) antes de Iniciar. Plan B para dormir: San Luis Potosí o Matehuala.' },
-      stops: [CEL, QRO, SLP, MAT, SAL],
+      distanceMi: 404, distanceNote: '404 mi (Google)',
+      driveHours: '~7 h 45', start: '07:30', arrive: '16:15',
+      route: 'Hwy 51 north via San Miguel de Allende and Dolores Hidalgo (two-lane), join 57D near Villa de Reyes, then north via San Luis Potosí and Matehuala to Saltillo. Avoids Hwy 45D.',
+      notes: { en: 'The first ~150 km are two-lane roads through San Miguel de Allende and Dolores Hidalgo: leave at sunrise, daylight only, no roadside stops. Fallback overnight: San Luis Potosí or Matehuala.', es: 'Los primeros ~150 km son carreteras de dos carriles por San Miguel de Allende y Dolores Hidalgo: salir al amanecer, solo de día, sin paradas en el acotamiento. Plan B para dormir: San Luis Potosí o Matehuala.' },
+      stops: [CEL, SMA, DOL, SLP, MAT, SAL],
       fuelStops: [
         { en: 'Fill up in Celaya the evening before.', es: 'Llenar el tanque en Celaya la noche anterior.' },
         { en: 'Refuel at San Luis Potosí, then Matehuala (last good services before the desert stretch).', es: 'Recargar en San Luis Potosí, luego Matehuala (últimos buenos servicios antes del desierto).' },
       ],
       fuelSearch: ['OXXO Gas Celaya', 'Pemex San Luis Potosí carretera 57', 'OXXO Gas Matehuala', 'Pemex Matehuala'],
-      foodSearch: ['Toks Querétaro', 'Sanborns San Luis Potosí', 'VIPS Matehuala'],
+      foodSearch: ['restaurantes San Miguel de Allende', 'Sanborns San Luis Potosí', 'VIPS Matehuala'],
       overnightSearch: ['hotel con estacionamiento vigilado Saltillo', 'Fiesta Inn Saltillo', 'City Express Saltillo', 'Fiesta Inn San Luis Potosí'],
     },
     {
@@ -319,13 +320,13 @@ window.SEED = (function () {
       { en: 'Leave Saltillo with a full tank: the stretch to Matehuala is long desert with few services.', es: 'Salir de Saltillo con tanque lleno: el tramo a Matehuala es desierto largo con pocos servicios.' },
       { en: 'Expect fog on the high plains early and heavy trucks on 57D.', es: 'Esperar neblina temprano en el altiplano y mucho tráiler en la 57D.' },
       { en: 'If delayed, overnight in San Luis Potosí.', es: 'Si hay retraso, dormir en San Luis Potosí.' },
-      { en: 'Avoid Querétaro to Celaya rush hour.', es: 'Evitar la hora pico de Querétaro a Celaya.' },
+      { en: 'Two-lane stretch after the Dolores Hidalgo exit: topes in every town and slow trucks; pass only with a long clear view.', es: 'Tramo de dos carriles después de la salida a Dolores Hidalgo: topes en cada pueblo y tráilers lentos; rebasar solo con buena visibilidad.' },
       { en: 'Send the arrival message.', es: 'Enviar el mensaje de llegada.' },
-      { en: 'Fill up in Querétaro, then drive Querétaro – Celaya (45D) straight through in daylight: no stops on 45D.', es: 'Cargar gasolina en Querétaro y luego hacer Querétaro – Celaya (45D) de corrido y de día: sin paradas en la 45D.' },
+      { en: 'Fill up in San Luis Potosí before leaving 57D.', es: 'Llenar el tanque en San Luis Potosí antes de salir de la 57D.' },
     ],
     [ // before ret1 (Fri Jan 1)
       { en: 'Fill the tank in Celaya tonight.', es: 'Llenar el tanque en Celaya esta noche.' },
-      { en: 'Leave at sunrise (~7:20 AM): Celaya – Querétaro on 45D straight through, no stops.', es: 'Salir al amanecer (~7:20 AM): Celaya – Querétaro por la 45D de corrido, sin paradas.' },
+      { en: 'Leave at sunrise (~7:20 AM): two-lane stretch through San Miguel de Allende and Dolores Hidalgo first; no roadside stops.', es: 'Salir al amanecer (~7:20 AM): primero el tramo de dos carriles por San Miguel de Allende y Dolores Hidalgo; sin paradas en el acotamiento.' },
       { en: 'Confirm the Saltillo hotel (secure parking) and refresh Google Maps offline areas.', es: 'Confirmar el hotel en Saltillo (estacionamiento seguro) y actualizar las zonas sin conexión de Google Maps.' },
       { en: 'MXN cash for casetas; documents together: passports, TIP, FMM, insurance.', es: 'Efectivo en MXN para casetas; documentos juntos: pasaportes, TIP, FMM, seguro.' },
       { en: "Check the Mexican insurance covers through the crossing date (Jan 3).", es: 'Verificar que el seguro mexicano cubra hasta el día del cruce (3 de enero).' },
@@ -364,17 +365,11 @@ window.SEED = (function () {
   const expectedTolls = [
     { key: 'out-bridge2', leg: 'out', name: 'Puente Internacional II "Camino Real" (Eagle Pass – Piedras Negras)', highway: 'Bridge', estAmount: null, currency: 'USD', kind: 'bridge', optional: false,
       note: { en: 'Bridge toll, have USD cash.', es: 'Cuota del puente, tener efectivo en USD.' } },
-    { key: 'out-57d', leg: 'out', name: 'Hwy 57 / 57D casetas (Piedras Negras – Saltillo – Querétaro)', highway: '57D', matchHighway: '57', estAmount: null, currency: 'MXN', kind: 'toll', optional: false,
-      note: { en: 'Enter each caseta name as you pass it (highway 57/57D).', es: 'Anotar el nombre de cada caseta al pasarla (carretera 57/57D).' } },
-    { key: 'out-libqro', leg: 'out', name: 'Libramiento Noreste de Querétaro', highway: 'Libramiento NE', estAmount: 65, currency: 'MXN', kind: 'toll', optional: true,
-      note: { en: 'If used.', es: 'Si se usa.' } },
-    { key: 'out-45d', leg: 'out', name: 'Querétaro – Celaya', highway: '45D', estAmount: 105, currency: 'MXN', kind: 'toll', optional: false, note: { en: '', es: '' } },
+    { key: 'out-57d', leg: 'out', name: 'Hwy 57 / 57D casetas (Piedras Negras – Saltillo – San Luis Potosí)', highway: '57D', matchHighway: '57', estAmount: 344, currency: 'MXN', kind: 'toll', optional: false,
+      note: { en: 'Up to ~MX$344 (Google estimate, Nov 2026). Enter each caseta name as you pass it.', es: 'Hasta ~MX$344 (estimado de Google, nov. 2026). Anotar el nombre de cada caseta al pasarla.' } },
 
-    { key: 'ret-45d', leg: 'return', name: 'Celaya – Querétaro (return)', highway: '45D', estAmount: 105, currency: 'MXN', kind: 'toll', optional: false, note: { en: '', es: '' } },
-    { key: 'ret-libqro', leg: 'return', name: 'Libramiento Noreste de Querétaro (return)', highway: 'Libramiento NE', estAmount: 65, currency: 'MXN', kind: 'toll', optional: true,
-      note: { en: 'If used.', es: 'Si se usa.' } },
-    { key: 'ret-57d', leg: 'return', name: 'Hwy 57D / 57 casetas (Querétaro – Saltillo – Piedras Negras) (return)', highway: '57D', matchHighway: '57', estAmount: null, currency: 'MXN', kind: 'toll', optional: false,
-      note: { en: 'Enter each caseta name as you pass it (highway 57/57D).', es: 'Anotar el nombre de cada caseta al pasarla (carretera 57/57D).' } },
+    { key: 'ret-57d', leg: 'return', name: 'Hwy 57D / 57 casetas (San Luis Potosí – Saltillo – Piedras Negras) (return)', highway: '57D', matchHighway: '57', estAmount: 344, currency: 'MXN', kind: 'toll', optional: false,
+      note: { en: 'Up to ~MX$344 (Google estimate, Nov 2026). Enter each caseta name as you pass it.', es: 'Hasta ~MX$344 (estimado de Google, nov. 2026). Anotar el nombre de cada caseta al pasarla.' } },
     { key: 'ret-bridge2', leg: 'return', name: 'Puente Internacional II "Camino Real" (return)', highway: 'Bridge', estAmount: null, currency: 'MXN', kind: 'bridge', optional: false,
       note: { en: 'Northbound bridge toll, paid on the Mexican side. Have MXN and USD cash.', es: 'Cuota del puente rumbo al norte, se paga del lado mexicano. Tener efectivo en MXN y USD.' } },
   ];
