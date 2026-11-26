@@ -4,7 +4,7 @@
  */
 'use strict';
 
-const APP_VERSION = '2.9'; // keep in step with CACHE in sw.js ('mexico-trip-v2-9')
+const APP_VERSION = '2.10'; // keep in step with CACHE in sw.js ('mexico-trip-v2-10')
 const STORE_KEY = 'mexico-trip-v2';
 const LEGACY_KEY = 'travel-tracker-v1';
 const LEGACY_RATE_KEY = 'travel-tracker-rate';
@@ -1142,7 +1142,9 @@ function moreEmergency() {
   const nums = [
     ['911', t('em_911'), false, '911'], ['089', t('em_089'), false, '089'], ['078', t('em_078'), false, '078'], ['088', t('em_088'), false, '088'],
     ['+525525792000', t('em_embassy'), false, '+52 55 2579 2000'],
-    ['+528180473100', t('em_consulate'), true, '+52 81 8047 3100'],
+    ['+13019858843', t('em_embassy_us'), false, '+1 301 985 8843'],
+    ['+528180473100', t('em_consulate'), false, '+52 81 8047 3100'],
+    ['+12025014444', t('em_oci'), false, '+1 202 501 4444'],
   ];
   return `<div class="card danger"><h2>🆘 ${t('emergency_title')}</h2><div class="stack">
     ${nums.map(([n, label, verify, shown]) => `<a class="btn btn-xl btn-block" href="tel:${n}" style="justify-content:space-between"><span>📞 ${esc(label)}</span><b>${esc(shown)}</b></a>

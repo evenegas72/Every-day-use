@@ -136,7 +136,7 @@ The test runs headless Chromium and covers:
 
 ### Releasing a new version
 
-When you change any app file, **bump `CACHE` in `sw.js`** (for example `mexico-trip-v2-9` → `mexico-trip-v2-10`) and `APP_VERSION` in `app.js` to match. The version shows in More → Settings.
+When you change any app file, **bump `CACHE` in `sw.js`** (for example `mexico-trip-v2-10` → `mexico-trip-v2-11`) and `APP_VERSION` in `app.js` to match. The version shows in More → Settings.
 Installed phones then download the new files on their next online launch.
 
 ### Deploy (rks-trip-planner only)
