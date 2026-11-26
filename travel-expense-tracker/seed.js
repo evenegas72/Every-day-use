@@ -365,11 +365,11 @@ window.SEED = (function () {
   const expectedTolls = [
     { key: 'out-bridge2', leg: 'out', name: 'Puente Internacional II "Camino Real" (Eagle Pass – Piedras Negras)', highway: 'Bridge', estAmount: null, currency: 'USD', kind: 'bridge', optional: false,
       note: { en: 'Bridge toll, have USD cash.', es: 'Cuota del puente, tener efectivo en USD.' } },
-    { key: 'out-57d', leg: 'out', name: 'Hwy 57 / 57D casetas (Piedras Negras – Saltillo – San Luis Potosí)', highway: '57D', matchHighway: '57', estAmount: null, currency: 'MXN', kind: 'toll', optional: false,
-      note: { en: 'Enter each caseta name as you pass it (highway 57/57D).', es: 'Anotar el nombre de cada caseta al pasarla (carretera 57/57D).' } },
+    { key: 'out-57d', leg: 'out', name: 'Hwy 57 / 57D casetas (Piedras Negras – Saltillo – San Luis Potosí)', highway: '57D', matchHighway: '57', estAmount: 344, currency: 'MXN', kind: 'toll', optional: false,
+      note: { en: 'Up to ~MX$344 (Google estimate, Nov 2026). Enter each caseta name as you pass it.', es: 'Hasta ~MX$344 (estimado de Google, nov. 2026). Anotar el nombre de cada caseta al pasarla.' } },
 
-    { key: 'ret-57d', leg: 'return', name: 'Hwy 57D / 57 casetas (San Luis Potosí – Saltillo – Piedras Negras) (return)', highway: '57D', matchHighway: '57', estAmount: null, currency: 'MXN', kind: 'toll', optional: false,
-      note: { en: 'Enter each caseta name as you pass it (highway 57/57D).', es: 'Anotar el nombre de cada caseta al pasarla (carretera 57/57D).' } },
+    { key: 'ret-57d', leg: 'return', name: 'Hwy 57D / 57 casetas (San Luis Potosí – Saltillo – Piedras Negras) (return)', highway: '57D', matchHighway: '57', estAmount: 344, currency: 'MXN', kind: 'toll', optional: false,
+      note: { en: 'Up to ~MX$344 (Google estimate, Nov 2026). Enter each caseta name as you pass it.', es: 'Hasta ~MX$344 (estimado de Google, nov. 2026). Anotar el nombre de cada caseta al pasarla.' } },
     { key: 'ret-bridge2', leg: 'return', name: 'Puente Internacional II "Camino Real" (return)', highway: 'Bridge', estAmount: null, currency: 'MXN', kind: 'bridge', optional: false,
       note: { en: 'Northbound bridge toll, paid on the Mexican side. Have MXN and USD cash.', es: 'Cuota del puente rumbo al norte, se paga del lado mexicano. Tener efectivo en MXN y USD.' } },
   ];
