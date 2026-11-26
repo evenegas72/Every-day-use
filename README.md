@@ -72,9 +72,9 @@ There is no server, Firestore or login.
   1. Bump `version`.
   2. Regenerate the history from the repo root, listing the commits of every version already shipped, oldest first:
      ```bash
-     node scripts/build-seed-history.js f75ef61 14d3ef9 af13fe3 0215614 46ca27c a9a89ea
+     node scripts/build-seed-history.js f75ef61 14d3ef9 af13fe3 0215614 46ca27c a9a89ea ce0bde0
      ```
-     That command covers versions 1 to 6. Once version 7 ships, add its commit to the list.
+     That command covers versions 1 to 7. Once version 8 ships, add its commit to the list.
   3. Save a snapshot of the previous version as a new fixture for the test.
 - **Real-places cache:** stored separately under `mexico-trip-osm`.
 - **Backups:** importing a backup, clearing expenses or applying a plan update saves a copy under `mexico-trip-v2-backup`.
@@ -136,7 +136,7 @@ The test runs headless Chromium and covers:
 
 ### Releasing a new version
 
-When you change any app file, **bump `CACHE` in `sw.js`** (for example `mexico-trip-v2-8` → `mexico-trip-v2-9`) and `APP_VERSION` in `app.js` to match. The version shows in More → Settings.
+When you change any app file, **bump `CACHE` in `sw.js`** (for example `mexico-trip-v2-9` → `mexico-trip-v2-10`) and `APP_VERSION` in `app.js` to match. The version shows in More → Settings.
 Installed phones then download the new files on their next online launch.
 
 ### Deploy (rks-trip-planner only)

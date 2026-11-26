@@ -4,7 +4,7 @@
  */
 'use strict';
 
-const APP_VERSION = '2.8'; // keep in step with CACHE in sw.js ('mexico-trip-v2-8')
+const APP_VERSION = '2.9'; // keep in step with CACHE in sw.js ('mexico-trip-v2-9')
 const STORE_KEY = 'mexico-trip-v2';
 const LEGACY_KEY = 'travel-tracker-v1';
 const LEGACY_RATE_KEY = 'travel-tracker-rate';
@@ -823,6 +823,7 @@ function viewToday() {
     <button class="btn" data-act="osmOpen" data-day="${day.id}">🏨 ${t('osm_btn')}</button>
   </div>
   ${day.links && day.links.length ? `<div class="card warn">${borderLinks(day, true)}</div>` : ''}
+  ${day.country !== 'US' ? checkpointsCard() : ''}
   ${rangeCard(rg, true)}
   <div class="card"><div class="card-title"><h2>🕑 ${t('checkins_title')}</h2></div>
     ${day.checkins.length ? `<ul class="timeline">${day.checkins.slice().reverse().map((c) => `
@@ -1135,18 +1136,29 @@ function moreDocs() {
   ${rulesCard()}`;
 }
 function rulesCard() {
-  return `<div class="card warn"><h2>🚦 ${t('rules_title')}</h2><ul class="checklist">${['r1', 'r2', 'r3', 'r4', 'r5', 'r6'].map((k) => `<li>• <span>${t('rules_' + k)}</span></li>`).join('')}</ul></div>`;
+  return `<div class="card warn"><h2>🚦 ${t('rules_title')}</h2><ul class="checklist">${['r1', 'r2', 'r3', 'r4', 'r5', 'r6'].map((k) => `<li style="align-items:flex-start">• <span>${t('rules_' + k)}</span></li>`).join('')}</ul></div>`;
 }
 function moreEmergency() {
   const nums = [
-    ['911', t('em_911'), false, '911'], ['078', t('em_078'), false, '078'], ['088', t('em_088'), false, '088'],
+    ['911', t('em_911'), false, '911'], ['089', t('em_089'), false, '089'], ['078', t('em_078'), false, '078'], ['088', t('em_088'), false, '088'],
     ['+525525792000', t('em_embassy'), false, '+52 55 2579 2000'],
     ['+528180473100', t('em_consulate'), true, '+52 81 8047 3100'],
   ];
   return `<div class="card danger"><h2>🆘 ${t('emergency_title')}</h2><div class="stack">
     ${nums.map(([n, label, verify, shown]) => `<a class="btn btn-xl btn-block" href="tel:${n}" style="justify-content:space-between"><span>📞 ${esc(label)}</span><b>${esc(shown)}</b></a>
       ${verify ? `<div class="hint">⚠️ ${t('verify_before_trip')}</div>` : ''}`).join('')}
-  </div></div>${rulesCard()}`;
+  </div></div>${checkpointsCard()}${rulesCard()}`;
+}
+/** What to do at a checkpoint (real or fake). Shown in Emergency and on Today during Mexico days. */
+function checkpointsCard() {
+  return `<div class="card warn" id="checkpoints-card"><h2>🛑 ${t('cp_title')}</h2>
+    <ul class="checklist">${['cp_1', 'cp_2', 'cp_3', 'cp_4', 'cp_5'].map((k) => `<li style="align-items:flex-start">• <span>${t(k)}</span></li>`).join('')}</ul>
+    <div class="rule" style="font-size:1.05rem"><b>“¿Me da la boleta para pagarla en la oficina?”</b><div class="small muted">${t('cp_phrase_gloss')}</div></div>
+    <h3>💵 ${t('cp_cash_title')}</h3><div class="small">${t('cp_cash')}</div>
+    <h3>📍 ${t('cp_share_title')}</h3><div class="small">${t('cp_share')}</div>
+    <h3>📞 ${t('cp_after_title')}</h3><div class="small">${t('cp_after')}</div>
+    <div class="row" style="margin-top:10px;gap:8px"><a class="btn btn-sm" href="tel:089">📞 089</a><a class="btn btn-sm" href="tel:911">📞 911</a></div>
+  </div>`;
 }
 function moreSettings() {
   const s = S.settings;

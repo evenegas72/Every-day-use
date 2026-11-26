@@ -12,7 +12,7 @@
  * Bump `version` whenever this file changes in a way existing phones should get.
  */
 window.SEED = (function () {
-  const version = 7;
+  const version = 8;
 
   const S = (name, lat, lng, r) => ({ name, lat, lng, r: r || 8000 });
   const GP = S('Grants Pass, OR', 42.4390, -123.3284);
@@ -313,6 +313,7 @@ window.SEED = (function () {
       { en: "Share the day's plan with family.", es: 'Compartir el plan del día con la familia.' },
       { en: 'Nothing visible in the car.', es: 'Nada a la vista dentro del carro.' },
       { en: 'FMM (tourist permit) for everyone: done online, or get it at the INM office at the bridge.', es: 'FMM (permiso de turista) para todos: ya tramitado en línea, o sacarlo en la oficina del INM en el puente.' },
+      { en: 'Split the cash (wallet: ~MX$1,000 + US$40–50, the rest hidden) and read the checkpoint card (More → Emergency). Share live location with family on WhatsApp.', es: 'Dividir el efectivo (cartera: ~MX$1,000 + US$40–50, el resto escondido) y leer la tarjeta de retenes (Más → Emergencia). Compartir ubicación en tiempo real con la familia por WhatsApp.' },
       { en: 'Declare goods over $300 at Mexican customs (gifts count). Copies of the kids\' birth certificates at hand.', es: 'Declarar mercancía de más de $300 en la aduana mexicana (los regalos cuentan). Copias de las actas de nacimiento de los niños a la mano.' },
     ],
     [ // before out6
@@ -328,6 +329,7 @@ window.SEED = (function () {
       { en: 'Fill the tank in Celaya tonight.', es: 'Llenar el tanque en Celaya esta noche.' },
       { en: 'Leave at sunrise (~7:20 AM): two-lane stretch through San Miguel de Allende and Dolores Hidalgo first; no roadside stops.', es: 'Salir al amanecer (~7:20 AM): primero el tramo de dos carriles por San Miguel de Allende y Dolores Hidalgo; sin paradas en el acotamiento.' },
       { en: 'Confirm the Saltillo hotel (secure parking) and refresh Google Maps offline areas.', es: 'Confirmar el hotel en Saltillo (estacionamiento seguro) y actualizar las zonas sin conexión de Google Maps.' },
+      { en: 'Split the cash (wallet: ~MX$1,000 + US$40–50, the rest hidden) and review the checkpoint card (More → Emergency). Share live location with family on WhatsApp.', es: 'Dividir el efectivo (cartera: ~MX$1,000 + US$40–50, el resto escondido) y repasar la tarjeta de retenes (Más → Emergencia). Compartir ubicación en tiempo real con la familia por WhatsApp.' },
       { en: 'MXN cash for casetas; documents together: passports, TIP, FMM, insurance.', es: 'Efectivo en MXN para casetas; documentos juntos: pasaportes, TIP, FMM, seguro.' },
       { en: "Check the Mexican insurance covers through the crossing date (Jan 3).", es: 'Verificar que el seguro mexicano cubra hasta el día del cruce (3 de enero).' },
       { en: "Share the day's plan with family.", es: 'Compartir el plan del día con la familia.' },
@@ -402,6 +404,7 @@ window.SEED = (function () {
     { key: 'step', text: { en: 'Enroll in STEP (mytravel.state.gov) for embassy alerts', es: 'Inscribirse en STEP (mytravel.state.gov) para alertas de la embajada' } },
     { key: 'banjercito', text: { en: 'Ask Banjercito (Contacto on gob.mx/banjercito): "¿El módulo del Km 53.4 de la carretera 57 (Allende, Piedras Negras) cancela permisos de importación temporal un domingo?"', es: 'Preguntar a Banjercito (Contacto en gob.mx/banjercito): "¿El módulo del Km 53.4 de la carretera 57 (Allende, Piedras Negras) cancela permisos de importación temporal un domingo?"' } },
     { key: 'inm', text: { en: 'FMM: apply online, or confirm the INM office hours at Piedras Negras Puente II', es: 'FMM: tramitar en línea, o confirmar el horario de la oficina del INM en Piedras Negras Puente II' } },
+    { key: 'paisanos', text: { en: 'Check "Héroes Paisanos" convoy (caravana) dates from Piedras Negras around Dec 16 (Guardia Nacional escort); join one if available', es: 'Revisar fechas de las caravanas "Héroes Paisanos" desde Piedras Negras alrededor del 16 de dic. (escolta de la Guardia Nacional); unirse si hay una' } },
     { key: 'tipcancel', text: { en: 'Return trip: cancel the TIP at the border before leaving Mexico (keep the receipt)', es: 'Regreso: cancelar el TIP en la frontera antes de salir de México (guardar el comprobante)' } },
   ];
 
