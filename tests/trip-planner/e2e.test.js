@@ -143,6 +143,7 @@ async function allViewsClean(page, label) {
   await page.click('[data-nav="today"]');
   ok(await page.evaluate(() => !!document.getElementById('checkpoints-card') && document.body.innerText.includes('¿Me da la boleta')), 'checkpoint card shows on Today during a Mexico day');
   ok(await page.evaluate(() => S.docs.some((d) => d.key === 'paisanos')), 'Héroes Paisanos convoy item on the checklist');
+  ok(await page.evaluate(() => moreEmergency().includes('tel:+13019858843') && moreEmergency().includes('tel:+12025014444') && !moreEmergency().includes('verify')), 'emergency numbers updated (embassy US line, State Dept 24/7, consulate verified)');
   ok(await page.evaluate(() => S.days[4].links.length === 5 && S.days[7].links.length === 5), 'both border days have wait-time and backup-bridge links');
 
   // Fuel: two full fills → mpg
@@ -342,7 +343,7 @@ async function allViewsClean(page, label) {
   await p5.click('[data-nav="more"]');
   await p5.click('[data-name="moreTab"][data-val="settings"]');
   const setTxt = await visibleText(p5);
-  ok(setTxt.includes('App version 2.9 · trip plan v8') || setTxt.includes('Versión de la app 2.9 · plan del viaje v8'), 'app version shown in Settings');
+  ok(setTxt.includes('App version 2.10 · trip plan v8') || setTxt.includes('Versión de la app 2.10 · plan del viaje v8'), 'app version shown in Settings');
   await ctx5.close();
 
   const realErrors = errors.filter((e) => !/net::ERR_INTERNET_DISCONNECTED|net::ERR_FAILED|Failed to fetch|frankfurter|jsdelivr|ERR_TUNNEL|ERR_PROXY|status of 40/i.test(e));
