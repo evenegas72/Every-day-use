@@ -140,6 +140,9 @@ async function allViewsClean(page, label) {
   const r1 = await page.evaluate(() => mapsRoute(S.days[0]));
   ok(r1.includes('destination=36.00830%2C-119.96180') && r1.includes('origin=42.43900%2C-123.32840'), 'route button sends exact coordinates (Day 1 → Kettleman City): ' + r1);
   ok(await page.evaluate(() => !mapsRoute(S.days[5]).includes('waypoints=') && mapsRoute(S.days[4]).includes('waypoints=Camino%20Real')), 'Day 6 has no extra stops; border day stops only at the Camino Real bridge');
+  await page.click('[data-nav="today"]');
+  ok(await page.evaluate(() => !!document.getElementById('checkpoints-card') && document.body.innerText.includes('¿Me da la boleta')), 'checkpoint card shows on Today during a Mexico day');
+  ok(await page.evaluate(() => S.docs.some((d) => d.key === 'paisanos')), 'Héroes Paisanos convoy item on the checklist');
   ok(await page.evaluate(() => S.days[4].links.length === 5 && S.days[7].links.length === 5), 'both border days have wait-time and backup-bridge links');
 
   // Fuel: two full fills → mpg
@@ -243,12 +246,12 @@ async function allViewsClean(page, label) {
     paid40out: expectedStatus().find((x) => x.exp.key === 'out-40d').paid, ret40: S.expectedTolls.some((e) => e.key === 'ret-40d'),
     colombia: S.expectedTolls.some((e) => e.key === 'out-colombia'), to1: S.days[0].to, from5: S.days[4].from,
   }));
-  ok(up.v === 7 && up.days === 12, `plan upgraded to 12 days (out1–6 + ret1–6): ${up.keys}`);
+  ok(up.v === 8 && up.days === 12, `plan upgraded to 12 days (out1–6 + ret1–6): ${up.keys}`);
   ok(up.to1 === 'Kettleman City, CA (I-5)' && up.from5 === 'Eagle Pass, TX', 'untouched days moved to the current route (Kettleman City, Eagle Pass)');
   ok(up.exp === 1 && up.tolls === 1, 'existing expenses and tolls kept');
   ok(up.route1 === 'I-5 S (user edit)' && up.food === 400, 'user edits kept (day route, food budget)');
   ok(up.start6 === '07:25' && up.fuel === 1140, 'untouched seed values updated (Day 6 start 7:25, round-trip fuel budget)');
-  ok(up.docs === 17 && up.doc0 === true && up.ownNote, 'new documents added, checked items and own notes kept');
+  ok(up.docs === 18 && up.doc0 === true && up.ownNote, 'new documents added, checked items and own notes kept');
   ok(up.stops && up.retTolls === 2 && up.backup && up.lang === 'es', 'stop towns, return tolls, backup copy and settings in place' + ' ' + JSON.stringify({ stops: up.stops, ret: up.retTolls, backup: up.backup, lang: up.lang }));
   ok(up.paid40out && !up.ret40 && !up.colombia, 'old-route toll kept only where a toll was logged against it (40D); unused Colombia items removed');
   const famTxt = await visibleText(p3);
@@ -306,7 +309,7 @@ async function allViewsClean(page, label) {
     own: S.days[5].tomorrowNotes.some((n) => n.text === 'My own note'),
     tollKeys: S.expectedTolls.map((e) => e.key).join(','), exp: S.expenses.length, tolls: S.tolls.length,
   }));
-  ok(u4.v === 7 && u4.n === 12 && u4.out4 === 'Eagle Pass, TX' && u4.ret2 === 'Eagle Pass, TX' && u4.ret5 === 'Kettleman City, CA (I-5)', 'Colombia days rerouted via Eagle Pass, both directions');
+  ok(u4.v === 8 && u4.n === 12 && u4.out4 === 'Eagle Pass, TX' && u4.ret2 === 'Eagle Pass, TX' && u4.ret5 === 'Kettleman City, CA (I-5)', 'Colombia days rerouted via Eagle Pass, both directions');
   ok(u4.hours4 === '8 h (my estimate)' && u4.route1 === 'I-5 S (user edit)', 'fields the user edited are kept');
   ok(u4.notes5.some((x) => x.startsWith('Check Puente 2')) && !u4.notes5.some((x) => x.includes('Puente Colombia hours')) && u4.done5, 'border-day notes switched to Puente 2; checked notes stay checked');
   ok(u4.own && u4.exp === 1 && u4.tolls === 1, "user's own notes, expenses and tolls kept");
@@ -328,7 +331,7 @@ async function allViewsClean(page, label) {
     v: S.seedVersion, to: S.days.map((d) => d.to.split(' (')[0]).join(' | '), route1: S.days[0].route, hours4: S.days[3].driveHours,
     fog: S.days[1].tomorrowNotes.some((n) => (n.text.en || '').startsWith('Tule fog')), exp: S.expenses.length,
   }));
-  ok(u5.v === 7 && u5.to.startsWith('Kettleman City, CA | Goodyear, AZ | El Paso, TX | Eagle Pass, TX') && u5.to.includes('Goodyear, AZ | Kettleman City, CA | Grants Pass, OR'), 'Day 1 → Kettleman City, Day 2 → Goodyear, mirrored on the return: ' + u5.to);
+  ok(u5.v === 8 && u5.to.startsWith('Kettleman City, CA | Goodyear, AZ | El Paso, TX | Eagle Pass, TX') && u5.to.includes('Goodyear, AZ | Kettleman City, CA | Grants Pass, OR'), 'Day 1 → Kettleman City, Day 2 → Goodyear, mirrored on the return: ' + u5.to);
   ok(u5.route1 === 'I-5 S (user edit)' && u5.hours4 === '8 h (my estimate)' && u5.exp === 1, 'user edits and expenses kept');
   ok(u5.fog, 'tule fog heads-up added before Day 2');
   const stale = await p5.evaluate(() => S.days.filter((d) => /Buttonwillow|Chandler/.test(d.distanceNote || '')).map((d) => d.key));
@@ -339,7 +342,7 @@ async function allViewsClean(page, label) {
   await p5.click('[data-nav="more"]');
   await p5.click('[data-name="moreTab"][data-val="settings"]');
   const setTxt = await visibleText(p5);
-  ok(setTxt.includes('App version 2.8 · trip plan v7') || setTxt.includes('Versión de la app 2.8 · plan del viaje v7'), 'app version shown in Settings');
+  ok(setTxt.includes('App version 2.9 · trip plan v8') || setTxt.includes('Versión de la app 2.9 · plan del viaje v8'), 'app version shown in Settings');
   await ctx5.close();
 
   const realErrors = errors.filter((e) => !/net::ERR_INTERNET_DISCONNECTED|net::ERR_FAILED|Failed to fetch|frankfurter|jsdelivr|ERR_TUNNEL|ERR_PROXY|status of 40/i.test(e));
