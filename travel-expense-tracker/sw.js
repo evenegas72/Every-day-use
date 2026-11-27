@@ -3,7 +3,7 @@
  * Exchange-rate API calls (other origins) are never cached here; the app
  * stores the last rate itself.
  */
-const CACHE = 'mexico-trip-v2-10';
+const CACHE = 'mexico-trip-v2-11';
 const SHELL = [
   './',
   './index.html',
