@@ -176,10 +176,27 @@ async function allViewsClean(page, label) {
   await page.selectOption('form[data-form="expense"] [name=category]', 'fuel');
   ok(await page.isDisabled('form[data-form="expense"] [type=submit]'), 'choosing Fuel in Spend points to the Fuel log instead');
 
+  // Points of interest tab: whole route + stops; plan one for Day 4 and see it on Today
+  await page.click('[data-nav="plan"]');
+  await page.click('[data-name="planTab"][data-val="poi"]');
+  const poiTxt = await visibleText(page);
+  ok(poiTxt.includes('Whole route') && poiTxt.includes('Spare daylight') && poiTxt.includes('Sundial Bridge') && poiTxt.includes('Day trips from Celaya'), 'Points of interest tab shows the whole route, stops and day trips');
+  ok(!(await page.evaluate(() => document.body.innerHTML.includes('⟦'))), 'Points of interest tab has no missing strings (EN)');
+  await page.click('[data-act="poiToggle"][data-id="pecos-bridge"][data-day="' + (await page.evaluate(() => S.days[3].id)) + '"]');
+  ok(await page.evaluate(() => S.poiPicks['out4:pecos-bridge'] === true && JSON.parse(localStorage.getItem('mexico-trip-v2')).poiPicks['out4:pecos-bridge'] === true), 'planned stop is saved');
+  await page.click('[data-nav="today"]');
+  await page.evaluate(() => { ui.dayIdx = 3; render(); });
+  ok((await visibleText(page)).includes('Planned stops today') && (await visibleText(page)).includes('Pecos River overlook'), 'planned stop shows on Today for that day');
+  await page.evaluate(() => { ui.dayIdx = null; render(); });
+
   // Language toggle
   await allViewsClean(page, 'English');
   await page.click('#lang-chip');
   await allViewsClean(page, 'Spanish');
+  await page.click('[data-nav="plan"]');
+  await page.click('[data-name="planTab"][data-val="poi"]');
+  ok((await visibleText(page)).includes('Lugares de interés') && !(await page.evaluate(() => document.body.innerHTML.includes('⟦'))), 'Points of interest tab in Spanish, no missing strings');
+  await page.click('[data-name="planTab"][data-val="days"]');
   await page.click('[data-nav="today"]');
   const es = await visibleText(page);
   ok(es.includes('Registrar') && es.includes('Compartir estado') && es.includes('Mañana: Día 6'), 'Spanish UI text shown on Today');
@@ -343,7 +360,7 @@ async function allViewsClean(page, label) {
   await p5.click('[data-nav="more"]');
   await p5.click('[data-name="moreTab"][data-val="settings"]');
   const setTxt = await visibleText(p5);
-  ok(setTxt.includes('App version 2.10 · trip plan v8') || setTxt.includes('Versión de la app 2.10 · plan del viaje v8'), 'app version shown in Settings');
+  ok(setTxt.includes('App version 2.11 · trip plan v8') || setTxt.includes('Versión de la app 2.11 · plan del viaje v8'), 'app version shown in Settings');
   await ctx5.close();
 
   const realErrors = errors.filter((e) => !/net::ERR_INTERNET_DISCONNECTED|net::ERR_FAILED|Failed to fetch|frankfurter|jsdelivr|ERR_TUNNEL|ERR_PROXY|status of 40/i.test(e));

@@ -27,6 +27,8 @@ The seeded plan is a round trip:
 Distances are taken from Google Maps where available (marked "Google"), and are estimates otherwise (marked "est.").
 Border days link to live bridge wait times and to the two backup bridges, Del Rio – Ciudad Acuña and Puente Colombia.
 
+**Points of interest:** Plan → Points of interest shows the whole route with the spare daylight per day, stops within ~15 minutes of the route (from `SEED.poi`, read directly so editing it never touches saved data), and day trips from Celaya. Planned stops are saved in `poiPicks` and shown on Today.
+
 **Real places:** each day lists towns along the route. "Real places nearby" looks up hotels, gas
 stations and branded restaurants around those towns from OpenStreetMap (Overpass API), lists
 chains first, and caches the results on the phone for offline use. Only the plan's town-center
@@ -136,7 +138,7 @@ The test runs headless Chromium and covers:
 
 ### Releasing a new version
 
-When you change any app file, **bump `CACHE` in `sw.js`** (for example `mexico-trip-v2-10` → `mexico-trip-v2-11`) and `APP_VERSION` in `app.js` to match. The version shows in More → Settings.
+When you change any app file, **bump `CACHE` in `sw.js`** (for example `mexico-trip-v2-11` → `mexico-trip-v2-12`) and `APP_VERSION` in `app.js` to match. The version shows in More → Settings.
 Installed phones then download the new files on their next online launch.
 
 ### Deploy (rks-trip-planner only)

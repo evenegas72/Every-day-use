@@ -4,7 +4,7 @@
  */
 'use strict';
 
-const APP_VERSION = '2.10'; // keep in step with CACHE in sw.js ('mexico-trip-v2-10')
+const APP_VERSION = '2.11'; // keep in step with CACHE in sw.js ('mexico-trip-v2-11')
 const STORE_KEY = 'mexico-trip-v2';
 const LEGACY_KEY = 'travel-tracker-v1';
 const LEGACY_RATE_KEY = 'travel-tracker-rate';
@@ -26,7 +26,7 @@ const TZ_KEY = {
 const LEGACY_CAT = { food: 'food', lodging: 'hotel', casetas: 'toll', transport: 'other', activities: 'other', shopping: 'other', other: 'other' };
 
 let S = null;           // persisted state
-const ui = { view: 'today', dayIdx: null, moreTab: 'docs', spendFilter: 'all', spendSearch: '', tollPrefill: null, openDays: {} };
+const ui = { view: 'today', dayIdx: null, planTab: 'days', moreTab: 'docs', spendFilter: 'all', spendSearch: '', tollPrefill: null, openDays: {} };
 let deferredInstall = null;
 
 // ─── Small helpers ────────────────────────────────────────────────────────────
@@ -179,6 +179,7 @@ function defaultState() {
     odometer: [],          // manual odometer readings {id, ts, value, unit}
     docs: window.SEED.docs.map(seedDoc),
     notified: {},
+    poiPicks: {},          // planned points of interest: { 'dayKey:poiId': true }
     migration: null,
   };
 }
@@ -222,6 +223,7 @@ function upgrade(st) {
   if (!Array.isArray(st.expectedTolls)) st.expectedTolls = d.expectedTolls;
   if (!Array.isArray(st.docs)) st.docs = d.docs;
   if (!st.notified || typeof st.notified !== 'object') st.notified = {};
+  if (!st.poiPicks || typeof st.poiPicks !== 'object') st.poiPicks = {};
   if (typeof st.budgetOverallUSD !== 'number') st.budgetOverallUSD = num(st.budgetOverallUSD) || 0;
   st.days.forEach((day) => {
     day.id = day.id || uid();
@@ -824,6 +826,7 @@ function viewToday() {
   </div>
   ${day.links && day.links.length ? `<div class="card warn">${borderLinks(day, true)}</div>` : ''}
   ${day.country !== 'US' ? checkpointsCard() : ''}
+  ${plannedStopsCard(day)}
   ${rangeCard(rg, true)}
   <div class="card"><div class="card-title"><h2>🕑 ${t('checkins_title')}</h2></div>
     ${day.checkins.length ? `<ul class="timeline">${day.checkins.slice().reverse().map((c) => `
@@ -855,6 +858,11 @@ function rangeCard(rg, compact) {
 
 // ─── PLAN ─────────────────────────────────────────────────────────────────────
 function viewPlan() {
+  const tabs = `<div class="subtabs">${seg('planTab', [['days', '🗓️ ' + t('plan_tab_days')], ['poi', '📍 ' + t('plan_tab_poi')]], ui.planTab)}</div>`;
+  if (ui.planTab === 'poi') return tabs + viewPoi();
+  return tabs + viewPlanDays();
+}
+function viewPlanDays() {
   const total = S.days.reduce((s, d) => s + (num(d.distanceMi) || 0), 0);
   const cur = currentDayIdx();
   let html = `<div class="card"><div class="card-title"><h2>🗺️ ${t('plan_title')}</h2></div>
@@ -882,6 +890,80 @@ function viewPlan() {
   }).join('');
   html += `<button class="btn btn-block" data-act="addDay">＋ ${t('add_day')}</button>`;
   return html;
+}
+
+// ─── POINTS OF INTEREST ───────────────────────────────────────────────────────
+const POI_ICON = { stretch: '🚶', food: '🍽️', sight: '📸', museum: '🏛️' };
+const poiFor = (day) => ((window.SEED.poi || {})[day.key] || []);
+const poiPickKey = (day, p) => day.key + ':' + p.id;
+/** Minutes between planned arrival and the latest arrival the driving rules allow:
+ *  US days: parked by 5:00 PM or sunset, whichever is first. Mexico/border days: 1 h before sunset. */
+function spareMinutes(day) {
+  const sun = sunInfo(day), arr = hhmmToMin(day.arrive);
+  if (!sun || arr == null) return null;
+  const sunset = minutesInTz(sun.destSunset, day.arriveTz);
+  const latest = day.country === 'US' ? Math.min(17 * 60, sunset) : sunset - 60;
+  return latest - arr;
+}
+const fmtMins = (m) => (m == null ? '—' : (m < 0 ? '−' : '') + (Math.abs(m) >= 60 ? Math.floor(Math.abs(m) / 60) + ' h ' : '') + (Math.abs(m) % 60) + ' min');
+function poiDetour(p) { return p.detour ? t('poi_detour', { n: p.detour }) : t('poi_detour_0'); }
+function poiItem(day, p, opts = {}) {
+  const picked = !!S.poiPicks[poiPickKey(day, p)];
+  return `<li class="entry">
+    <div style="font-size:1.4rem">${POI_ICON[p.kind] || '📍'}</div>
+    <div class="grow"><b>${esc(p.name)}</b> <span class="badge ${p.detour <= 5 ? 'ok' : ''}">${esc(opts.dayTrip ? t('poi_drive', { n: p.detour }) : poiDetour(p))}</span>
+      <div class="sub">${esc(tx(p.note))}</div>
+      <div class="row" style="gap:6px;margin-top:6px">
+        <a class="btn btn-sm" href="${esc(mapsSearch(p.q))}" target="_blank" rel="noopener">🗺️ Maps</a>
+        ${opts.dayTrip ? '' : `<button class="btn btn-sm ${picked ? 'btn-ok' : ''}" data-act="poiToggle" data-day="${day.id}" data-id="${esc(p.id)}">${picked ? '✅ ' + t('poi_planned') : '☆ ' + t('poi_plan')}</button>`}
+      </div></div></li>`;
+}
+function viewPoi() {
+  const fam = familyWindow();
+  const picksCount = Object.keys(S.poiPicks).filter((k) => S.poiPicks[k]).length;
+  let html = `<div class="card accent"><h2>📍 ${t('poi_title')}</h2><div class="small">${t('poi_intro')}</div>
+    ${picksCount ? `<div class="small" style="margin-top:6px"><b>${t('poi_picked_count', { n: picksCount })}</b></div>` : ''}</div>`;
+  // Whole route overview
+  html += `<div class="card"><h2>🗺️ ${t('poi_route')}</h2><table class="tbl"><thead><tr><th>${t('poi_day')}</th><th>${t('route')}</th><th class="num">${t('poi_spare')}</th></tr></thead><tbody>`;
+  let lastLeg = null;
+  S.days.forEach((d, i) => {
+    const leg = legOf(d);
+    if (leg !== lastLeg) {
+      if (leg === 'return' && fam) html += `<tr><td colspan="3" class="small" style="color:var(--ok)">🏡 ${t('family_title')} · ${esc(fmtDate(fam.from))} – ${esc(fmtDate(fam.to))}</td></tr>`;
+      html += `<tr><td colspan="3"><b>${leg === 'return' ? '⬆️ ' + t('leg_return') : '⬇️ ' + t('leg_out')}</b></td></tr>`;
+      lastLeg = leg;
+    }
+    const spare = spareMinutes(d), nPoi = poiFor(d).length, nPick = poiFor(d).filter((p) => S.poiPicks[poiPickKey(d, p)]).length;
+    html += `<tr><td><b>${i + 1}</b><div class="small muted">${esc(fmtDate(d.date, { month: 'short', day: 'numeric' }))}</div></td>
+      <td>${esc(d.from.split(',')[0])} → ${esc(d.to.split(',')[0])}<div class="small muted">${fmtDist(num(d.distanceMi))} · ${esc(d.driveHours || '')}${nPoi ? ' · 📍 ' + nPoi : ''}${nPick ? ' · ✅ ' + nPick : ''}</div></td>
+      <td class="num">${spare == null ? '—' : `<span style="color:${spare < 30 ? 'var(--warn)' : 'var(--ok)'}">${fmtMins(spare)}</span>`}</td></tr>`;
+  });
+  html += `</tbody></table><div class="small muted" style="margin-top:6px">${t('poi_spare_explain')}</div></div>`;
+  // Stops by day
+  S.days.forEach((d, i) => {
+    const list = poiFor(d), mx = d.country !== 'US';
+    if (!list.length && !mx) return;
+    const spare = spareMinutes(d);
+    html += `<div class="card"><div class="card-title"><h2>${t('day_n', { n: i + 1 })} · ${esc(d.from.split(',')[0])} → ${esc(d.to.split(',')[0])}</h2>
+      ${spare != null ? `<span class="badge ${spare < 30 ? 'warn' : 'ok'}">${t('poi_spare_badge', { t: fmtMins(spare) })}</span>` : ''}</div>
+      <div class="small muted" style="margin-bottom:6px">${esc(fmtDate(d.date))}</div>
+      ${mx ? `<div class="rule">🛑 ${t(list.length ? 'poi_mx_city' : 'poi_mx_none')}</div>` : ''}
+      ${list.length ? `<ul class="list">${list.map((p) => poiItem(d, p)).join('')}</ul>` : ''}</div>`;
+  });
+  // Day trips from Celaya
+  const trips = window.SEED.dayTrips || [];
+  if (trips.length) {
+    html += `<div class="card ok"><h2>🏡 ${t('poi_daytrips')}</h2><div class="small muted" style="margin-bottom:6px">${t('poi_daytrips_note')}</div>
+      <ul class="list">${trips.map((p) => poiItem(S.days[0], p, { dayTrip: true })).join('')}</ul></div>`;
+  }
+  return html;
+}
+function plannedStopsCard(day) {
+  const picks = poiFor(day).filter((p) => S.poiPicks[poiPickKey(day, p)]);
+  if (!picks.length) return '';
+  return `<div class="card ok"><h2>📍 ${t('poi_today')}</h2><ul class="list">${picks.map((p) => `
+    <li class="entry"><div style="font-size:1.3rem">${POI_ICON[p.kind] || '📍'}</div><div class="grow"><b>${esc(p.name)}</b><div class="sub">${esc(poiDetour(p))}</div></div>
+      <a class="btn btn-sm" href="${esc(mapsSearch(p.q))}" target="_blank" rel="noopener">🗺️ Maps</a></li>`).join('')}</ul></div>`;
 }
 
 // ─── SPEND ────────────────────────────────────────────────────────────────────
@@ -1495,6 +1577,12 @@ const actions = {
     if (stop && !osmCache()[stopKey(stop)] && navigator.onLine) osmLoad();
   },
   osmAll() { ui.osm.all = true; osmModal(); },
+  poiToggle(ds) {
+    const day = findDay(ds.day); if (!day) return;
+    const k = day.key + ':' + ds.id;
+    if (S.poiPicks[k]) delete S.poiPicks[k]; else S.poiPicks[k] = true;
+    save(); render();
+  },
   osmRefresh() { osmLoad(); },
   osmSavePlace(ds) {
     const day = findDay(ui.osm.dayId), stop = stopsFor(day)[ui.osm.stopIdx];
@@ -1527,6 +1615,7 @@ const actions = {
     if (ds.name === 'osmKind') { ui.osm.kind = v; ui.osm.all = false; osmModal(); return; }
     if (ds.name === 'status') { S.days[ui.dayIdx].status = v; save(); }
     else if (ds.name === 'moreTab') ui.moreTab = v;
+    else if (ds.name === 'planTab') { ui.planTab = v; window.scrollTo(0, 0); }
     else if (ds.name === 'lang' || ds.name === 'units' || ds.name === 'theme') { S.settings[ds.name] = v; save(); }
     render();
   },

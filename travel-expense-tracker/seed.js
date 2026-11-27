@@ -408,5 +408,83 @@ window.SEED = (function () {
     { key: 'tipcancel', text: { en: 'Return trip: cancel the TIP at the border before leaving Mexico (keep the receipt)', es: 'Regreso: cancelar el TIP en la frontera antes de salir de México (guardar el comprobante)' } },
   ];
 
-  return { version, days, tomorrow, expectedTolls, budget, docs };
+  // ── Points of interest near the route (≤ ~15 min off the highway). Read directly by the app (not stored),
+  // so editing this list never touches saved data. detour: minutes off route one way (0 = right at the exit).
+  // kind: stretch | food | sight | museum. q: Google Maps search text. No addresses/phones invented.
+  const P = (id, kind, detour, name, q, en, es) => ({ id, kind, detour, name, q, note: { en, es } });
+  const poi = {
+    out1: [
+      P('hedge-creek', 'stretch', 5, 'Hedge Creek Falls, Dunsmuir', 'Hedge Creek Falls Dunsmuir CA',
+        'Short walk (~0.5 mi round trip) to a waterfall you can walk behind. I-5 exit 732.', 'Caminata corta (~0.8 km ida y vuelta) a una cascada que se puede pasar por detrás. Salida 732 de la I-5.'),
+      P('sundial', 'sight', 10, 'Sundial Bridge, Redding', 'Sundial Bridge Turtle Bay Redding CA',
+        'Glass-deck pedestrian bridge over the Sacramento River, gardens and restrooms. Great leg stretch.', 'Puente peatonal de piso de vidrio sobre el río Sacramento, jardines y baños. Ideal para estirar las piernas.'),
+      P('olive-pit', 'food', 0, 'The Olive Pit, Corning', 'The Olive Pit Corning CA',
+        'Classic I-5 stop: olive and oil tasting, snacks, gifts.', 'Parada clásica de la I-5: degustación de aceitunas y aceites, botanas, regalos.'),
+      P('granzellas', 'food', 0, "Granzella's, Williams", "Granzella's Williams CA",
+        'Famous deli and restaurant right at the exit; good lunch stop and fuel nearby.', 'Famosa salchichonería y restaurante junto a la salida; buen lugar para comer, gasolina cerca.'),
+      P('harris-ranch', 'food', 0, 'Harris Ranch, Coalinga', 'Harris Ranch Inn Restaurant Coalinga CA',
+        'Well-known steakhouse and store at I-5 / CA-198, about 35 mi before Kettleman City.', 'Conocido restaurante de carnes y tienda en la I-5 / CA-198, unas 35 mi antes de Kettleman City.'),
+    ],
+    out2: [
+      P('fort-tejon', 'sight', 2, 'Fort Tejon State Historic Park, Lebec', 'Fort Tejon State Historic Park Lebec CA',
+        'Historic 1850s army fort right off I-5 at the Grapevine; short walk. Check hours.', 'Fuerte militar histórico de 1850 junto a la I-5 en el Grapevine; caminata corta. Revisar horario.'),
+      P('cabazon', 'stretch', 2, 'Cabazon Dinosaurs', 'Cabazon Dinosaurs CA',
+        'Giant roadside dinosaurs visible from I-10; fun photo stop for kids.', 'Dinosaurios gigantes a la orilla de la I-10; foto divertida para niños.'),
+      P('patton', 'museum', 0, 'General Patton Memorial Museum, Chiriaco Summit', 'General Patton Memorial Museum Chiriaco Summit CA',
+        'WWII desert training museum with tanks outside, at the I-10 exit with gas and café. Check hours.', 'Museo de entrenamiento de la 2.ª Guerra Mundial con tanques afuera, en la salida de la I-10 con gasolina y café. Revisar horario.'),
+    ],
+    out3: [
+      P('picacho', 'stretch', 5, 'Picacho Peak State Park', 'Picacho Peak State Park AZ',
+        'Desert park off I-10 between Phoenix and Tucson; short nature trails and views (entry fee).', 'Parque del desierto junto a la I-10 entre Phoenix y Tucson; senderos cortos y vistas (cuota de entrada).'),
+      P('texas-canyon', 'stretch', 0, 'Texas Canyon Rest Area', 'Texas Canyon Rest Area I-10 Dragoon AZ',
+        'Rest area among giant granite boulders on I-10 (mile ~320); restrooms, great photos.', 'Área de descanso entre enormes rocas de granito en la I-10 (milla ~320); baños, buenas fotos.'),
+      P('the-thing', 'sight', 0, 'The Thing? (Dragoon)', 'The Thing Travel Center Dragoon AZ exit 322',
+        'Quirky roadside attraction and travel center at I-10 exit 322. Kids usually love it.', 'Atracción curiosa de carretera y tienda en la salida 322 de la I-10. A los niños les encanta.'),
+      P('mesilla', 'sight', 10, 'Old Mesilla Plaza, Las Cruces', 'Old Mesilla Plaza Mesilla NM',
+        'Historic adobe plaza with church, shops and Mexican food, a few minutes off I-10.', 'Plaza histórica de adobe con iglesia, tiendas y comida mexicana, a unos minutos de la I-10.'),
+    ],
+    out4: [
+      P('paisano-pete', 'stretch', 5, 'Paisano Pete, Fort Stockton', 'Paisano Pete Fort Stockton TX',
+        'Giant roadrunner statue in town; quick photo with your fuel stop.', 'Estatua gigante de correcaminos en el pueblo; foto rápida en la parada de gasolina.'),
+      P('roy-bean', 'museum', 5, 'Judge Roy Bean Visitor Center, Langtry', 'Judge Roy Bean Visitor Center Langtry TX',
+        'Old West saloon/courthouse, cactus garden, restrooms; just off US-90.', 'Cantina y juzgado del viejo oeste, jardín de cactus, baños; junto a la US-90.'),
+      P('pecos-bridge', 'stretch', 0, 'Pecos River overlook (US-90)', 'Pecos River overlook US 90 Langtry TX',
+        'Canyon overlook and picnic area at the Pecos River High Bridge; free, open daily.', 'Mirador del cañón y área de picnic en el puente alto del río Pecos; gratis, abierto diario.'),
+      P('seminole', 'sight', 2, 'Seminole Canyon State Park', 'Seminole Canyon State Park Comstock TX',
+        'Visitor center with ancient rock-art exhibits, right off US-90 (entry fee; guided hikes are longer).', 'Centro de visitantes con exhibición de arte rupestre, junto a la US-90 (cuota; las caminatas guiadas toman más tiempo).'),
+      P('amistad', 'stretch', 5, 'Amistad National Recreation Area, Del Rio', 'Amistad National Recreation Area Del Rio TX',
+        'Big reservoir on the border; lake views from US-90 pullouts.', 'Gran presa en la frontera; vistas del lago desde miradores en la US-90.'),
+      P('val-verde', 'food', 5, 'Val Verde Winery, Del Rio', 'Val Verde Winery Del Rio TX',
+        "Texas' oldest winery (family run); short visit. Check hours.", 'La vinícola más antigua de Texas (familiar); visita corta. Revisar horario.'),
+    ],
+    out5: [
+      P('museo-desierto', 'museum', 10, 'Museo del Desierto, Saltillo', 'Museo del Desierto Saltillo',
+        'After checking in: desert and dinosaur museum, great for a 10-year-old. Go by taxi/Uber, leave the loaded car at the hotel.', 'Después de registrarse: museo del desierto y dinosaurios, ideal para un niño de 10 años. Ir en taxi/Uber y dejar el carro cargado en el hotel.'),
+      P('saltillo-centro', 'sight', 10, 'Centro Histórico & Catedral de Santiago, Saltillo', 'Catedral de Santiago Saltillo',
+        'After checking in: walk the plaza and cathedral; dinner downtown. Taxi/Uber from the hotel.', 'Después de registrarse: caminar por la plaza y la catedral; cenar en el centro. Taxi/Uber desde el hotel.'),
+    ],
+    out6: [],
+  };
+  // Return days use the same places in reverse order; Mexico return days keep it simple.
+  poi.ret1 = [];
+  poi.ret2 = [];
+  poi.ret3 = poi.out4.slice().reverse();
+  poi.ret4 = poi.out3.slice().reverse();
+  poi.ret5 = poi.out2.slice().reverse();
+  poi.ret6 = poi.out1.slice().reverse();
+  // Day trips from Celaya with an empty car (approx. one-way drive times).
+  const dayTrips = [
+    P('sma', 'sight', 60, 'San Miguel de Allende', 'San Miguel de Allende Centro',
+      'Historic center, Parroquia, cobblestone streets. Park in a public lot (estacionamiento público).', 'Centro histórico, la Parroquia, calles empedradas. Estacionar en un estacionamiento público.'),
+    P('dolores', 'food', 100, 'Dolores Hidalgo', 'Dolores Hidalgo Jardín Principal',
+      'Birthplace of Mexican independence; famous ice cream flavors on the main square.', 'Cuna de la Independencia; famosas nieves de sabores en el jardín principal.'),
+    P('gto', 'sight', 90, 'Guanajuato (city)', 'Guanajuato Centro Histórico',
+      'Colorful hillside city, tunnels, Callejón del Beso, Teatro Juárez.', 'Ciudad colorida en las montañas, túneles, Callejón del Beso, Teatro Juárez.'),
+    P('qro', 'sight', 50, 'Querétaro (centro histórico)', 'Centro Histórico Querétaro',
+      'Aqueduct and plazas; easy walking day.', 'Acueducto y plazas; día fácil para caminar.'),
+    P('bernal', 'stretch', 90, 'Peña de Bernal', 'Peña de Bernal Querétaro',
+      'Giant rock monolith and Pueblo Mágico; short walk to the base.', 'Enorme monolito y Pueblo Mágico; caminata corta a la base.'),
+  ];
+
+  return { version, days, tomorrow, expectedTolls, budget, docs, poi, dayTrips };
 })();
